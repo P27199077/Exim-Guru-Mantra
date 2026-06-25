@@ -49,7 +49,10 @@ app.get('/api/status', (req, res) => {
 
 // Configure Nodemailer SMTP Transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // use STARTTLS (upgraded connection) on port 587
+  family: 4,     // Force IPv4 to prevent ENETUNREACH IPv6 errors on Render
   auth: {
     user: process.env.EMAIL_USER, // eximgurumantra@gmail.com
     pass: process.env.EMAIL_PASS  // Google App Password
