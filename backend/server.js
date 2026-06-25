@@ -59,6 +59,22 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Helper: Update emailsSent status in queries database
+const updateQueryEmailStatus = (id, status) => {
+  try {
+    const queries = readQueries();
+    const updated = queries.map(q => {
+      if (q.id === id) {
+        return { ...q, emailsSent: status };
+      }
+      return q;
+    });
+    writeQueries(updated);
+  } catch (err) {
+    console.error('Error updating query email status:', err);
+  }
+};
+
 // Helper: Send Automated Consultation Emails (runs asynchronously in background)
 const sendConsultationEmails = async (queryData) => {
   const { name, email, phone, company, message, serviceType, id } = queryData;
@@ -66,7 +82,7 @@ const sendConsultationEmails = async (queryData) => {
   // Check if credentials are set
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.warn('[Nodemailer] Email notifications skipped: EMAIL_USER or EMAIL_PASS environment variables are not configured.');
-    return;
+    return false;
   }
 
   try {
@@ -169,8 +185,12 @@ const sendConsultationEmails = async (queryData) => {
     ]);
 
     console.log(`[Nodemailer] Successfully dispatched consultation emails for Ticket #${id}`);
+    updateQueryEmailStatus(id, true);
+    return true;
   } catch (error) {
     console.error(`[Nodemailer] Failed to dispatch consultation emails for Ticket #${id}:`, error);
+    updateQueryEmailStatus(id, false);
+    return false;
   }
 };
 
@@ -192,7 +212,8 @@ app.post('/api/consultation', (req, res) => {
     message,
     serviceType: serviceType || 'General Consultation',
     createdAt: new Date().toISOString(),
-    status: 'Pending'
+    status: 'Pending',
+    emailsSent: false // Tracks outbox queue state
   };
 
   queries.push(newQuery);
@@ -207,6 +228,23 @@ app.post('/api/consultation', (req, res) => {
     data: newQuery
   });
 });
+
+// Background Worker: Retry failed email dispatches every 5 minutes
+setInterval(async () => {
+  try {
+    const queries = readQueries();
+    const pendingQueries = queries.filter(q => q.emailsSent === false);
+    
+    if (pendingQueries.length > 0) {
+      console.log(`[Email Queue Worker] Found ${pendingQueries.length} pending email dispatches. Retrying...`);
+      for (const query of pendingQueries) {
+        await sendConsultationEmails(query);
+      }
+    }
+  } catch (err) {
+    console.error('[Email Queue Worker] Error in background email retry loop:', err);
+  }
+}, 5 * 60 * 1000); // Run every 5 minutes
 
 // Route: Fetch Consultations (Dashboard/Verification purposes)
 app.get('/api/consultations', (req, res) => {
