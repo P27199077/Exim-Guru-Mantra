@@ -37,7 +37,7 @@ export default function Inquiry() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5005/api/consultation', {
+      const response = await fetch('/api/consultation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

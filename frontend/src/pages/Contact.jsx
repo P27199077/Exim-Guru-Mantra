@@ -37,7 +37,7 @@ export default function Contact() {
 
     try {
       // Connect to Express backend API
-      const response = await fetch('http://localhost:5005/api/consultation', {
+      const response = await fetch('/api/consultation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -84,70 +84,88 @@ export default function Contact() {
         </div>
 
         <div className="contact-grid">
-          {/* Company Coordinates */}
+          {/* Direct Assistance Channels */}
           <div>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1.25rem' }}>Office Head Office</h3>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-              Located centrally in New Delhi, our advisory counsels are fully equipped to represent imports/exports across ICD Tuglakabad, Patparganj, and IGI Airport.
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '1.25rem' }}>Office Coordinates</h3>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+              Connect with our EXIM advisory panel immediately. You can find our direct contact details below, or click the launcher buttons to connect instantly.
             </p>
 
-            <div className="contact-info-list">
-              <div className="contact-info-item">
-                <div className="contact-icon">
+            <div className="contact-info-list" style={{ marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div className="contact-info-item" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div className="contact-icon" style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }}>
                   <MapPin size={20} />
                 </div>
                 <div>
-                  <h4 className="contact-info-title">Corporate Address</h4>
-                  <p className="contact-info-desc">JG-2 /25, Ground Floor, Vikaspuri West, Delhi - 110018</p>
+                  <h4 className="contact-info-title" style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>Corporate Address</h4>
+                  <p className="contact-info-desc" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>JG-2 /25, Ground Floor, Vikaspuri West, Delhi - 110018</p>
                 </div>
               </div>
 
-              <div className="contact-info-item">
-                <div className="contact-icon">
+              <div className="contact-info-item" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div className="contact-icon" style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }}>
                   <Phone size={20} />
                 </div>
                 <div>
-                  <h4 className="contact-info-title">Call Helpline (Contact: Varun Gupta)</h4>
-                  <p className="contact-info-desc">+91 88104 00251</p>
+                  <h4 className="contact-info-title" style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>Call Helpline</h4>
+                  <p className="contact-info-desc" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>+91 88104 00251 (Contact: Varun Gupta)</p>
                 </div>
               </div>
 
-              <div className="contact-info-item">
-                <div className="contact-icon">
+              <div className="contact-info-item" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div className="contact-icon" style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }}>
                   <Mail size={20} />
                 </div>
                 <div>
-                  <h4 className="contact-info-title">Email Desk</h4>
-                  <p className="contact-info-desc">eximgurumantra@gmail.com</p>
+                  <h4 className="contact-info-title" style={{ fontSize: '1rem', fontWeight: '700', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>Email Desk</h4>
+                  <p className="contact-info-desc" style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>eximgurumantra@gmail.com</p>
                 </div>
               </div>
             </div>
 
-            {/* Stylized Visual Placeholder Map */}
-            <div style={{
-              marginTop: '3rem',
-              height: '180px',
-              background: 'linear-gradient(to bottom right, #1f2937, #111827)',
-              border: '1px solid var(--card-border)',
-              borderRadius: '12px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-              overflow: 'hidden'
-            }}>
-              <div style={{
-                position: 'absolute',
-                top: 0, right: 0, bottom: 0, left: 0,
-                backgroundImage: 'radial-gradient(var(--card-border) 1px, transparent 0)',
-                backgroundSize: '20px 20px',
-                opacity: 0.5
-              }}></div>
-              <div style={{ zIndex: 1, textAlign: 'center' }}>
-                <MapPin size={24} style={{ color: 'var(--accent)', marginBottom: '0.25rem' }} />
-                <h5 style={{ color: '#ffffff', fontSize: '0.95rem' }}>Delhi - Vikaspuri West Circle</h5>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>28.6369° N, 77.0705° E</span>
-              </div>
+            <div style={{ display: 'flex', gap: '1rem', marginBottom: '2.5rem' }}>
+              <a 
+                href="tel:+918810400251" 
+                className="btn btn-primary" 
+                style={{ 
+                  display: 'inline-flex', 
+                  gap: '0.5rem', 
+                  padding: '0.8rem 1.25rem', 
+                  fontSize: '0.9rem',
+                  borderRadius: '6px',
+                  justifyContent: 'center',
+                  boxShadow: '0 4px 14px rgba(194, 29, 46, 0.2)',
+                  flex: 1
+                }}
+              >
+                <Phone size={16} />
+                <span>Call Now</span>
+              </a>
+
+              <a 
+                href="mailto:eximgurumantra@gmail.com" 
+                className="btn btn-secondary" 
+                style={{ 
+                  display: 'inline-flex', 
+                  gap: '0.5rem', 
+                  padding: '0.8rem 1.25rem', 
+                  fontSize: '0.9rem',
+                  borderRadius: '6px',
+                  justifyContent: 'center',
+                  border: '1px solid var(--bg-tertiary)',
+                  flex: 1
+                }}
+              >
+                <Mail size={16} />
+                <span>Send Email</span>
+              </a>
+            </div>
+
+            <div style={{ padding: '1.5rem', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--bg-tertiary)' }}>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: '700', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Principal Advisor</h4>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                Contact: <strong>Varun Gupta</strong> (Consultant - DGFT, Customs & Buying House). Reach out for specialized guidance on import-export incentives and legal representation.
+              </p>
             </div>
           </div>
 

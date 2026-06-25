@@ -9,6 +9,7 @@ import Inquiry from './pages/Inquiry';
 import About from './pages/About';
 import Calculator from './pages/Calculator';
 import Contact from './pages/Contact';
+import Chatbot from './components/Chatbot';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
         </main>
 
         <Footer />
+        <Chatbot />
       </div>
     </Router>
   );

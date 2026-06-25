@@ -46,7 +46,7 @@ export default function DutyCalculator() {
 
     try {
       // Connect to Express backend API
-      const response = await fetch('http://localhost:5005/api/duty-estimate', {
+      const response = await fetch('/api/duty-estimate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
