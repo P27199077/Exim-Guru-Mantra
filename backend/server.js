@@ -3,6 +3,7 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
+import nodemailer from 'nodemailer';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -46,6 +47,130 @@ app.get('/api/status', (req, res) => {
   res.json({ status: 'active', message: 'Exim Guru Mantra Backend API is running' });
 });
 
+// Configure Nodemailer SMTP Transporter
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER, // eximgurumantra@gmail.com
+    pass: process.env.EMAIL_PASS  // Google App Password
+  }
+});
+
+// Helper: Send Automated Consultation Emails (runs asynchronously in background)
+const sendConsultationEmails = async (queryData) => {
+  const { name, email, phone, company, message, serviceType, id } = queryData;
+
+  // Check if credentials are set
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.warn('[Nodemailer] Email notifications skipped: EMAIL_USER or EMAIL_PASS environment variables are not configured.');
+    return;
+  }
+
+  try {
+    // Email 1: Notification Ticket to EXIM Guru Mantra (eximgurumantra@gmail.com)
+    const adminMailOptions = {
+      from: `"EXIM Guru Mantra WebDesk" <${process.env.EMAIL_USER}>`,
+      to: 'eximgurumantra@gmail.com', // Always notify the official email
+      subject: `[New Ticket #${id}] - Inquiry from ${name} (${serviceType})`,
+      html: `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; border: 1px solid #eae3d2; border-radius: 8px; padding: 20px; background-color: #fbf9f4;">
+          <h2 style="color: #c21d2e; border-bottom: 2px solid #c21d2e; padding-bottom: 10px; margin-top: 0;">New Consultation Request</h2>
+          <p style="font-size: 0.95rem; color: #5c554e;">A client has submitted a query via the Exim Guru Mantra website. Here are the details:</p>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 20px;">
+            <tr style="background-color: #f4eee1;">
+              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; width: 30%; color: #1e1b18;">Ticket ID</td>
+              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;">#${id}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Client Name</td>
+              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;">${name}</td>
+            </tr>
+            <tr style="background-color: #f4eee1;">
+              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Email</td>
+              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;"><a href="mailto:${email}" style="color: #c21d2e; text-decoration: none;">${email}</a></td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Phone Number</td>
+              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;">${phone ? `<a href="tel:${phone}" style="color: #c21d2e; text-decoration: none;">${phone}</a>` : 'Not provided'}</td>
+            </tr>
+            <tr style="background-color: #f4eee1;">
+              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Company</td>
+              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;">${company || 'Not provided'}</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Service Segment</td>
+              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;"><strong>${serviceType}</strong></td>
+            </tr>
+          </table>
+
+          <div style="background-color: #ffffff; border-left: 4px solid #c21d2e; padding: 15px; border-radius: 4px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
+            <h4 style="margin-top: 0; color: #1e1b18; margin-bottom: 8px;">Detailed Client Query:</h4>
+            <p style="white-space: pre-wrap; margin: 0; font-size: 0.92rem; line-height: 1.5; color: #1e1b18;">${message}</p>
+          </div>
+          
+          <p style="font-size: 0.8rem; color: #8c8278; margin-top: 25px; text-align: center; border-top: 1px solid #eae3d2; padding-top: 15px;">
+            This is an automated system dispatch. Please reply directly to the client's email above.
+          </p>
+        </div>
+      `
+    };
+
+    // Email 2: Confirmation Receipt to Customer (email)
+    const clientMailOptions = {
+      from: `"Exim Guru Mantra Support" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `We've Received Your Inquiry - Exim Guru Mantra Associates`,
+      html: `
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; border: 1px solid #eae3d2; border-radius: 8px; padding: 20px; background-color: #fbf9f4;">
+          <div style="text-align: center; border-bottom: 2px solid #c21d2e; padding-bottom: 15px; margin-bottom: 20px;">
+            <h1 style="color: #c21d2e; margin: 0; font-size: 1.6rem; letter-spacing: 0.05em;">EXIM GURU MANTRA</h1>
+            <span style="font-size: 0.75rem; color: #5c554e; text-transform: uppercase; letter-spacing: 0.1em;">Corporate Legal & Trade Advisory Desk</span>
+          </div>
+
+          <h3 style="color: #1e1b18; margin-top: 0;">Dear ${name},</h3>
+          <p style="font-size: 0.95rem; color: #5c554e; line-height: 1.6;">
+            Thank you for reaching out to Exim Guru Mantra Associates. Your inquiry regarding <strong>${serviceType}</strong> has been successfully registered and is **officially in process**.
+          </p>
+          
+          <div style="background-color: #f4eee1; padding: 15px; border-radius: 6px; margin: 20px 0; border: 1px solid #eae3d2;">
+            <h4 style="margin-top: 0; color: #c21d2e; margin-bottom: 5px;">What happens next?</h4>
+            <p style="margin: 0; font-size: 0.88rem; color: #5c554e; line-height: 1.5;">
+              - A ticket (<strong>#${id}</strong>) has been generated for your query.<br>
+              - Our team led by principal advisor <strong>Varun Gupta</strong> is reviewing your submission details.<br>
+              - A trade compliance specialist will get back to you within **24 to 48 hours** with diagnostic insights.
+            </p>
+          </div>
+
+          <p style="font-size: 0.95rem; color: #5c554e; line-height: 1.6;">
+            If you need urgent assistance or want to expedite your IEC Code / GST audit briefing, you can also reach us directly at <a href="tel:+918810400251" style="color: #c21d2e; text-decoration: none; font-weight: bold;">+91 88104 00251</a> or reply directly to this email.
+          </p>
+
+          <p style="font-size: 0.95rem; color: #5c554e; margin-top: 25px;">
+            Best Regards,<br>
+            <strong>Exim Guru Mantra Associates</strong><br>
+            <span style="font-size: 0.8rem; color: #8c8278;">Delhi - 110018, India</span>
+          </p>
+
+          <p style="font-size: 0.72rem; color: #8c8278; margin-top: 30px; text-align: center; border-top: 1px solid #eae3d2; padding-top: 15px;">
+            This is an automated system response confirming receipt of your submission.
+          </p>
+        </div>
+      `
+    };
+
+    // Send both emails in parallel
+    await Promise.all([
+      transporter.sendMail(adminMailOptions),
+      transporter.sendMail(clientMailOptions)
+    ]);
+
+    console.log(`[Nodemailer] Successfully dispatched consultation emails for Ticket #${id}`);
+  } catch (error) {
+    console.error(`[Nodemailer] Failed to dispatch consultation emails for Ticket #${id}:`, error);
+  }
+};
+
 // Route: Submit Consultation Request
 app.post('/api/consultation', (req, res) => {
   const { name, email, phone, company, message, serviceType } = req.body;
@@ -69,6 +194,9 @@ app.post('/api/consultation', (req, res) => {
 
   queries.push(newQuery);
   writeQueries(queries);
+
+  // Trigger automated email dispatches in the background (non-blocking)
+  sendConsultationEmails(newQuery);
 
   res.status(201).json({
     success: true,
