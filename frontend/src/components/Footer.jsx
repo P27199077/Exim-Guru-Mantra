@@ -43,15 +43,15 @@ export default function Footer() {
             <ul className="footer-links" style={{ gap: '1rem' }}>
               <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                 <MapPin size={18} style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }} />
-                <span>13, Krishna Park Ext., Tilak Nagar, New Delhi - 110018</span>
+                <span>JG-2 /25, Ground Floor, Vikaspuri West, Delhi - 110018</span>
               </li>
               <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 <Phone size={16} style={{ color: 'var(--primary)' }} />
-                <span>+91 93541 79311</span>
+                <span>+91 88104 00251</span>
               </li>
               <li style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 <Mail size={16} style={{ color: 'var(--primary)' }} />
-                <span>info@eximgurumantra.com</span>
+                <span>eximgurumantra@gmail.com</span>
               </li>
             </ul>
           </div>

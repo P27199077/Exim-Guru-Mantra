@@ -98,7 +98,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h4 className="contact-info-title">Corporate Address</h4>
-                  <p className="contact-info-desc">13, Krishna Park Extension, Tilak Nagar, New Delhi - 110018</p>
+                  <p className="contact-info-desc">JG-2 /25, Ground Floor, Vikaspuri West, Delhi - 110018</p>
                 </div>
               </div>
 
@@ -107,8 +107,8 @@ export default function Contact() {
                   <Phone size={20} />
                 </div>
                 <div>
-                  <h4 className="contact-info-title">Call Helpline (Contact: Varun)</h4>
-                  <p className="contact-info-desc">+91 93541 79311 | +91 82876 29916</p>
+                  <h4 className="contact-info-title">Call Helpline (Contact: Varun Gupta)</h4>
+                  <p className="contact-info-desc">+91 88104 00251</p>
                 </div>
               </div>
 
@@ -118,7 +118,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h4 className="contact-info-title">Email Desk</h4>
-                  <p className="contact-info-desc">info@eximgurumantra.com | support@lexntax.com</p>
+                  <p className="contact-info-desc">eximgurumantra@gmail.com</p>
                 </div>
               </div>
             </div>
@@ -145,8 +145,8 @@ export default function Contact() {
               }}></div>
               <div style={{ zIndex: 1, textAlign: 'center' }}>
                 <MapPin size={24} style={{ color: 'var(--accent)', marginBottom: '0.25rem' }} />
-                <h5 style={{ color: '#ffffff', fontSize: '0.95rem' }}>Delhi - Tilak Nagar Circle</h5>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>28.6304° N, 77.0965° E</span>
+                <h5 style={{ color: '#ffffff', fontSize: '0.95rem' }}>Delhi - Vikaspuri West Circle</h5>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>28.6369° N, 77.0705° E</span>
               </div>
             </div>
           </div>

@@ -148,7 +148,7 @@ export default function About() {
               Exim Guru Mantra was established in New Delhi with a singular mission: to make corporate compliance, taxation, and import-export licenses friction-free for businesses. Over the past **4 years**, we have assisted startups, domestic enterprises, and global exporters in securing their operations against regulatory risks.
             </p>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.98rem', lineHeight: '1.6' }}>
-              Under the leadership of **Varun**, our team integrates Chartered Accountants, Company Secretaries, and customs brokers to handle everything from Income Tax return filings and GST audits to Trademark registrations and DGFT representations.
+              Under the leadership of **Varun Gupta**, our team integrates Chartered Accountants, Company Secretaries, and customs brokers to handle everything from Income Tax return filings and GST audits to Trademark registrations and DGFT representations.
             </p>
             <div style={{ display: 'flex', gap: '1.5rem' }}>
               <Link to="/services" className="btn btn-primary">Our Portfolios</Link>
@@ -215,7 +215,7 @@ export default function About() {
               </div>
               <h4 style={{ marginBottom: '0.5rem', fontSize: '1.1rem' }}>Expert Advisory</h4>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.5' }}>
-                Led by principal consultant Varun, offering clients personalized access to expert compliance councils.
+                Led by principal consultant Varun Gupta, offering clients personalized access to expert compliance councils.
               </p>
             </div>
           </div>
@@ -225,7 +225,7 @@ export default function About() {
         <div style={{ textAlign: 'center', maxWidth: '700px', margin: '0 auto' }}>
           <h3 style={{ fontSize: '1.75rem', marginBottom: '0.75rem' }}>Want to verify your tax setup eligibility?</h3>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem', fontSize: '0.95rem' }}>
-            Book a complimentary 15-minute diagnostic session with Varun to evaluate your corporate compliance structure.
+            Book a complimentary 15-minute diagnostic session with Varun Gupta to evaluate your corporate compliance structure.
           </p>
           <Link to="/contact" className="btn btn-primary" style={{ padding: '0.8rem 2rem' }}>
             Schedule Consultation Now
