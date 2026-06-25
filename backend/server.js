@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import https from 'https';
 import nodemailer from 'nodemailer';
+import dns from 'dns';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -52,10 +53,13 @@ const transporter = nodemailer.createTransport({
   host: 'smtp.gmail.com',
   port: 587,
   secure: false, // use STARTTLS (upgraded connection) on port 587
-  family: 4,     // Force IPv4 to prevent ENETUNREACH IPv6 errors on Render
   auth: {
     user: process.env.EMAIL_USER, // eximgurumantra@gmail.com
     pass: process.env.EMAIL_PASS  // Google App Password
+  },
+  // Force DNS lookup to return IPv4 only (resolves ENETUNREACH IPv6 errors on Render)
+  lookup: (hostname, options, callback) => {
+    return dns.lookup(hostname, { family: 4 }, callback);
   }
 });
 
