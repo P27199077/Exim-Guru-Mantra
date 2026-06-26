@@ -88,6 +88,7 @@ const updateQueryEmailStatus = (id, status) => {
 // Helper: Send Automated Consultation Emails (runs asynchronously in background)
 const sendConsultationEmails = async (queryData) => {
   const { name, email, phone, company, message, serviceType, id } = queryData;
+  console.log(`[Nodemailer] Initiating email dispatch for Ticket #${id}. Target Customer: ${email}`);
 
   // Check if credentials are set
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
@@ -206,9 +207,12 @@ const sendConsultationEmails = async (queryData) => {
 
 // Route: Submit Consultation Request
 app.post('/api/consultation', (req, res) => {
+  console.log('[API] Received POST request on /api/consultation from IP:', req.ip || req.headers['x-forwarded-for']);
+  console.log('[API] Request payload:', req.body);
   const { name, email, phone, company, message, serviceType } = req.body;
 
   if (!name || !email || !message) {
+    console.warn('[API] Validation failed: missing name, email, or message.');
     return res.status(400).json({ error: 'Name, email, and message are required fields' });
   }
 
