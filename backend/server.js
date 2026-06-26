@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import https from 'https';
 import { fileURLToPath } from 'url';
+import { MongoClient } from 'mongodb';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,52 +16,36 @@ const PORT = process.env.PORT || 5005;
 app.use(cors());
 app.use(express.json());
 
-// Ensure data folder exists
-const DATA_DIR = path.join(__dirname, 'data');
-const QUERIES_FILE = path.join(DATA_DIR, 'queries.json');
+// MongoDB Setup
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/exim_guru_mantra';
+const client = new MongoClient(MONGODB_URI);
+let db;
+let queriesCollection;
 
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-
-if (!fs.existsSync(QUERIES_FILE)) {
-  fs.writeFileSync(QUERIES_FILE, JSON.stringify([], null, 2), 'utf-8');
-}
-
-// Helper to read/write query records
-const readQueries = () => {
+async function connectDB() {
   try {
-    const data = fs.readFileSync(QUERIES_FILE, 'utf-8');
-    return JSON.parse(data);
+    await client.connect();
+    console.log('[MongoDB] Connected successfully to database');
+    db = client.db();
+    queriesCollection = db.collection('queries');
   } catch (err) {
-    return [];
+    console.error('[MongoDB] Connection failed:', err);
   }
-};
-
-const writeQueries = (queries) => {
-  fs.writeFileSync(QUERIES_FILE, JSON.stringify(queries, null, 2), 'utf-8');
-};
+}
+connectDB();
 
 // Route: Base Status
 app.get('/api/status', (req, res) => {
   res.json({ status: 'active', message: 'Exim Guru Mantra Backend API is running' });
 });
 
-// Note: Nodemailer SMTP transporter is now initialized dynamically per dispatch to force IPv4 lookup
-
 // Helper: Update emailsSent status in queries database
-const updateQueryEmailStatus = (id, status) => {
+const updateQueryEmailStatus = async (id, status) => {
   try {
-    const queries = readQueries();
-    const updated = queries.map(q => {
-      if (q.id === id) {
-        return { ...q, emailsSent: status };
-      }
-      return q;
-    });
-    writeQueries(updated);
+    if (!queriesCollection) return;
+    await queriesCollection.updateOne({ id: id }, { $set: { emailsSent: status } });
   } catch (err) {
-    console.error('Error updating query email status:', err);
+    console.error('Error updating query email status in MongoDB:', err);
   }
 };
 
@@ -225,17 +210,17 @@ const sendConsultationEmails = async (queryData) => {
     ]);
 
     console.log(`[Resend] Successfully dispatched consultation emails for Ticket #${id}`);
-    updateQueryEmailStatus(id, true);
+    await updateQueryEmailStatus(id, true);
     return true;
   } catch (error) {
     console.error(`[Resend] Failed to dispatch consultation emails for Ticket #${id}:`, error);
-    updateQueryEmailStatus(id, false);
+    await updateQueryEmailStatus(id, false);
     return false;
   }
 };
 
 // Route: Submit Consultation Request
-app.post('/api/consultation', (req, res) => {
+app.post('/api/consultation', async (req, res) => {
   console.log('[API] Received POST request on /api/consultation from IP:', req.ip || req.headers['x-forwarded-for']);
   console.log('[API] Request payload:', req.body);
   const { name, email, phone, company, message, serviceType } = req.body;
@@ -245,7 +230,6 @@ app.post('/api/consultation', (req, res) => {
     return res.status(400).json({ error: 'Name, email, and message are required fields' });
   }
 
-  const queries = readQueries();
   const newQuery = {
     id: Date.now().toString(),
     name,
@@ -259,8 +243,13 @@ app.post('/api/consultation', (req, res) => {
     emailsSent: false // Tracks outbox queue state
   };
 
-  queries.push(newQuery);
-  writeQueries(queries);
+  try {
+    if (queriesCollection) {
+      await queriesCollection.insertOne(newQuery);
+    }
+  } catch (err) {
+    console.error('[MongoDB] Failed to save query:', err);
+  }
 
   // Trigger automated email dispatches in the background (non-blocking)
   sendConsultationEmails(newQuery);
@@ -275,8 +264,8 @@ app.post('/api/consultation', (req, res) => {
 // Background Worker: Retry failed email dispatches every 5 minutes
 setInterval(async () => {
   try {
-    const queries = readQueries();
-    const pendingQueries = queries.filter(q => q.emailsSent === false);
+    if (!queriesCollection) return;
+    const pendingQueries = await queriesCollection.find({ emailsSent: false }).toArray();
     
     if (pendingQueries.length > 0) {
       console.log(`[Email Queue Worker] Found ${pendingQueries.length} pending email dispatches. Retrying...`);
@@ -290,9 +279,16 @@ setInterval(async () => {
 }, 5 * 60 * 1000); // Run every 5 minutes
 
 // Route: Fetch Consultations (Dashboard/Verification purposes)
-app.get('/api/consultations', (req, res) => {
-  const queries = readQueries();
-  res.json(queries);
+app.get('/api/consultations', async (req, res) => {
+  try {
+    if (!queriesCollection) {
+      return res.status(503).json({ error: 'Database not initialized' });
+    }
+    const queries = await queriesCollection.find({}).sort({ createdAt: -1 }).toArray();
+    res.json(queries);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // Route: Calculate Import/Export Custom Duties & Drawbacks (Simulator)
