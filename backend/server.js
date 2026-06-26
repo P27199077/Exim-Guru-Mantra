@@ -7,6 +7,11 @@ import nodemailer from 'nodemailer';
 import dns from 'dns';
 import { fileURLToPath } from 'url';
 
+// Force DNS resolution to prioritize IPv4 over IPv6 globally
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -59,7 +64,8 @@ const transporter = nodemailer.createTransport({
   },
   // Force DNS lookup to return IPv4 only (resolves ENETUNREACH IPv6 errors on Render)
   lookup: (hostname, options, callback) => {
-    return dns.lookup(hostname, { family: 4 }, callback);
+    const cb = typeof options === 'function' ? options : callback;
+    dns.lookup(hostname, { family: 4 }, cb);
   }
 });
 
