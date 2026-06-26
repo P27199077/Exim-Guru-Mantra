@@ -53,21 +53,7 @@ app.get('/api/status', (req, res) => {
   res.json({ status: 'active', message: 'Exim Guru Mantra Backend API is running' });
 });
 
-// Configure Nodemailer SMTP Transporter
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // use STARTTLS (upgraded connection) on port 587
-  auth: {
-    user: process.env.EMAIL_USER, // eximgurumantra@gmail.com
-    pass: process.env.EMAIL_PASS  // Google App Password
-  },
-  // Force DNS lookup to return IPv4 only (resolves ENETUNREACH IPv6 errors on Render)
-  lookup: (hostname, options, callback) => {
-    const cb = typeof options === 'function' ? options : callback;
-    dns.lookup(hostname, { family: 4 }, cb);
-  }
-});
+// Note: Nodemailer SMTP transporter is now initialized dynamically per dispatch to force IPv4 lookup
 
 // Helper: Update emailsSent status in queries database
 const updateQueryEmailStatus = (id, status) => {
@@ -96,7 +82,40 @@ const sendConsultationEmails = async (queryData) => {
     return false;
   }
 
+  // Resolve smtp.gmail.com to IPv4 dynamically to avoid IPv6 socket connection attempts
+  let smtpHost = 'smtp.gmail.com';
   try {
+    const ips = await new Promise((resolve, reject) => {
+      dns.resolve4('smtp.gmail.com', (err, addresses) => {
+        if (err || !addresses || addresses.length === 0) {
+          reject(err || new Error('No IPv4 addresses resolved for smtp.gmail.com'));
+        } else {
+          resolve(addresses);
+        }
+      });
+    });
+    smtpHost = ips[0];
+    console.log(`[Nodemailer] Resolved smtp.gmail.com to IPv4: ${smtpHost}`);
+  } catch (dnsErr) {
+    console.warn('[Nodemailer] DNS resolution for smtp.gmail.com failed, falling back to hostname:', dnsErr.message);
+  }
+
+  try {
+    // Create transporter dynamically using the resolved IPv4 address
+    const activeTransporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: 587,
+      secure: false, // STARTTLS
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      },
+      tls: {
+        servername: 'smtp.gmail.com',
+        rejectUnauthorized: true
+      }
+    });
+
     // Email 1: Notification Ticket to EXIM Guru Mantra (eximgurumantra@gmail.com)
     const adminMailOptions = {
       from: `"EXIM Guru Mantra WebDesk" <${process.env.EMAIL_USER}>`,
@@ -191,8 +210,8 @@ const sendConsultationEmails = async (queryData) => {
 
     // Send both emails in parallel
     await Promise.all([
-      transporter.sendMail(adminMailOptions),
-      transporter.sendMail(clientMailOptions)
+      activeTransporter.sendMail(adminMailOptions),
+      activeTransporter.sendMail(clientMailOptions)
     ]);
 
     console.log(`[Nodemailer] Successfully dispatched consultation emails for Ticket #${id}`);
