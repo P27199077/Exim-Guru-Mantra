@@ -3,14 +3,7 @@ import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
 import https from 'https';
-import nodemailer from 'nodemailer';
-import dns from 'dns';
 import { fileURLToPath } from 'url';
-
-// Force DNS resolution to prioritize IPv4 over IPv6 globally
-if (typeof dns.setDefaultResultOrder === 'function') {
-  dns.setDefaultResultOrder('ipv4first');
-}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -71,54 +64,71 @@ const updateQueryEmailStatus = (id, status) => {
   }
 };
 
-// Helper: Send Automated Consultation Emails (runs asynchronously in background)
-const sendConsultationEmails = async (queryData) => {
-  const { name, email, phone, company, message, serviceType, id } = queryData;
-  console.log(`[Nodemailer] Initiating email dispatch for Ticket #${id}. Target Customer: ${email}`);
+// Helper: Dispatch Email via Resend HTTP API (No port blocking issues)
+const sendEmailViaResend = (options) => {
+  return new Promise((resolve, reject) => {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      return reject(new Error('RESEND_API_KEY environment variable is not configured.'));
+    }
 
-  // Check if credentials are set
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn('[Nodemailer] Email notifications skipped: EMAIL_USER or EMAIL_PASS environment variables are not configured.');
-    return false;
-  }
+    const payload = JSON.stringify(options);
 
-  // Resolve smtp.gmail.com to IPv4 dynamically to avoid IPv6 socket connection attempts
-  let smtpHost = 'smtp.gmail.com';
-  try {
-    const ips = await new Promise((resolve, reject) => {
-      dns.resolve4('smtp.gmail.com', (err, addresses) => {
-        if (err || !addresses || addresses.length === 0) {
-          reject(err || new Error('No IPv4 addresses resolved for smtp.gmail.com'));
+    const reqOptions = {
+      hostname: 'api.resend.com',
+      port: 443,
+      path: '/emails',
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(payload)
+      }
+    };
+
+    const req = https.request(reqOptions, (res) => {
+      let data = '';
+      res.on('data', (chunk) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          try {
+            resolve(JSON.parse(data));
+          } catch (e) {
+            resolve({ raw: data });
+          }
         } else {
-          resolve(addresses);
+          reject(new Error(`Resend API returned status ${res.statusCode}: ${data}`));
         }
       });
     });
-    smtpHost = ips[0];
-    console.log(`[Nodemailer] Resolved smtp.gmail.com to IPv4: ${smtpHost}`);
-  } catch (dnsErr) {
-    console.warn('[Nodemailer] DNS resolution for smtp.gmail.com failed, falling back to hostname:', dnsErr.message);
-  }
 
-  try {
-    // Create transporter dynamically using the resolved IPv4 address
-    const activeTransporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: 587,
-      secure: false, // STARTTLS
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      },
-      tls: {
-        servername: 'smtp.gmail.com',
-        rejectUnauthorized: true
-      }
+    req.on('error', (err) => {
+      reject(err);
     });
 
+    req.write(payload);
+    req.end();
+  });
+};
+
+// Helper: Send Automated Consultation Emails (runs asynchronously in background)
+const sendConsultationEmails = async (queryData) => {
+  const { name, email, phone, company, message, serviceType, id } = queryData;
+  console.log(`[Resend] Initiating email dispatch for Ticket #${id}. Target Customer: ${email}`);
+
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('[Resend] Email notifications skipped: RESEND_API_KEY environment variable is not configured.');
+    return false;
+  }
+
+  const fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+
+  try {
     // Email 1: Notification Ticket to EXIM Guru Mantra (eximgurumantra@gmail.com)
     const adminMailOptions = {
-      from: `"EXIM Guru Mantra WebDesk" <${process.env.EMAIL_USER}>`,
+      from: `EXIM Guru Mantra WebDesk <${fromEmail}>`,
       to: 'eximgurumantra@gmail.com', // Always notify the official email
       subject: `[New Ticket #${id}] - Inquiry from ${name} (${serviceType})`,
       html: `
@@ -167,7 +177,7 @@ const sendConsultationEmails = async (queryData) => {
 
     // Email 2: Confirmation Receipt to Customer (email)
     const clientMailOptions = {
-      from: `"Exim Guru Mantra Support" <${process.env.EMAIL_USER}>`,
+      from: `Exim Guru Mantra Support <${fromEmail}>`,
       to: email,
       subject: `We've Received Your Inquiry - Exim Guru Mantra Associates`,
       html: `
@@ -208,17 +218,17 @@ const sendConsultationEmails = async (queryData) => {
       `
     };
 
-    // Send both emails in parallel
+    // Send both emails in parallel via Resend HTTP API
     await Promise.all([
-      activeTransporter.sendMail(adminMailOptions),
-      activeTransporter.sendMail(clientMailOptions)
+      sendEmailViaResend(adminMailOptions),
+      sendEmailViaResend(clientMailOptions)
     ]);
 
-    console.log(`[Nodemailer] Successfully dispatched consultation emails for Ticket #${id}`);
+    console.log(`[Resend] Successfully dispatched consultation emails for Ticket #${id}`);
     updateQueryEmailStatus(id, true);
     return true;
   } catch (error) {
-    console.error(`[Nodemailer] Failed to dispatch consultation emails for Ticket #${id}:`, error);
+    console.error(`[Resend] Failed to dispatch consultation emails for Ticket #${id}:`, error);
     updateQueryEmailStatus(id, false);
     return false;
   }
