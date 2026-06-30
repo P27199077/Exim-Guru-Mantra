@@ -684,6 +684,27 @@ a {
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
   z-index: 1000;
   text-align: left;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+/* Custom sleek scrollbar for mega-dropdown */
+.mega-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.mega-dropdown::-webkit-scrollbar-track {
+  background: #fbf9f4;
+  border-radius: 8px;
+}
+
+.mega-dropdown::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 8px;
+}
+
+.mega-dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }
 
 .mega-dropdown.open {
