@@ -461,6 +461,174 @@ app.get('/api/youtube-videos', async (req, res) => {
   }
 });
 
+// ==========================================
+// Google Drive Banner Auto-Sync System
+// ==========================================
+const BANNER_DIR = path.join(__dirname, 'data', 'banner');
+if (!fs.existsSync(path.join(__dirname, 'data'))) {
+  fs.mkdirSync(path.join(__dirname, 'data'), { recursive: true });
+}
+if (!fs.existsSync(BANNER_DIR)) {
+  fs.mkdirSync(BANNER_DIR, { recursive: true });
+}
+
+// Download file helper (handles HTTP redirects recursively)
+const downloadFile = (url, destPath) => {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      if (res.statusCode === 302 || res.statusCode === 301 || res.statusCode === 307) {
+        if (res.headers.location) {
+          downloadFile(res.headers.location, destPath).then(resolve).catch(reject);
+        } else {
+          reject(new Error('Redirected but no location header found'));
+        }
+      } else if (res.statusCode === 200) {
+        const fileStream = fs.createWriteStream(destPath);
+        res.pipe(fileStream);
+        fileStream.on('finish', () => {
+          fileStream.close();
+          resolve();
+        });
+        fileStream.on('error', (err) => {
+          fs.unlink(destPath, () => {});
+          reject(err);
+        });
+      } else {
+        reject(new Error(`Failed to download, status code: ${res.statusCode}`));
+      }
+    }).on('error', reject);
+  });
+};
+
+// Sync banner images with the Google Drive folder
+const syncGoogleDriveBanner = async () => {
+  const folderId = '1M_MNxZaygjS9Ku_FzFBYBGLADOhL8PAf';
+  const url = `https://drive.google.com/drive/folders/${folderId}`;
+  
+  console.log('[Banner Sync] Initiating synchronization with Google Drive...');
+  
+  try {
+    const html = await new Promise((resolve, reject) => {
+      const options = {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Safari/537.36'
+        }
+      };
+      https.get(url, options, (res) => {
+        if (res.statusCode !== 200) {
+          reject(new Error(`Google Drive returned HTTP status: ${res.statusCode}`));
+          return;
+        }
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => { resolve(data); });
+      }).on('error', reject);
+    });
+
+    // Decode escaped hexadecimal strings
+    const decodedHtml = html
+      .replace(/\\x22/g, '"')
+      .replace(/\\x5b/g, '[')
+      .replace(/\\x5d/g, ']')
+      .replace(/\\\//g, '/');
+
+    // Match public shared file structures inside folder HTML payload
+    const regex = /"([a-zA-Z0-9_\-]{28,45})"\s*,\s*\[\s*"1M_MNxZaygjS9Ku_FzFBYBGLADOhL8PAf"\s*\]\s*,\s*"([^"]+\.(?:jpg|jpeg|png|webp))"/gi;
+    
+    const driveFiles = [];
+    let match;
+    while ((match = regex.exec(decodedHtml)) !== null) {
+      driveFiles.push({
+        id: match[1],
+        name: match[2]
+      });
+    }
+
+    console.log(`[Banner Sync] Resolved ${driveFiles.length} images from Google Drive folder.`);
+
+    if (driveFiles.length === 0) {
+      console.warn('[Banner Sync] No valid images matched. Skipping sync to prevent deleting local assets.');
+      return false;
+    }
+
+    const localFiles = fs.readdirSync(BANNER_DIR);
+    const driveFileNames = driveFiles.map(f => f.name);
+
+    // 1. Download missing/new images
+    for (const file of driveFiles) {
+      if (!localFiles.includes(file.name)) {
+        console.log(`[Banner Sync] Fetching new image: ${file.name}`);
+        const downloadUrl = `https://docs.google.com/uc?export=download&id=${file.id}`;
+        const destPath = path.join(BANNER_DIR, file.name);
+        try {
+          await downloadFile(downloadUrl, destPath);
+          console.log(`[Banner Sync] Successfully downloaded asset: ${file.name}`);
+        } catch (downloadErr) {
+          console.error(`[Banner Sync] Download failure for ${file.name}:`, downloadErr.message);
+        }
+      }
+    }
+
+    // 2. Remove deleted images
+    for (const localFile of localFiles) {
+      if (localFile !== '.DS_Store' && !driveFileNames.includes(localFile)) {
+        console.log(`[Banner Sync] Deleting unreferenced local image: ${localFile}`);
+        try {
+          fs.unlinkSync(path.join(BANNER_DIR, localFile));
+        } catch (unlinkErr) {
+          console.error(`[Banner Sync] File deletion failure for ${localFile}:`, unlinkErr.message);
+        }
+      }
+    }
+
+    console.log('[Banner Sync] Google Drive synchronization completed successfully.');
+    return true;
+  } catch (err) {
+    console.error('[Banner Sync] Synchronization error:', err.message);
+    return false;
+  }
+};
+
+// Serve banner images statically under /api/banner-static/*
+app.use('/api/banner-static', express.static(BANNER_DIR));
+
+// Route: Get banner images list
+app.get('/api/banner-images', (req, res) => {
+  try {
+    if (!fs.existsSync(BANNER_DIR)) {
+      return res.json([]);
+    }
+    const files = fs.readdirSync(BANNER_DIR)
+      .filter(file => file !== '.DS_Store' && /\.(jpg|jpeg|png|webp)$/i.test(file));
+    
+    const bannerList = files.map(file => ({
+      src: `/api/banner-static/${file}`,
+      alt: file.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ')
+    }));
+    
+    res.json(bannerList);
+  } catch (err) {
+    console.error('[API] Error retrieving banner images:', err);
+    res.status(500).json({ error: 'Failed to retrieve banner assets' });
+  }
+});
+
+// Route: Manually trigger sync
+app.post('/api/banner-sync', async (req, res) => {
+  const success = await syncGoogleDriveBanner();
+  if (success) {
+    res.json({ success: true, message: 'Google Drive sync completed successfully' });
+  } else {
+    res.status(500).json({ error: 'Sync failed, see backend console logs' });
+  }
+});
+
+// Initial background sync on startup
+setTimeout(syncGoogleDriveBanner, 5000); // delay by 5 seconds to let server start up
+
+// Run auto-sync background worker every 10 minutes
+setInterval(syncGoogleDriveBanner, 10 * 60 * 1000);
+
 // Serve static assets from frontend build in production
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 

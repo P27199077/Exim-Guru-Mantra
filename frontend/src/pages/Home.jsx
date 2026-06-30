@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   ShieldCheck, 
@@ -20,6 +20,8 @@ import {
   Scale,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Coins,
   TrendingUp,
   HelpCircle
@@ -106,6 +108,7 @@ const servicesList = [
 ];
 
 export default function Home() {
+  const [activeSlide, setActiveSlide] = useState(0);
   const [showAll, setShowAll] = useState(false);
   const [iecCheckResult, setIecCheckResult] = useState(null);
   const [checklist, setChecklist] = useState({
@@ -114,6 +117,46 @@ export default function Home() {
     hasDigitalSignature: false,
     commercialAddress: false
   });
+
+  const [bannerImages, setBannerImages] = useState([]);
+  const [loadingBanner, setLoadingBanner] = useState(true);
+
+  // Fetch dynamically synced banner images
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await fetch('/api/banner-images');
+        if (res.ok) {
+          const data = await res.json();
+          setBannerImages(data);
+        }
+      } catch (err) {
+        console.error('Failed to load dynamically synced banner images:', err);
+      } finally {
+        setLoadingBanner(false);
+      }
+    };
+    fetchBanners();
+  }, []);
+
+  // Auto-sliding effect (runs when images load)
+  useEffect(() => {
+    if (bannerImages.length <= 1) return;
+    const timer = setInterval(() => {
+      setActiveSlide(prev => (prev + 1) % bannerImages.length);
+    }, 5000); // changes every 5 seconds
+    return () => clearInterval(timer);
+  }, [bannerImages.length]);
+
+  const handlePrevSlide = () => {
+    if (bannerImages.length === 0) return;
+    setActiveSlide(prev => (prev - 1 + bannerImages.length) % bannerImages.length);
+  };
+
+  const handleNextSlide = () => {
+    if (bannerImages.length === 0) return;
+    setActiveSlide(prev => (prev + 1) % bannerImages.length);
+  };
 
   const handleCheckboxChange = (key) => {
     setChecklist(prev => ({
@@ -146,6 +189,68 @@ export default function Home() {
 
   return (
     <div>
+      {/* Sliding Image Banner */}
+      <div 
+        className="home-banner-slider" 
+        style={{ 
+          display: bannerImages.length === 0 ? 'flex' : 'block', 
+          justifyContent: 'center', 
+          alignItems: 'center' 
+        }}
+      >
+        {bannerImages.length === 0 ? (
+          <div style={{ color: 'var(--text-muted)', fontSize: '0.95rem', opacity: 0.8 }}>
+            {loadingBanner ? 'Synchronizing image library with Google Drive...' : 'No banner images available.'}
+          </div>
+        ) : (
+          <>
+            {bannerImages.map((image, idx) => (
+              <div 
+                key={idx} 
+                className={`home-banner-slide ${idx === activeSlide ? 'active' : ''}`}
+              >
+                <img 
+                  src={image.src} 
+                  alt={image.alt} 
+                  className="home-banner-img" 
+                />
+              </div>
+            ))}
+            
+            {/* Navigation Buttons */}
+            {bannerImages.length > 1 && (
+              <>
+                <button 
+                  onClick={handlePrevSlide} 
+                  className="home-banner-btn home-banner-btn-prev"
+                  aria-label="Previous Slide"
+                >
+                  <ChevronLeft size={24} />
+                </button>
+                <button 
+                  onClick={handleNextSlide} 
+                  className="home-banner-btn home-banner-btn-next"
+                  aria-label="Next Slide"
+                >
+                  <ChevronRight size={24} />
+                </button>
+                
+                {/* Navigation Dots */}
+                <div className="home-banner-dots">
+                  {bannerImages.map((_, idx) => (
+                    <div 
+                      key={idx} 
+                      onClick={() => setActiveSlide(idx)}
+                      className={`home-banner-dot ${idx === activeSlide ? 'active' : ''}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
+
       {/* Hero Section */}
       <header className="hero">
         <div className="container hero-grid">
