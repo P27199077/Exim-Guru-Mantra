@@ -30,9 +30,38 @@ const fallbackVideos = [
 ];
 
 export default function About() {
+  const [videos, setVideos] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeVideoIdx, setActiveVideoIdx] = useState(0);
+  const [isYtHovered, setIsYtHovered] = useState(false);
+
   useEffect(() => {
     document.title = "About Us | EXIM Guru Mantra";
+    // Fetch dynamic latest videos from local API (which scrapes channel RSS feed)
+    fetch('/api/youtube-videos')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setVideos(data);
+        } else {
+          setVideos(fallbackVideos);
+        }
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error loading latest YouTube videos:', err);
+        setVideos(fallbackVideos);
+        setIsLoading(false);
+      });
   }, []);
+
+  useEffect(() => {
+    if (isYtHovered || videos.length === 0) return;
+    const interval = setInterval(() => {
+      setActiveVideoIdx((prev) => (prev + 1) % videos.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [isYtHovered, videos]);
 
   return (
     <div className="section">
@@ -44,6 +73,145 @@ export default function About() {
           <p className="section-desc" style={{ fontSize: '1.05rem', maxWidth: '750px', margin: '0 auto' }}>
             A premier compliance and trade advisory firm based in New Delhi, Delhi. We are committed to delivering quality advisory services across corporate registration, direct taxation, and global trade incentives.
           </p>
+        </div>
+
+        {/* YouTube TV Section */}
+        <div style={{ marginBottom: '5rem' }}>
+          {isLoading ? (
+            <div style={{ 
+              height: '420px', 
+              background: 'var(--bg-secondary)', 
+              borderRadius: '12px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              border: '1px solid var(--bg-tertiary)'
+            }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.75rem' }}>
+                <div className="chat-message-bubble typing-bubble" style={{ background: '#ffffff', border: '1px solid var(--bg-tertiary)' }}>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                </div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                  Loading latest videos from YouTube...
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="youtube-player-grid" style={{ marginTop: '0rem' }}>
+              {/* Large Screen Player */}
+              <div 
+                className="yt-main-player"
+                onMouseEnter={() => setIsYtHovered(true)}
+                onMouseLeave={() => setIsYtHovered(false)}
+                style={{ position: 'relative' }}
+              >
+                {/* Transparent Link Overlay to channel */}
+                <a 
+                  href="https://www.youtube.com/channel/UCKRUu69BuybTj4C-w-PHCLg"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    zIndex: 10,
+                    cursor: 'pointer'
+                  }}
+                  aria-label="Visit YouTube Channel"
+                />
+
+                {isYtHovered && videos[activeVideoIdx] ? (
+                  <iframe
+                    width="100%"
+                    height="100%"
+                    src={`https://www.youtube.com/embed/${videos[activeVideoIdx].id}?autoplay=1&mute=1&enablejsapi=1&rel=0`}
+                    title={videos[activeVideoIdx].title}
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    style={{ width: '100%', height: '100%', border: 'none', pointerEvents: 'none' }}
+                  ></iframe>
+                ) : (
+                  videos[activeVideoIdx] && (
+                    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                      <img 
+                        src={`https://img.youtube.com/vi/${videos[activeVideoIdx].id}/maxresdefault.jpg`} 
+                        alt={videos[activeVideoIdx].title}
+                        className="yt-thumbnail-img"
+                      />
+                      {/* Play Button Overlay */}
+                      <div className="yt-play-btn-overlay">
+                        <div className="yt-play-btn">
+                          <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                            <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </div>
+                      </div>
+                      {/* Info Overlay at the bottom */}
+                      <div className="yt-info-overlay">
+                        <span className="yt-live-tag">LATEST INSIGHT</span>
+                        <h3 className="yt-overlay-title">{videos[activeVideoIdx].title}</h3>
+                      </div>
+                    </div>
+                  )
+                )}
+              </div>
+
+              {/* Playlist Sidebar */}
+              <div className="yt-playlist-sidebar">
+                <div className="yt-playlist-header">
+                  <div>
+                    <h4 style={{ margin: 0 }}>Featured Tutorials</h4>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{videos.length} Videos</span>
+                  </div>
+                  <a 
+                    href="https://www.youtube.com/channel/UCKRUu69BuybTj4C-w-PHCLg" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="btn btn-primary"
+                    style={{ padding: '0.4rem 0.8rem', fontSize: '0.78rem', gap: '0.25rem', borderRadius: '4px' }}
+                  >
+                    Visit Channel
+                  </a>
+                </div>
+                <div className="yt-playlist-items">
+                  {videos.map((video, idx) => {
+                    const isActive = idx === activeVideoIdx;
+                    return (
+                      <div 
+                        key={video.id} 
+                        className={`yt-playlist-item ${isActive ? 'active' : ''}`}
+                        onMouseEnter={() => {
+                          setActiveVideoIdx(idx);
+                          setIsYtHovered(true);
+                        }}
+                        onMouseLeave={() => {
+                          setIsYtHovered(false);
+                        }}
+                      >
+                        <div className="yt-playlist-thumb-wrap">
+                          <img 
+                            src={`https://img.youtube.com/vi/${video.id}/mqdefault.jpg`} 
+                            alt={video.title} 
+                            className="yt-playlist-thumb"
+                          />
+                          <span className="yt-playlist-duration">{video.duration}</span>
+                        </div>
+                        <div className="yt-playlist-info" style={{ flexGrow: 1, minWidth: 0 }}>
+                          <h5 className="yt-playlist-title">{video.title}</h5>
+                          <p className="yt-playlist-desc">{video.desc}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Brand Showcase Grid */}
