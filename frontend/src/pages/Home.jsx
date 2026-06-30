@@ -111,13 +111,6 @@ const servicesList = [
 export default function Home() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [showAll, setShowAll] = useState(false);
-  const [iecCheckResult, setIecCheckResult] = useState(null);
-  const [checklist, setChecklist] = useState({
-    pan: false,
-    bankAccount: false,
-    hasDigitalSignature: false,
-    commercialAddress: false
-  });
 
   const [youtubeId, setYoutubeId] = useState('35mvh-2oII8');
   const [isVideoOpen, setIsVideoOpen] = useState(false);
@@ -170,35 +163,6 @@ export default function Home() {
 
   const handleNextSlide = () => {
     setActiveSlide(prev => (prev + 1) % bannerImages.length);
-  };
-
-  const handleCheckboxChange = (key) => {
-    setChecklist(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
-  };
-
-  const verifyIecEligibility = (e) => {
-    e.preventDefault();
-    const count = Object.values(checklist).filter(Boolean).length;
-    if (count === 4) {
-      setIecCheckResult({
-        status: 'eligible',
-        title: 'Perfectly Eligible!',
-        description: 'You have all the mandatory prerequisites. We can help you secure your IEC in under 24 hours.'
-      });
-    } else {
-      setIecCheckResult({
-        status: 'pending',
-        title: 'Documents Pending',
-        description: `You are missing some prerequisites. In particular, you need to acquire ${
-          !checklist.pan ? 'Company/Individual PAN, ' : ''
-        }${!checklist.bankAccount ? 'Active Current Account, ' : ''}${
-          !checklist.hasDigitalSignature ? 'Digital Signature Certificate (DSC), ' : ''
-        }${!checklist.commercialAddress ? 'Address Proof for place of business, ' : ''}before filing. We can help arrange these for you!`
-      });
-    }
   };
 
   return (
@@ -326,115 +290,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Interactive Verification Checklist Section */}
-      <section className="section" style={{ background: 'var(--bg-secondary)', padding: '5rem 0' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '4rem', alignItems: 'center' }}>
-          <div>
-            <h2 className="section-title" style={{ fontSize: '2.25rem', textAlign: 'left', margin: 0 }}>
-              Prerequisites for <span>Global Trade</span>
-            </h2>
-            <p className="section-desc" style={{ textAlign: 'left', margin: '1.25rem 0 2rem 0', fontSize: '1rem', lineHeight: '1.6' }}>
-              Setting up an import-export firm in India requires specific mandatory documents under DGFT and Customs rules. Use our interactive checklist on the right to instantly verify if your firm is ready to apply for the Import Export Code (IEC).
-            </p>
-            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
-                <ShieldCheck size={20} style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }} />
-                <div>
-                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0 }}>Fast-Track Approval</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Get registered under DGFT in 24 hours.</p>
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
-                <ShieldCheck size={20} style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }} />
-                <div>
-                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0 }}>100% Secure Process</h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Compliant with latest Star House standards.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="hero-card" style={{ background: '#ffffff', border: '1px solid var(--bg-tertiary)', borderRadius: '8px', padding: '2.25rem 2rem', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
-            <h3 style={{ marginBottom: '1.25rem', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '800' }}>
-              <ShieldCheck size={20} style={{ color: '#ff7236' }} />
-              <span>EXIM Document Checklist</span>
-            </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-              Verify if your firm is fully equipped to apply for an Import Export Code (IEC) instantly.
-            </p>
 
-            <form onSubmit={verifyIecEligibility}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
-                <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
-                  <input 
-                    type="checkbox" 
-                    checked={checklist.pan}
-                    onChange={() => handleCheckboxChange('pan')}
-                    style={{ accentColor: '#ff7236', width: '16px', height: '16px', marginTop: '3px' }}
-                  />
-                  <span>Possess Individual / Company PAN Card</span>
-                </label>
-                <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
-                  <input 
-                    type="checkbox" 
-                    checked={checklist.bankAccount}
-                    onChange={() => handleCheckboxChange('bankAccount')}
-                    style={{ accentColor: '#ff7236', width: '16px', height: '16px', marginTop: '3px' }}
-                  />
-                  <span>Active Bank Account with Cancelled Cheque</span>
-                </label>
-                <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
-                  <input 
-                    type="checkbox" 
-                    checked={checklist.hasDigitalSignature}
-                    onChange={() => handleCheckboxChange('hasDigitalSignature')}
-                    style={{ accentColor: '#ff7236', width: '16px', height: '16px', marginTop: '3px' }}
-                  />
-                  <span>Digital Signature Certificate (Class 3 DSC)</span>
-                </label>
-                <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
-                  <input 
-                    type="checkbox" 
-                    checked={checklist.commercialAddress}
-                    onChange={() => handleCheckboxChange('commercialAddress')}
-                    style={{ accentColor: '#ff7236', width: '16px', height: '16px', marginTop: '3px' }}
-                  />
-                  <span>Proof of Business Address (Rent Deed/Utility Bill)</span>
-                </label>
-              </div>
-
-              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.7rem' }}>
-                Verify Setup Ready
-              </button>
-            </form>
-
-            {iecCheckResult && (
-              <div style={{
-                marginTop: '1.25rem',
-                padding: '1rem',
-                borderRadius: '8px',
-                background: iecCheckResult.status === 'eligible' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(245, 158, 11, 0.08)',
-                border: `1px solid ${iecCheckResult.status === 'eligible' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`
-              }}>
-                <h4 style={{
-                  color: iecCheckResult.status === 'eligible' ? 'var(--success)' : 'var(--accent)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  fontSize: '0.95rem',
-                  marginBottom: '0.25rem'
-                }}>
-                  {iecCheckResult.status === 'eligible' ? <ShieldCheck size={16} /> : <ShieldAlert size={16} />}
-                  {iecCheckResult.title}
-                </h4>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-                  {iecCheckResult.description}
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
 
       {/* YouTube Video Modal Overlay */}
       {isVideoOpen && (

@@ -11,6 +11,7 @@ import Calculator from './pages/Calculator';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 import Chatbot from './components/Chatbot';
+import DocCheck from './pages/DocCheck';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/doc-check" element={<DocCheck />} />
             <Route path="/admin" element={<Admin />} />
           </Routes>
         </main>

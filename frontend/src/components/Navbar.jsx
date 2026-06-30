@@ -178,6 +178,11 @@ export default function Navbar() {
             </NavLink>
           </li>
           <li>
+            <NavLink to="/doc-check" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleLinkClick}>
+              Doc Check
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/contact" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleLinkClick}>
               Contact & Support
             </NavLink>
@@ -257,6 +262,7 @@ export default function Navbar() {
           <NavLink to="/services" className="nav-link" onClick={handleLinkClick}>Services</NavLink>
           <NavLink to="/about" className="nav-link" onClick={handleLinkClick}>About Us</NavLink>
           <NavLink to="/calculator" className="nav-link" onClick={handleLinkClick}>Duty Estimator</NavLink>
+          <NavLink to="/doc-check" className="nav-link" onClick={handleLinkClick}>Doc Check</NavLink>
           <NavLink to="/contact" className="nav-link" onClick={handleLinkClick}>Contact & Support</NavLink>
           <NavLink to="/contact" className="btn btn-primary" style={{ marginTop: '0.5rem' }} onClick={handleLinkClick}>
             <PhoneCall size={16} />
