@@ -244,6 +244,101 @@ export default function Admin() {
     }
   };
 
+  const handleDeleteCategory = async (catKey, catTitle) => {
+    if (!window.confirm(`Are you sure you want to delete the subheading "${catTitle}" and all its service links? This cannot be undone.`)) {
+      return;
+    }
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+    try {
+      const res = await fetch(`/api/admin/services/category/${catKey}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus({ type: 'success', message: data.message });
+        await fetchAdminServices();
+      } else {
+        setStatus({ type: 'error', message: data.error || 'Failed to delete category.' });
+      }
+    } catch (err) {
+      console.error('Error deleting category:', err);
+      setStatus({ type: 'error', message: 'Network error. Failed to connect.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteServiceItem = async (catKey, svcName) => {
+    if (!window.confirm(`Are you sure you want to delete the service link "${svcName}"?`)) {
+      return;
+    }
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+    try {
+      const res = await fetch('/api/admin/services/item', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, categoryKey: catKey, serviceName: svcName })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus({ type: 'success', message: data.message });
+        await fetchAdminServices();
+      } else {
+        setStatus({ type: 'error', message: data.error || 'Failed to delete service item.' });
+      }
+    } catch (err) {
+      console.error('Error deleting service item:', err);
+      setStatus({ type: 'error', message: 'Network error. Failed to connect.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMoveServiceItem = async (catKey, index, direction) => {
+    const category = categories.find(c => c.key === catKey);
+    if (!category) return;
+    
+    const newServicesList = [...category.services];
+    const targetIdx = direction === 'up' ? index - 1 : index + 1;
+    
+    if (targetIdx < 0 || targetIdx >= newServicesList.length) return;
+    
+    const temp = newServicesList[index];
+    newServicesList[index] = newServicesList[targetIdx];
+    newServicesList[targetIdx] = temp;
+    
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+    try {
+      const res = await fetch('/api/admin/services/reorder', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          password,
+          categoryKey: catKey,
+          services: newServicesList
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus({ type: 'success', message: 'Services reordered successfully.' });
+        await fetchAdminServices();
+      } else {
+        setStatus({ type: 'error', message: data.error || 'Failed to reorder services.' });
+      }
+    } catch (err) {
+      console.error('Error reordering services:', err);
+      setStatus({ type: 'error', message: 'Network error. Failed to connect.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     if (!username || !password) {
@@ -792,6 +887,15 @@ export default function Admin() {
                           <h4 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: '700' }}>{cat.title}</h4>
                           <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>/services/category/{cat.key}</span>
                         </div>
+                        <button 
+                          onClick={() => handleDeleteCategory(cat.key, cat.title)}
+                          style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.25rem', transition: '0.2s' }}
+                          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
+                          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                          title="Delete Subheading Portfolio"
+                        >
+                          <Trash2 size={16} />
+                        </button>
                       </div>
                       
                       <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: '1.4' }}>
@@ -799,16 +903,85 @@ export default function Admin() {
                       </p>
 
                       <div style={{ borderTop: '1px solid var(--bg-tertiary)', paddingTop: '0.75rem' }}>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Subservices:
+                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Service Links & Reorder:
                         </span>
-                        <ul style={{ paddingLeft: '1.25rem', margin: 0, fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                           {cat.services.map((svc, idx) => (
-                            <li key={idx} style={{ listStyleType: 'disc' }}>
-                              {svc}
-                            </li>
+                            <div 
+                              key={idx} 
+                              style={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'space-between', 
+                                background: 'var(--bg-secondary)', 
+                                padding: '0.4rem 0.75rem', 
+                                borderRadius: '4px',
+                                fontSize: '0.82rem',
+                                border: '1px solid var(--bg-tertiary)'
+                              }}
+                            >
+                              <span style={{ color: 'var(--text-primary)', fontWeight: '500' }}>{svc}</span>
+                              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                {/* Up Arrow */}
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveServiceItem(cat.key, idx, 'up')}
+                                  disabled={idx === 0}
+                                  style={{ 
+                                    background: 'none', 
+                                    border: 'none', 
+                                    color: idx === 0 ? 'var(--text-muted)' : 'var(--primary)', 
+                                    cursor: idx === 0 ? 'default' : 'pointer',
+                                    fontSize: '0.75rem',
+                                    opacity: idx === 0 ? 0.35 : 1,
+                                    padding: '0.1rem 0.3rem'
+                                  }}
+                                  title="Move Up"
+                                >
+                                  ▲
+                                </button>
+                                {/* Down Arrow */}
+                                <button
+                                  type="button"
+                                  onClick={() => handleMoveServiceItem(cat.key, idx, 'down')}
+                                  disabled={idx === cat.services.length - 1}
+                                  style={{ 
+                                    background: 'none', 
+                                    border: 'none', 
+                                    color: idx === cat.services.length - 1 ? 'var(--text-muted)' : 'var(--primary)', 
+                                    cursor: idx === cat.services.length - 1 ? 'default' : 'pointer',
+                                    fontSize: '0.75rem',
+                                    opacity: idx === cat.services.length - 1 ? 0.35 : 1,
+                                    padding: '0.1rem 0.3rem'
+                                  }}
+                                  title="Move Down"
+                                >
+                                  ▼
+                                </button>
+                                {/* Delete Link */}
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteServiceItem(cat.key, svc)}
+                                  style={{ 
+                                    background: 'none', 
+                                    border: 'none', 
+                                    color: 'var(--text-muted)', 
+                                    cursor: 'pointer',
+                                    padding: '0.2rem',
+                                    marginLeft: '0.25rem',
+                                    transition: '0.2s'
+                                  }}
+                                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
+                                  onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                                  title="Delete Service Link"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            </div>
                           ))}
-                        </ul>
+                        </div>
                       </div>
                     </div>
                   ))}

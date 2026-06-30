@@ -43,7 +43,7 @@ export default function Services() {
           <div className="timeline-line"></div>
 
           {/* Timeline Nodes Grid */}
-          <div className="timeline-nodes-grid">
+          <div className="timeline-nodes-grid" style={{ '--timeline-cols': timelineServices.length || 8 }}>
             {loading ? (
               <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '3rem 0', color: 'var(--text-secondary)' }}>
                 Loading Trade Timeline...

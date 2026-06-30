@@ -491,6 +491,98 @@ app.post('/api/admin/services/item', async (req, res) => {
   }
 });
 
+// Route: Delete Service Category
+app.delete('/api/admin/services/category/:key', async (req, res) => {
+  const { username, password } = req.body;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
+  }
+
+  try {
+    if (!servicesCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    const key = req.params.key;
+    const result = await servicesCollection.deleteOne({ key });
+    
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Service category not found.' });
+    }
+
+    res.json({ success: true, message: 'Service category deleted successfully.' });
+  } catch (err) {
+    console.error('[API] Error deleting service category:', err);
+    res.status(500).json({ error: 'Failed to delete service category.' });
+  }
+});
+
+// Route: Delete Service Item from Category
+app.delete('/api/admin/services/item', async (req, res) => {
+  const { username, password, categoryKey, serviceName } = req.body;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
+  }
+
+  if (!categoryKey || !serviceName) {
+    return res.status(400).json({ error: 'Category key and service name are required.' });
+  }
+
+  try {
+    if (!servicesCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    const result = await servicesCollection.updateOne(
+      { key: categoryKey },
+      { $pull: { services: serviceName } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(404).json({ error: 'Service item not found or category not matched.' });
+    }
+
+    res.json({ success: true, message: `Service "${serviceName}" removed successfully.` });
+  } catch (err) {
+    console.error('[API] Error deleting service item:', err);
+    res.status(500).json({ error: 'Failed to delete service item.' });
+  }
+});
+
+// Route: Reorder Service Items inside Category
+app.post('/api/admin/services/reorder', async (req, res) => {
+  const { username, password, categoryKey, services } = req.body;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
+  }
+
+  if (!categoryKey || !Array.isArray(services)) {
+    return res.status(400).json({ error: 'Category key and services array are required.' });
+  }
+
+  try {
+    if (!servicesCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    await servicesCollection.updateOne(
+      { key: categoryKey },
+      { $set: { services: services } }
+    );
+
+    res.json({ success: true, message: 'Services reordered successfully.' });
+  } catch (err) {
+    console.error('[API] Error reordering services:', err);
+    res.status(500).json({ error: 'Failed to reorder services.' });
+  }
+});
+
 // Route: Get social links configuration
 app.get('/api/settings/socials', async (req, res) => {
   try {
