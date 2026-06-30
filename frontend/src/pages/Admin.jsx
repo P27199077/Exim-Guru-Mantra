@@ -85,6 +85,7 @@ export default function Admin() {
   // Service management states
   const [categories, setCategories] = useState([]);
   const [newCategoryTitle, setNewCategoryTitle] = useState('');
+  const [newCategoryDivision, setNewCategoryDivision] = useState('taxation');
   const [selectedCategoryKey, setSelectedCategoryKey] = useState('');
   const [newServiceName, setNewServiceName] = useState('');
 
@@ -189,7 +190,8 @@ export default function Admin() {
         body: JSON.stringify({
           username,
           password,
-          title: newCategoryTitle.trim()
+          title: newCategoryTitle.trim(),
+          division: newCategoryDivision
         })
       });
       const data = await res.json();
@@ -886,6 +888,11 @@ export default function Admin() {
                         <div>
                           <h4 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: '700' }}>{cat.title}</h4>
                           <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>/services/category/{cat.key}</span>
+                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.2rem' }}>
+                            <span style={{ fontSize: '0.7rem', color: 'var(--primary)', background: 'var(--bg-secondary)', padding: '0.1rem 0.4rem', borderRadius: '3px', border: '1px solid var(--bg-tertiary)', fontWeight: '600' }}>
+                              Group: {cat.division === 'import-export' ? 'Import-Export' : cat.division === 'certification' ? 'Certification' : 'Taxation'}
+                            </span>
+                          </div>
                         </div>
                         <button 
                           onClick={() => handleDeleteCategory(cat.key, cat.title)}
@@ -1008,6 +1015,19 @@ export default function Admin() {
                       value={newCategoryTitle}
                       onChange={(e) => setNewCategoryTitle(e.target.value)}
                     />
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                    <label className="form-label" htmlFor="catDivision">Parent Category Group</label>
+                    <select
+                      id="catDivision"
+                      className="form-select"
+                      value={newCategoryDivision}
+                      onChange={(e) => setNewCategoryDivision(e.target.value)}
+                    >
+                      <option value="import-export">Import-Export Services</option>
+                      <option value="taxation">Taxation & Auditing Services</option>
+                      <option value="certification">Certification & Licensing Services</option>
+                    </select>
                   </div>
                   <button 
                     type="submit" 

@@ -59,13 +59,19 @@ export default function Navbar() {
             
             {/* Mega Dropdown Panel */}
             <div className={`mega-dropdown ${dropdownOpen ? 'open' : ''}`}>
-              {/* Dynamically chunk categories into groups of 2 for the 4-column layout */}
-              {Array.from({ length: Math.ceil(categories.length / 2) }).map((_, colIdx) => (
-                <div key={colIdx} className="mega-column">
-                  {categories.slice(colIdx * 2, colIdx * 2 + 2).map((cat) => (
-                    <div key={cat.key} className="mega-group">
+              
+              {/* Column 1: Import-Export Services */}
+              <div className="mega-column">
+                <div style={{ marginBottom: '1.25rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.4rem' }}>
+                  <h3 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '800', letterSpacing: '0.5px' }}>IMPORT & EXPORT</h3>
+                </div>
+                {categories.filter(c => c.division === 'import-export').length === 0 ? (
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
+                ) : (
+                  categories.filter(c => c.division === 'import-export').map((cat) => (
+                    <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
                       <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
-                        <h4 className="mega-title">{cat.title}</h4>
+                        <h4 className="mega-title" style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)', textTransform: 'uppercase' }}>{cat.title}</h4>
                       </Link>
                       {cat.services.map((svc, sIdx) => (
                         <Link 
@@ -73,14 +79,74 @@ export default function Navbar() {
                           to={`/inquire/${encodeURIComponent(svc)}`} 
                           className="mega-link" 
                           onClick={handleLinkClick}
+                          style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
                         >
                           {svc}
                         </Link>
                       ))}
                     </div>
-                  ))}
+                  ))
+                )}
+              </div>
+
+              {/* Column 2: Taxation & Compliances */}
+              <div className="mega-column">
+                <div style={{ marginBottom: '1.25rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.4rem' }}>
+                  <h3 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '800', letterSpacing: '0.5px' }}>TAXATION & COMPLIANCE</h3>
                 </div>
-              ))}
+                {categories.filter(c => c.division === 'taxation').length === 0 ? (
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
+                ) : (
+                  categories.filter(c => c.division === 'taxation').map((cat) => (
+                    <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
+                      <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
+                        <h4 className="mega-title" style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)', textTransform: 'uppercase' }}>{cat.title}</h4>
+                      </Link>
+                      {cat.services.map((svc, sIdx) => (
+                        <Link 
+                          key={sIdx} 
+                          to={`/inquire/${encodeURIComponent(svc)}`} 
+                          className="mega-link" 
+                          onClick={handleLinkClick}
+                          style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
+                        >
+                          {svc}
+                        </Link>
+                      ))}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Column 3: Certification & Licensing */}
+              <div className="mega-column">
+                <div style={{ marginBottom: '1.25rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.4rem' }}>
+                  <h3 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '800', letterSpacing: '0.5px' }}>CERTIFICATION & LICENSING</h3>
+                </div>
+                {categories.filter(c => c.division === 'certification').length === 0 ? (
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
+                ) : (
+                  categories.filter(c => c.division === 'certification').map((cat) => (
+                    <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
+                      <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
+                        <h4 className="mega-title" style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)', textTransform: 'uppercase' }}>{cat.title}</h4>
+                      </Link>
+                      {cat.services.map((svc, sIdx) => (
+                        <Link 
+                          key={sIdx} 
+                          to={`/inquire/${encodeURIComponent(svc)}`} 
+                          className="mega-link" 
+                          onClick={handleLinkClick}
+                          style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
+                        >
+                          {svc}
+                        </Link>
+                      ))}
+                    </div>
+                  ))
+                )}
+              </div>
+
             </div>
           </li>
           

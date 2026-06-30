@@ -27,6 +27,34 @@ let servicesCollection;
 
 const defaultServices = [
   {
+    key: 'import-export-clearance',
+    title: 'Import-Export & Customs Clearance',
+    subtitle: 'Customs Broking, Freight Forwarding & Trade Logistics',
+    img: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&auto=format&fit=crop&q=80',
+    desc: 'Navigate the complexities of global trade with our comprehensive import-export solutions. From customs clearance and freight forwarding to compliance advisory and DGFT liaisoning, we keep your cargo moving.',
+    details: [
+      { heading: 'Customs Broking & CHA', body: 'Filing Bill of Entry, Shipping Bills, and managing custom examinations at sea ports, air cargo complexes, and ICDs.' },
+      { heading: 'Freight Forwarding', body: 'Coordination of international cargo shipments via sea (FCL/LCL) and air freight routes with real-time tracking.' },
+      { heading: 'DGFT Liaisoning', body: 'Obtaining and managing Advance Authorization, EPCG licenses, RoDTEP claims, and star export house status certificates.' },
+      { heading: 'Trade Compliance Advisory', body: 'Reviewing trade agreements, HSN classifications, import restrictions, and anti-dumping duties to prevent penalties.' }
+    ],
+    tips: [
+      'Always verify the correct HSN code to avoid customs penalty notices.',
+      'Update your Import Export Code (IEC) annually on the DGFT portal between April and June.',
+      'Utilize Free Trade Agreements (FTAs) to claim preferential customs duty discounts.'
+    ],
+    services: [
+      'Customs Broking & Clearance',
+      'Sea & Air Freight Forwarding',
+      'DGFT Liaisoning & Licensing',
+      'Incentive & Duty Drawbacks Claims',
+      'FEMA & Trade Compliance Advisory',
+      'IEC Update & Maintenance'
+    ],
+    position: 'top',
+    division: 'import-export'
+  },
+  {
     key: 'taxation-and-compliances',
     title: 'Taxation And Compliances',
     subtitle: 'Direct and Indirect Tax Advisory & Filing Services',
@@ -51,7 +79,8 @@ const defaultServices = [
       'Certification And Attestation Services',
       'TDS Return Filing'
     ],
-    position: 'top'
+    position: 'top',
+    division: 'taxation'
   },
   {
     key: 'audit-and-assurance',
@@ -78,7 +107,8 @@ const defaultServices = [
       'Stock Audit',
       'Fixed Assets Audit'
     ],
-    position: 'bottom'
+    position: 'bottom',
+    division: 'taxation'
   },
   {
     key: 'goods-and-service-tax',
@@ -104,7 +134,8 @@ const defaultServices = [
       'GST Litigation Services',
       'GST Refund'
     ],
-    position: 'top'
+    position: 'top',
+    division: 'taxation'
   },
   {
     key: 'company-and-llp-compliances',
@@ -132,7 +163,8 @@ const defaultServices = [
       'LLP Annual Return Filing',
       'One Person Company Registration'
     ],
-    position: 'bottom'
+    position: 'bottom',
+    division: 'certification'
   },
   {
     key: 'international-taxation',
@@ -158,13 +190,14 @@ const defaultServices = [
       'Double Taxation Avoidance Agreement',
       'Taxation Of Expats'
     ],
-    position: 'top'
+    position: 'top',
+    division: 'taxation'
   },
   {
     key: 'registration',
     title: 'Business Registrations',
     subtitle: 'Government Licenses & MSME Setup',
-    img: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=800&auto=format&fit=crop&q=80',
+    img: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80',
     desc: 'Kickstart your business setup with essential licensing. We cover MSME registrations, food licenses, export registration codes, and labor department registrations.',
     details: [
       { heading: 'IEC (Import Export Code)', body: 'Secure DGFT registration certificate required to clear international cargo through customs.' },
@@ -185,7 +218,8 @@ const defaultServices = [
       'FSSAI Registration',
       'ESI Registration'
     ],
-    position: 'bottom'
+    position: 'bottom',
+    division: 'certification'
   },
   {
     key: 'account-outsourcing-and-bookkeeping',
@@ -197,7 +231,7 @@ const defaultServices = [
       { heading: 'Bookkeeping Ledger Maintenance', body: 'Daily cash/bank statement postings, sales/purchase ledger entry, and periodic bank reconciliations.' },
       { heading: 'Payroll Processing Desk', body: 'Calculating salary slips, processing professional tax deductions, and handling monthly PF/ESI challenges.' },
       { heading: 'MIS Management Reports', body: 'Supplying corporate directors with key balance sheet snapshots, cash flow charts, and debtors aging lists.' },
-      { heading: 'Year-End Ledger Closings', body: 'Drafting final financial statements, depreciation tables, and trial balances for CA audit teams.' }
+      { heading: 'Year-End Ledger Closings', body: 'Drafting financial statements, depreciation tables, and trial balances for CA audit teams.' }
     ],
     tips: [
       'Monthly bookkeeping helps in prompt GST filing reconciliation.',
@@ -209,7 +243,8 @@ const defaultServices = [
       'Accounting And Book Keeping',
       'Payroll Management'
     ],
-    position: 'top'
+    position: 'top',
+    division: 'taxation'
   },
   {
     key: 'intellectual-property',
@@ -235,13 +270,23 @@ const defaultServices = [
       'Trademark Search',
       'Trademark Objection'
     ],
-    position: 'bottom'
+    position: 'bottom',
+    division: 'certification'
   }
 ];
 
 const seedDefaultServices = async () => {
   try {
     if (!servicesCollection) return;
+
+    // Check if the seeded categories already have a division field.
+    // If not (legacy data), clear and rebuild so everything matches the new structure!
+    const sample = await servicesCollection.findOne({});
+    if (sample && !sample.division) {
+      console.log('[MongoDB] Legacy services detected without division field. Clearing and rebuilding...');
+      await servicesCollection.deleteMany({});
+    }
+
     const count = await servicesCollection.countDocuments();
     if (count > 0) {
       console.log('[MongoDB] Services collection already pre-populated.');
@@ -383,7 +428,7 @@ app.get('/api/services/category/:key', async (req, res) => {
 
 // Route: Dynamic Category Creation (Heuristics-based "AI Content Generator")
 app.post('/api/admin/services/category', async (req, res) => {
-  const { username, password, title } = req.body;
+  const { username, password, title, division } = req.body;
   const creds = await getAdminCredentials();
 
   if (username !== creds.username || password !== creds.password) {
@@ -409,6 +454,10 @@ app.post('/api/admin/services/category', async (req, res) => {
     if (exists) {
       return res.status(400).json({ error: `Service Category with title "${title}" already exists.` });
     }
+
+    const activeDivision = ['import-export', 'taxation', 'certification'].includes(division)
+      ? division
+      : 'taxation';
 
     const subtitle = `${title} & Strategic Advisory`;
     const desc = `Ensure complete compliance and strategic regulatory alignment for your business with our dedicated ${title} desk, managed by senior corporate professionals.`;
@@ -440,11 +489,12 @@ app.post('/api/admin/services/category', async (req, res) => {
       details,
       tips,
       services: [`Overview - ${title}`],
-      position
+      position,
+      division: activeDivision
     };
 
     await servicesCollection.insertOne(newCategory);
-    res.json({ success: true, message: `Category "${title}" created dynamically with generated content!`, category: newCategory });
+    res.json({ success: true, message: `Category "${title}" created dynamically under division "${activeDivision}"!`, category: newCategory });
   } catch (err) {
     console.error('[API] Error creating service category:', err);
     res.status(500).json({ error: 'Failed to generate and create service category.' });
