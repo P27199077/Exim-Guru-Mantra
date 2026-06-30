@@ -9,6 +9,7 @@ import Inquiry from './pages/Inquiry';
 import About from './pages/About';
 import Calculator from './pages/Calculator';
 import Contact from './pages/Contact';
+import Admin from './pages/Admin';
 import Chatbot from './components/Chatbot';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/admin" element={<Admin />} />
           </Routes>
         </main>
 

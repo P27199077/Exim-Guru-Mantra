@@ -2087,3 +2087,12 @@ a {
     width: 18px;
   }
 }
+
+/* Admin Dashboard Responsiveness */
+@media (max-width: 768px) {
+  .admin-grid-layout {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+}
+

@@ -1,8 +1,78 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, Mail, Phone, MapPin } from 'lucide-react';
+import { 
+  Globe, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Link as LinkIcon 
+} from 'lucide-react';
+
+// Custom SVG Brand Icons
+const InstagramIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
+const TwitterIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+  </svg>
+);
+
+const FacebookIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+  </svg>
+);
+
+const LinkedinIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+  </svg>
+);
+
+const YoutubeIcon = (props) => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 11.54a29 29 0 0 0 .46 5.12 2.78 2.78 0 0 0 1.95 1.96C5.12 19.08 12 19.08 12 19.08s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96 29 29 0 0 0-.46-5.12 29 29 0 0 0-.46-5.12z"></path>
+    <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02"></polygon>
+  </svg>
+);
+
+const iconMap = {
+  Youtube: YoutubeIcon,
+  Instagram: InstagramIcon,
+  Twitter: TwitterIcon,
+  Facebook: FacebookIcon,
+  Linkedin: LinkedinIcon,
+  Phone: Phone,
+  Mail: Mail,
+  Link: LinkIcon
+};
 
 export default function Footer() {
+  const [socials, setSocials] = useState([]);
+
+  useEffect(() => {
+    const fetchSocials = async () => {
+      try {
+        const res = await fetch('/api/settings/socials');
+        if (res.ok) {
+          const data = await res.json();
+          setSocials(data);
+        }
+      } catch (err) {
+        console.error('Failed to load social links in footer:', err);
+      }
+    };
+    fetchSocials();
+  }, []);
+
   return (
     <footer className="footer">
       <div className="container">
@@ -15,36 +85,40 @@ export default function Footer() {
             <p className="footer-about">
               Empowering global trade through seamless legal, taxation, and customs compliance services. Your reliable partner in Import-Export consultancy.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <a 
-                href="https://www.youtube.com/channel/UCKRUu69BuybTj4C-w-PHCLg" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                aria-label="YouTube Channel"
-                style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  width: '36px', 
-                  height: '36px', 
-                  borderRadius: '50%', 
-                  background: 'var(--bg-secondary)', 
-                  color: 'var(--primary)',
-                  transition: 'var(--transition-fast)'
-                }}
-                onMouseEnter={(e) => { 
-                  e.currentTarget.style.background = 'var(--primary)'; 
-                  e.currentTarget.style.color = '#ffffff'; 
-                }}
-                onMouseLeave={(e) => { 
-                  e.currentTarget.style.background = 'var(--bg-secondary)'; 
-                  e.currentTarget.style.color = 'var(--primary)'; 
-                }}
-              >
-                <svg viewBox="0 0 24 24" width={18} height={18} fill="currentColor">
-                  <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.518 3.5 12 3.5 12 3.5s-7.518 0-9.388.553a3.002 3.002 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.87.553 9.388.553 9.388.553s7.518 0 9.388-.553a3.002 3.002 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
-              </a>
+            <div style={{ display: 'flex', gap: '0.85rem', marginTop: '1.25rem', flexWrap: 'wrap' }}>
+              {socials.map((social, idx) => {
+                const IconComp = iconMap[social.icon] || LinkIcon;
+                return (
+                  <a 
+                    key={idx}
+                    href={social.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    aria-label={social.platform}
+                    style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      width: '36px', 
+                      height: '36px', 
+                      borderRadius: '50%', 
+                      background: 'var(--bg-secondary)', 
+                      color: 'var(--primary)',
+                      transition: 'var(--transition-fast)'
+                    }}
+                    onMouseEnter={(e) => { 
+                      e.currentTarget.style.background = 'var(--primary)'; 
+                      e.currentTarget.style.color = '#ffffff'; 
+                    }}
+                    onMouseLeave={(e) => { 
+                      e.currentTarget.style.background = 'var(--bg-secondary)'; 
+                      e.currentTarget.style.color = 'var(--primary)'; 
+                    }}
+                  >
+                    <IconComp size={18} />
+                  </a>
+                );
+              })}
             </div>
           </div>
 

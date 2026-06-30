@@ -5,6 +5,7 @@ import path from 'path';
 import https from 'https';
 import { fileURLToPath } from 'url';
 import { MongoClient } from 'mongodb';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,6 +22,7 @@ const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/exim_g
 const client = new MongoClient(MONGODB_URI);
 let db;
 let queriesCollection;
+let settingsCollection;
 
 async function connectDB() {
   try {
@@ -28,6 +30,7 @@ async function connectDB() {
     console.log('[MongoDB] Connected successfully to database');
     db = client.db();
     queriesCollection = db.collection('queries');
+    settingsCollection = db.collection('settings');
   } catch (err) {
     console.error('[MongoDB] Connection failed:', err);
   }
@@ -37,6 +40,199 @@ connectDB();
 // Route: Base Status
 app.get('/api/status', (req, res) => {
   res.json({ status: 'active', message: 'Exim Guru Mantra Backend API is running' });
+});
+
+// Helper: Retrieve active admin credentials from MongoDB or environment fallback
+const getAdminCredentials = async () => {
+  const defaultUser = process.env.ADMIN_USER || 'exim_admin';
+  const defaultPassword = process.env.ADMIN_PASSWORD || 'exim_pass_2026';
+  
+  try {
+    if (!settingsCollection) {
+      return { username: defaultUser, password: defaultPassword };
+    }
+    const doc = await settingsCollection.findOne({ key: 'admin_credentials' });
+    if (doc) {
+      return {
+        username: doc.username || defaultUser,
+        password: doc.password || defaultPassword
+      };
+    }
+  } catch (err) {
+    console.error('Error fetching admin credentials from DB:', err);
+  }
+  return { username: defaultUser, password: defaultPassword };
+};
+
+// Route: Verify admin credentials
+app.post('/api/admin/verify', async (req, res) => {
+  const { username, password } = req.body;
+  const creds = await getAdminCredentials();
+  
+  if (username === creds.username && password === creds.password) {
+    res.json({ success: true });
+  } else {
+    res.status(401).json({ error: 'Invalid admin username or password' });
+  }
+});
+
+// Route: Get social links configuration
+app.get('/api/settings/socials', async (req, res) => {
+  try {
+    if (!settingsCollection) {
+      return res.json([
+        { platform: 'YouTube', url: 'https://www.youtube.com/channel/UCKRUu69BuybTj4C-w-PHCLg', icon: 'Youtube' }
+      ]);
+    }
+    
+    const settings = await settingsCollection.findOne({ key: 'social_links' });
+    if (settings && settings.links) {
+      res.json(settings.links);
+    } else {
+      res.json([
+        { platform: 'YouTube', url: 'https://www.youtube.com/channel/UCKRUu69BuybTj4C-w-PHCLg', icon: 'Youtube' }
+      ]);
+    }
+  } catch (err) {
+    console.error('[API] Error fetching social links:', err);
+    res.status(500).json({ error: 'Failed to retrieve social links' });
+  }
+});
+
+// Route: Save/update social links configuration
+app.post('/api/settings/socials', async (req, res) => {
+  const { username, password, links } = req.body;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid admin credentials' });
+  }
+
+  if (!Array.isArray(links)) {
+    return res.status(400).json({ error: 'Links must be an array' });
+  }
+
+  try {
+    if (!settingsCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    await settingsCollection.updateOne(
+      { key: 'social_links' },
+      { $set: { links: links, updatedAt: new Date().toISOString() } },
+      { upsert: true }
+    );
+
+    res.json({ success: true, message: 'Social links updated successfully' });
+  } catch (err) {
+    console.error('[API] Error saving social links:', err);
+    res.status(500).json({ error: 'Failed to update social links' });
+  }
+});
+
+// Route: Forgot Password (triggers email link to eximgurumantra@gmail.com)
+app.post('/api/admin/forgot-password', async (req, res) => {
+  try {
+    if (!settingsCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiry = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour expiry
+
+    await settingsCollection.updateOne(
+      { key: 'reset_token' },
+      { $set: { token, expiry } },
+      { upsert: true }
+    );
+
+    const referer = req.headers.referer || req.headers.origin || 'https://eximgurumantra.com/admin';
+    let baseOrigin;
+    try {
+      baseOrigin = new URL(referer).origin;
+    } catch (e) {
+      baseOrigin = 'https://eximgurumantra.com';
+    }
+    const resetUrl = `${baseOrigin}/admin?token=${token}`;
+
+    console.log(`[Forgot Password] Reset URL generated: ${resetUrl}`);
+
+    // If Resend API Key is not configured, we print to console and return success for testing
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('[Resend] Skipping email dispatch: RESEND_API_KEY is not configured.');
+      return res.json({ 
+        success: true, 
+        message: 'Reset link generated (printed in server logs for local verification).' 
+      });
+    }
+
+    const fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+    const emailPayload = {
+      from: `EXIM Guru Mantra Security <${fromEmail}>`,
+      to: 'eximgurumantra@gmail.com',
+      subject: 'Reset Password Request - EXIM Guru Mantra',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 550px; border: 1px solid #eae3d2; border-radius: 8px; padding: 25px; background-color: #fbf9f4;">
+          <h2 style="color: #2b2b2b; margin-top: 0;">Password Reset Request</h2>
+          <p style="color: #555; line-height: 1.5;">We received a request to reset your admin password for the EXIM Guru Mantra dashboard.</p>
+          <p style="color: #555; line-height: 1.5;">Click the button below to choose a new password. This link is valid for <strong>1 hour</strong>.</p>
+          <div style="text-align: center; margin: 2rem 0;">
+            <a href="${resetUrl}" style="background-color: #2b6cb0; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reset Password</a>
+          </div>
+          <p style="color: #777; font-size: 0.85rem; line-height: 1.5; border-top: 1px dashed #eae3d2; padding-top: 15px;">
+            If you did not request this, please ignore this email. Your credentials will remain unchanged.
+          </p>
+        </div>
+      `
+    };
+
+    await sendEmailViaResend(emailPayload);
+    res.json({ success: true, message: 'A secure reset link has been sent to your official email.' });
+  } catch (err) {
+    console.error('[Forgot Password] Error triggering reset:', err);
+    res.status(500).json({ error: 'Failed to process forgot password request.' });
+  }
+});
+
+// Route: Reset Password (validates token and saves new password)
+app.post('/api/admin/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  if (!token || !newPassword) {
+    return res.status(400).json({ error: 'Token and new password are required.' });
+  }
+
+  try {
+    if (!settingsCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    const doc = await settingsCollection.findOne({ key: 'reset_token' });
+    if (!doc || doc.token !== token) {
+      return res.status(400).json({ error: 'Invalid or expired reset token.' });
+    }
+
+    const isExpired = new Date() > new Date(doc.expiry);
+    if (isExpired) {
+      return res.status(400).json({ error: 'Reset token has expired.' });
+    }
+
+    // Save updated credentials in DB settings doc
+    const currentCreds = await getAdminCredentials();
+    await settingsCollection.updateOne(
+      { key: 'admin_credentials' },
+      { $set: { username: currentCreds.username, password: newPassword, updatedAt: new Date().toISOString() } },
+      { upsert: true }
+    );
+
+    // Invalidate the token
+    await settingsCollection.deleteOne({ key: 'reset_token' });
+
+    res.json({ success: true, message: 'Password has been reset successfully.' });
+  } catch (err) {
+    console.error('[Reset Password] Error resetting password:', err);
+    res.status(500).json({ error: 'Failed to reset password.' });
+  }
 });
 
 // Helper: Update emailsSent status in queries database
@@ -476,11 +672,11 @@ if (!fs.existsSync(BANNER_DIR)) {
 const downloadFile = (url, destPath) => {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
-      if (res.statusCode === 302 || res.statusCode === 301 || res.statusCode === 307) {
+      if (res.statusCode >= 300 && res.statusCode < 400) {
         if (res.headers.location) {
           downloadFile(res.headers.location, destPath).then(resolve).catch(reject);
         } else {
-          reject(new Error('Redirected but no location header found'));
+          reject(new Error(`Redirected with status ${res.statusCode} but no location header found`));
         }
       } else if (res.statusCode === 200) {
         const fileStream = fs.createWriteStream(destPath);
