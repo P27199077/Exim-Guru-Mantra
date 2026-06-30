@@ -78,9 +78,8 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div>
-            <div className="logo footer-logo">
-              <Globe size={24} style={{ color: 'var(--primary)', strokeWidth: 2.5 }} />
-              <span>EXIM <span className="logo-sub">GURU MANTRA</span></span>
+            <div className="logo footer-logo" style={{ display: 'flex', alignItems: 'center', marginBottom: '1.25rem' }}>
+              <img src="/logo.png" alt="EXIM Guru Mantra Logo" style={{ height: '42px', width: 'auto', objectFit: 'contain' }} />
             </div>
             <p className="footer-about">
               Empowering global trade through seamless legal, taxation, and customs compliance services. Your reliable partner in Import-Export consultancy.

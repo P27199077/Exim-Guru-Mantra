@@ -14,9 +14,8 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="container navbar-container">
-        <NavLink to="/" className="logo" onClick={handleLinkClick}>
-          <Globe className="logo-icon" size={24} style={{ color: 'var(--primary)', strokeWidth: 2.5 }} />
-          <span>EXIM <span className="logo-sub">GURU MANTRA</span></span>
+        <NavLink to="/" className="logo logo-img-container" onClick={handleLinkClick} style={{ display: 'flex', alignItems: 'center' }}>
+          <img src="/logo.png" alt="EXIM Guru Mantra Logo" style={{ height: '42px', width: 'auto', objectFit: 'contain' }} />
         </NavLink>
 
         {/* Desktop Menu */}
