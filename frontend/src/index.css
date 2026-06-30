@@ -1959,7 +1959,7 @@ a {
 .home-banner-slider {
   position: relative;
   width: 100%;
-  height: 480px;
+  height: 600px;
   overflow: hidden;
   background-color: #000;
   border-bottom: 1px solid var(--bg-tertiary);
@@ -1974,9 +1974,12 @@ a {
   opacity: 0;
   transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   background-color: #000;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   z-index: 1;
 }
 
@@ -1986,10 +1989,82 @@ a {
 }
 
 .home-banner-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Guaranteed NO CROPPING */
-  background-color: #000; /* Negative space is black */
+  display: none;
+}
+
+/* Orange CTA Button from Exim Planner */
+.banner-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: #ff7236; /* Premium orange */
+  color: #ffffff !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 50px;
+  overflow: hidden;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-top: 1.5rem;
+  border: none;
+}
+
+.banner-cta-btn span:first-child {
+  padding: 0.9rem 1.8rem;
+}
+
+.banner-cta-arrow {
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  transition: transform 0.3s ease;
+}
+
+.banner-cta-btn:hover {
+  background: #e65c20;
+  box-shadow: 0 5px 15px rgba(255, 114, 54, 0.3);
+}
+
+.banner-cta-btn:hover .banner-cta-arrow {
+  transform: rotate(45deg);
+}
+
+/* Glowing Pulse Video Button */
+.pulse-button {
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 15px rgba(255, 255, 255, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* Fade in up keyframes */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .home-banner-btn {
@@ -2019,16 +2094,16 @@ a {
 }
 
 .home-banner-btn-prev {
-  left: 20px;
+  left: 30px;
 }
 
 .home-banner-btn-next {
-  right: 20px;
+  right: 30px;
 }
 
 .home-banner-dots {
   position: absolute;
-  bottom: 20px;
+  bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -2055,13 +2130,31 @@ a {
 /* Responsiveness for Slider */
 @media (max-width: 992px) {
   .home-banner-slider {
-    height: 380px;
+    height: 500px;
+  }
+  .banner-title {
+    font-size: 2.5rem !important;
   }
 }
 
 @media (max-width: 768px) {
   .home-banner-slider {
-    height: 300px;
+    height: 420px;
+  }
+  .banner-title {
+    font-size: 2rem !important;
+  }
+  .banner-subtitle {
+    font-size: 0.85rem !important;
+  }
+  .banner-cta-btn span:first-child {
+    padding: 0.7rem 1.4rem;
+    font-size: 0.85rem;
+  }
+  .banner-cta-arrow {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
   }
   .home-banner-btn {
     width: 36px;
@@ -2077,7 +2170,13 @@ a {
 
 @media (max-width: 480px) {
   .home-banner-slider {
-    height: 220px;
+    height: 350px;
+  }
+  .banner-title {
+    font-size: 1.6rem !important;
+  }
+  .banner-subtitle {
+    font-size: 0.75rem !important;
   }
   .home-banner-dot {
     width: 8px;

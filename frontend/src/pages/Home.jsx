@@ -24,7 +24,8 @@ import {
   ChevronRight,
   Coins,
   TrendingUp,
-  HelpCircle
+  HelpCircle,
+  X
 } from 'lucide-react';
 
 const servicesList = [
@@ -118,44 +119,56 @@ export default function Home() {
     commercialAddress: false
   });
 
-  const [bannerImages, setBannerImages] = useState([]);
-  const [loadingBanner, setLoadingBanner] = useState(true);
+  const [youtubeId, setYoutubeId] = useState('35mvh-2oII8');
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
 
-  // Fetch dynamically synced banner images
+  const bannerImages = [
+    {
+      img: 'https://eximplanner.com/assets/img/banner/1.jpg',
+      subtitle: 'ANYWHERE ANYTIME',
+      title: 'SWIFT, SECURE GLOBALLY CONNECT',
+      btnText: 'Read More'
+    },
+    {
+      img: 'https://eximplanner.com/assets/img/banner/2.jpg',
+      subtitle: 'YOUR DEDICATED',
+      title: 'PARTNER IN LOGISTICS',
+      btnText: 'Read More'
+    },
+    {
+      img: 'https://eximplanner.com/assets/img/banner/3.jpg',
+      subtitle: 'TRANSPORT. TRUST. TERRITORY.',
+      title: 'RELIABLE. EFFICIENT. GROUNDED.',
+      btnText: 'Read More'
+    }
+  ];
+
+  // Fetch dynamically synced youtube video and set doc title
   useEffect(() => {
     document.title = "EXIM Guru Mantra | Leading DGFT & Customs Consultancy";
-    const fetchBanners = async () => {
-      try {
-        const res = await fetch('/api/banner-images');
-        if (res.ok) {
-          const data = await res.json();
-          setBannerImages(data);
+    fetch('/api/youtube-videos')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          setYoutubeId(data[0].id);
         }
-      } catch (err) {
-        console.error('Failed to load dynamically synced banner images:', err);
-      } finally {
-        setLoadingBanner(false);
-      }
-    };
-    fetchBanners();
+      })
+      .catch(err => console.error('Failed to load dynamic youtube video:', err));
   }, []);
 
-  // Auto-sliding effect (runs when images load)
+  // Auto-sliding effect
   useEffect(() => {
-    if (bannerImages.length <= 1) return;
     const timer = setInterval(() => {
       setActiveSlide(prev => (prev + 1) % bannerImages.length);
-    }, 5000); // changes every 5 seconds
+    }, 5500);
     return () => clearInterval(timer);
-  }, [bannerImages.length]);
+  }, []);
 
   const handlePrevSlide = () => {
-    if (bannerImages.length === 0) return;
     setActiveSlide(prev => (prev - 1 + bannerImages.length) % bannerImages.length);
   };
 
   const handleNextSlide = () => {
-    if (bannerImages.length === 0) return;
     setActiveSlide(prev => (prev + 1) % bannerImages.length);
   };
 
@@ -190,176 +203,288 @@ export default function Home() {
 
   return (
     <div>
-      {/* Sliding Image Banner */}
-      <div 
-        className="home-banner-slider" 
-        style={{ 
-          display: bannerImages.length === 0 ? 'flex' : 'block', 
-          justifyContent: 'center', 
-          alignItems: 'center' 
-        }}
-      >
-        {bannerImages.length === 0 ? (
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.95rem', opacity: 0.8 }}>
-            {loadingBanner ? 'Synchronizing image library with Google Drive...' : 'No banner images available.'}
-          </div>
-        ) : (
-          <>
-            {bannerImages.map((image, idx) => (
-              <div 
-                key={idx} 
-                className={`home-banner-slide ${idx === activeSlide ? 'active' : ''}`}
-              >
-                <img 
-                  src={image.src} 
-                  alt={image.alt} 
-                  className="home-banner-img" 
-                />
-              </div>
-            ))}
-            
-            {/* Navigation Buttons */}
-            {bannerImages.length > 1 && (
-              <>
-                <button 
-                  onClick={handlePrevSlide} 
-                  className="home-banner-btn home-banner-btn-prev"
-                  aria-label="Previous Slide"
+      {/* Sliding Image Banner (Hero Section) */}
+      <div className="home-banner-slider">
+        {bannerImages.map((slide, idx) => (
+          <div 
+            key={idx} 
+            className={`home-banner-slide ${idx === activeSlide ? 'active' : ''}`}
+            style={{
+              backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 0.75) 30%, rgba(0, 0, 0, 0.25) 100%), url(${slide.img})`
+            }}
+          >
+            <div className="container" style={{ paddingLeft: '5%', zIndex: 5 }}>
+              <div style={{ maxWidth: '650px', color: '#ffffff', textAlign: 'left' }}>
+                <span 
+                  className="banner-subtitle" 
+                  style={{ 
+                    fontSize: '1rem', 
+                    fontWeight: '800', 
+                    letterSpacing: '2px', 
+                    color: '#ff7236', 
+                    textTransform: 'uppercase', 
+                    display: 'block', 
+                    marginBottom: '0.75rem', 
+                    animation: idx === activeSlide ? 'fadeInUp 0.6s ease' : 'none' 
+                  }}
                 >
-                  <ChevronLeft size={24} />
-                </button>
-                <button 
-                  onClick={handleNextSlide} 
-                  className="home-banner-btn home-banner-btn-next"
-                  aria-label="Next Slide"
+                  {slide.subtitle}
+                </span>
+                <h1 
+                  className="banner-title" 
+                  style={{ 
+                    fontSize: '3.25rem', 
+                    fontWeight: '900', 
+                    lineHeight: '1.25', 
+                    textTransform: 'uppercase', 
+                    marginBottom: '1.25rem', 
+                    color: '#ffffff',
+                    animation: idx === activeSlide ? 'fadeInUp 0.8s ease' : 'none' 
+                  }}
                 >
-                  <ChevronRight size={24} />
-                </button>
-                
-                {/* Navigation Dots */}
-                <div className="home-banner-dots">
-                  {bannerImages.map((_, idx) => (
-                    <div 
-                      key={idx} 
-                      onClick={() => setActiveSlide(idx)}
-                      className={`home-banner-dot ${idx === activeSlide ? 'active' : ''}`}
-                    />
-                  ))}
+                  {slide.title}
+                </h1>
+                <div style={{ animation: idx === activeSlide ? 'fadeInUp 1s ease' : 'none' }}>
+                  <Link to="/services" className="banner-cta-btn">
+                    <span>{slide.btnText}</span>
+                    <span className="banner-cta-arrow">↗</span>
+                  </Link>
                 </div>
-              </>
-            )}
-          </>
-        )}
+              </div>
+            </div>
+          </div>
+        ))}
+        
+        {/* Navigation Buttons */}
+        <button 
+          onClick={handlePrevSlide} 
+          className="home-banner-btn home-banner-btn-prev"
+          aria-label="Previous Slide"
+        >
+          <ChevronLeft size={24} />
+        </button>
+        <button 
+          onClick={handleNextSlide} 
+          className="home-banner-btn home-banner-btn-next"
+          aria-label="Next Slide"
+        >
+          <ChevronRight size={24} />
+        </button>
+        
+        {/* Navigation Dots */}
+        <div className="home-banner-dots">
+          {bannerImages.map((_, idx) => (
+            <div 
+              key={idx} 
+              onClick={() => setActiveSlide(idx)}
+              className={`home-banner-dot ${idx === activeSlide ? 'active' : ''}`}
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Hero Section */}
-      <header className="hero">
-        <div className="container hero-grid">
-          <div>
-            <div className="hero-tagline">
-              <Zap size={14} />
-              <span>Leading DGFT & Customs Consultancy in India</span>
-            </div>
-            <h1 className="hero-title">
-              Streamline Your <span>Global Trade</span> compliance
-            </h1>
-            <p className="hero-desc">
-              From IEC applications and Export Promotion Council enrollment to customs duty estimation and legal dispute resolution, we provide comprehensive end-to-end EXIM advisory.
-            </p>
-            <div className="hero-actions">
-              <Link to="/calculator" className="btn btn-primary">
-                <span>Duty Estimator</span>
-                <ArrowRight size={16} />
-              </Link>
-              <Link to="/contact" className="btn btn-secondary">
-                Book Consultation
-              </Link>
+      {/* Video Callout Section (Dynamic YouTube Pop-Up) */}
+      <section style={{ background: '#003d4c', padding: '3.5rem 0', color: '#ffffff' }}>
+        <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '3rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => setIsVideoOpen(true)}
+              style={{
+                width: '76px',
+                height: '76px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '2px solid rgba(255, 255, 255, 0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#ffffff',
+                transition: 'all 0.3s ease',
+                position: 'relative'
+              }}
+              className="pulse-button"
+              aria-label="Play Featured Video"
+            >
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" style={{ marginLeft: '4px' }}>
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </button>
+            
+            <div style={{ maxWidth: '650px' }}>
+              <p style={{ fontSize: '1.15rem', lineHeight: '1.6', fontWeight: '500', opacity: 0.95 }}>
+                Well-managed logistics can provide a competitive edge by offering faster delivery, better service, and lower costs.
+              </p>
             </div>
           </div>
-
-          <div className="hero-img-container">
-            <div className="hero-card">
-              <h3 style={{ marginBottom: '1.25rem', fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <ShieldCheck size={20} style={{ color: '#f59e0b' }} />
-                <span>EXIM Document Checklist</span>
-              </h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                Verify if your firm is fully equipped to apply for an Import Export Code (IEC) instantly.
-              </p>
-
-              <form onSubmit={verifyIecEligibility}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
-                  <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={checklist.pan}
-                      onChange={() => handleCheckboxChange('pan')}
-                      style={{ accentColor: '#2563eb', width: '16px', height: '16px', marginTop: '3px' }}
-                    />
-                    <span>Possess Individual / Company PAN Card</span>
-                  </label>
-                  <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={checklist.bankAccount}
-                      onChange={() => handleCheckboxChange('bankAccount')}
-                      style={{ accentColor: '#2563eb', width: '16px', height: '16px', marginTop: '3px' }}
-                    />
-                    <span>Active Bank Account with Cancelled Cheque</span>
-                  </label>
-                  <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={checklist.hasDigitalSignature}
-                      onChange={() => handleCheckboxChange('hasDigitalSignature')}
-                      style={{ accentColor: '#2563eb', width: '16px', height: '16px', marginTop: '3px' }}
-                    />
-                    <span>Digital Signature Certificate (Class 3 DSC)</span>
-                  </label>
-                  <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
-                    <input 
-                      type="checkbox" 
-                      checked={checklist.commercialAddress}
-                      onChange={() => handleCheckboxChange('commercialAddress')}
-                      style={{ accentColor: '#2563eb', width: '16px', height: '16px', marginTop: '3px' }}
-                    />
-                    <span>Proof of Business Address (Rent Deed/Utility Bill)</span>
-                  </label>
-                </div>
-
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.7rem' }}>
-                  Verify Setup Ready
-                </button>
-              </form>
-
-              {iecCheckResult && (
-                <div style={{
-                  marginTop: '1.25rem',
-                  padding: '1rem',
-                  borderRadius: '8px',
-                  background: iecCheckResult.status === 'eligible' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(245, 158, 11, 0.08)',
-                  border: `1px solid ${iecCheckResult.status === 'eligible' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`
-                }}>
-                  <h4 style={{
-                    color: iecCheckResult.status === 'eligible' ? 'var(--success)' : 'var(--accent)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    fontSize: '0.95rem',
-                    marginBottom: '0.25rem'
-                  }}>
-                    {iecCheckResult.status === 'eligible' ? <ShieldCheck size={16} /> : <ShieldAlert size={16} />}
-                    {iecCheckResult.title}
-                  </h4>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
-                    {iecCheckResult.description}
-                  </p>
-                </div>
-              )}
-            </div>
+          
+          <div>
+            <Link to="/services" className="btn btn-secondary" style={{ borderColor: 'rgba(255, 255, 255, 0.3)', color: '#ffffff', background: 'transparent' }}>
+              Our Portfolios
+            </Link>
           </div>
         </div>
-      </header>
+      </section>
+
+      {/* Interactive Verification Checklist Section */}
+      <section className="section" style={{ background: 'var(--bg-secondary)', padding: '5rem 0' }}>
+        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '4rem', alignItems: 'center' }}>
+          <div>
+            <h2 className="section-title" style={{ fontSize: '2.25rem', textAlign: 'left', margin: 0 }}>
+              Prerequisites for <span>Global Trade</span>
+            </h2>
+            <p className="section-desc" style={{ textAlign: 'left', margin: '1.25rem 0 2rem 0', fontSize: '1rem', lineHeight: '1.6' }}>
+              Setting up an import-export firm in India requires specific mandatory documents under DGFT and Customs rules. Use our interactive checklist on the right to instantly verify if your firm is ready to apply for the Import Export Code (IEC).
+            </p>
+            <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
+                <ShieldCheck size={20} style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0 }}>Fast-Track Approval</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Get registered under DGFT in 24 hours.</p>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'start' }}>
+                <ShieldCheck size={20} style={{ color: 'var(--primary)', flexShrink: 0, marginTop: '2px' }} />
+                <div>
+                  <h4 style={{ fontSize: '0.98rem', fontWeight: 700, margin: 0 }}>100% Secure Process</h4>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Compliant with latest Star House standards.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="hero-card" style={{ background: '#ffffff', border: '1px solid var(--bg-tertiary)', borderRadius: '8px', padding: '2.25rem 2rem', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
+            <h3 style={{ marginBottom: '1.25rem', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '800' }}>
+              <ShieldCheck size={20} style={{ color: '#ff7236' }} />
+              <span>EXIM Document Checklist</span>
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              Verify if your firm is fully equipped to apply for an Import Export Code (IEC) instantly.
+            </p>
+
+            <form onSubmit={verifyIecEligibility}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+                <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={checklist.pan}
+                    onChange={() => handleCheckboxChange('pan')}
+                    style={{ accentColor: '#ff7236', width: '16px', height: '16px', marginTop: '3px' }}
+                  />
+                  <span>Possess Individual / Company PAN Card</span>
+                </label>
+                <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={checklist.bankAccount}
+                    onChange={() => handleCheckboxChange('bankAccount')}
+                    style={{ accentColor: '#ff7236', width: '16px', height: '16px', marginTop: '3px' }}
+                  />
+                  <span>Active Bank Account with Cancelled Cheque</span>
+                </label>
+                <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={checklist.hasDigitalSignature}
+                    onChange={() => handleCheckboxChange('hasDigitalSignature')}
+                    style={{ accentColor: '#ff7236', width: '16px', height: '16px', marginTop: '3px' }}
+                  />
+                  <span>Digital Signature Certificate (Class 3 DSC)</span>
+                </label>
+                <label style={{ display: 'flex', gap: '0.75rem', cursor: 'pointer', fontSize: '0.92rem' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={checklist.commercialAddress}
+                    onChange={() => handleCheckboxChange('commercialAddress')}
+                    style={{ accentColor: '#ff7236', width: '16px', height: '16px', marginTop: '3px' }}
+                  />
+                  <span>Proof of Business Address (Rent Deed/Utility Bill)</span>
+                </label>
+              </div>
+
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.7rem' }}>
+                Verify Setup Ready
+              </button>
+            </form>
+
+            {iecCheckResult && (
+              <div style={{
+                marginTop: '1.25rem',
+                padding: '1rem',
+                borderRadius: '8px',
+                background: iecCheckResult.status === 'eligible' ? 'rgba(16, 185, 129, 0.08)' : 'rgba(245, 158, 11, 0.08)',
+                border: `1px solid ${iecCheckResult.status === 'eligible' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`
+              }}>
+                <h4 style={{
+                  color: iecCheckResult.status === 'eligible' ? 'var(--success)' : 'var(--accent)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  fontSize: '0.95rem',
+                  marginBottom: '0.25rem'
+                }}>
+                  {iecCheckResult.status === 'eligible' ? <ShieldCheck size={16} /> : <ShieldAlert size={16} />}
+                  {iecCheckResult.title}
+                </h4>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.4' }}>
+                  {iecCheckResult.description}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* YouTube Video Modal Overlay */}
+      {isVideoOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(15, 12, 10, 0.92)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '2rem'
+        }}>
+          {/* Close trigger */}
+          <button 
+            onClick={() => setIsVideoOpen(false)}
+            style={{
+              position: 'absolute',
+              top: '2rem',
+              right: '2rem',
+              background: 'none',
+              border: 'none',
+              color: '#ffffff',
+              cursor: 'pointer',
+              opacity: 0.8
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
+            onMouseLeave={(e) => e.currentTarget.style.opacity = 0.8}
+            aria-label="Close Video"
+          >
+            <X size={32} />
+          </button>
+          
+          <div style={{ width: '100%', maxWidth: '880px', aspectRatio: '16/9', background: '#000000', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.3)' }}>
+            <iframe
+              width="100%"
+              height="100%"
+              src={`https://www.youtube.com/embed/${youtubeId}?autoplay=1&enablejsapi=1&rel=0`}
+              title="Featured Video"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              style={{ border: 'none' }}
+            ></iframe>
+          </div>
+        </div>
+      )}
 
 
 

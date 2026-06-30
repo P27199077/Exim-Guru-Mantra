@@ -863,6 +863,16 @@ const sendConsultationEmails = async (queryData) => {
 
   const fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
 
+  const buildVerticalCharStack = (str) => {
+    return str.split('').map(char => {
+      if (char === ' ') return '<div style="height: 10px;"></div>';
+      return `<div style="margin-bottom: 2px;">${char}</div>`;
+    }).join('');
+  };
+
+  const logoStack = buildVerticalCharStack("EXIM GURU MANTRA");
+  const subStack = buildVerticalCharStack("IMPORT • EXPORT • FREIGHT FORWARDING • CONSULTANCY");
+
   try {
     // Email 1: Notification Ticket to EXIM Guru Mantra (eximgurumantra@gmail.com)
     const adminMailOptions = {
@@ -870,46 +880,123 @@ const sendConsultationEmails = async (queryData) => {
       to: 'eximgurumantra@gmail.com', // Always notify the official email
       subject: `[New Ticket #${id}] - Inquiry from ${name} (${serviceType})`,
       html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; border: 1px solid #eae3d2; border-radius: 8px; padding: 20px; background-color: #fbf9f4;">
-          <h2 style="color: #c21d2e; border-bottom: 2px solid #c21d2e; padding-bottom: 10px; margin-top: 0;">New Consultation Request</h2>
-          <p style="font-size: 0.95rem; color: #5c554e;">A client has submitted a query via the Exim Guru Mantra website. Here are the details:</p>
-          
-          <table style="width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 20px;">
-            <tr style="background-color: #f4eee1;">
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; width: 30%; color: #1e1b18;">Ticket ID</td>
-              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;">#${id}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Client Name</td>
-              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;">${name}</td>
-            </tr>
-            <tr style="background-color: #f4eee1;">
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Email</td>
-              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;"><a href="mailto:${email}" style="color: #c21d2e; text-decoration: none;">${email}</a></td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Phone Number</td>
-              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;">${phone ? `<a href="tel:${phone}" style="color: #c21d2e; text-decoration: none;">${phone}</a>` : 'Not provided'}</td>
-            </tr>
-            <tr style="background-color: #f4eee1;">
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Company</td>
-              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;">${company || 'Not provided'}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eae3d2; color: #1e1b18;">Service Segment</td>
-              <td style="padding: 10px; border: 1px solid #eae3d2; color: #5c554e;"><strong>${serviceType}</strong></td>
-            </tr>
-          </table>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+        </head>
+        <body style="margin: 0; padding: 20px; background-color: #faf9f6; font-family: Arial, sans-serif;">
+          <div style="max-width: 680px; margin: 0 auto; border: 1px solid #d5d0c5; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);">
+            <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; border: 0;">
+              <tr>
+                <!-- Left Margin vertical stacked text -->
+                <td width="72" valign="top" style="background-color: #ffffff; text-align: center; border-right: 1.5px dashed #ccc; padding: 25px 0 25px 8px; vertical-align: top;">
+                  <table cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="50%" valign="top" style="text-align: center; font-size: 17px; font-weight: bold; font-family: 'Times New Roman', Times, Georgia, serif; color: #1b365d; line-height: 1.1; letter-spacing: 2px; text-transform: uppercase;">
+                        ${logoStack}
+                      </td>
+                      <td width="50%" valign="top" style="text-align: center; font-size: 8px; font-weight: bold; font-family: Arial, sans-serif; color: #5c554e; line-height: 1.3; text-transform: uppercase; letter-spacing: 1px; border-left: 0.5px solid #eaeaea; padding-left: 4px;">
+                        ${subStack}
+                      </td>
+                    </tr>
+                  </table>
+                </td>
 
-          <div style="background-color: #ffffff; border-left: 4px solid #c21d2e; padding: 15px; border-radius: 4px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
-            <h4 style="margin-top: 0; color: #1e1b18; margin-bottom: 8px;">Detailed Client Query:</h4>
-            <p style="white-space: pre-wrap; margin: 0; font-size: 0.92rem; line-height: 1.5; color: #1e1b18;">${message}</p>
+                <!-- Right Main Area -->
+                <td valign="top" style="background-color: #ffffff; padding: 20px 22px 25px 22px; vertical-align: top;">
+                  <!-- Header -->
+                  <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="margin: 0; font-size: 26px; font-weight: bold; font-family: 'Times New Roman', Times, Georgia, serif; color: #1b365d; letter-spacing: 1.5px; text-transform: uppercase;">
+                      EXIM GURU MANTRA
+                    </h1>
+                    <div style="font-size: 11px; font-weight: bold; color: #5c554e; letter-spacing: 1.2px; text-transform: uppercase; margin-top: 4px; margin-bottom: 12px;">
+                      Import &bull; Export &bull; Freight Forwarding &bull; Consultancy
+                    </div>
+                    
+                    <!-- Contacts table -->
+                    <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; border-top: 1px solid #e8e3d5; border-bottom: 1px solid #e8e3d5; padding: 8px 0; font-size: 11px; font-family: Arial, sans-serif; color: #333; margin-top: 8px;">
+                      <tr>
+                        <td width="50%" align="left" style="padding: 6px 0; vertical-align: middle;">
+                          <table cellpadding="3" cellspacing="0" style="font-size: 11px;">
+                            <tr>
+                              <td style="color: #1b365d; font-size: 13px; line-height: 1;">✉</td>
+                              <td><a href="mailto:eximgurumantra@gmail.com" style="color: #1b365d; text-decoration: none;">eximgurumantra@gmail.com</a></td>
+                            </tr>
+                            <tr>
+                              <td style="color: #1b365d; font-size: 13px; line-height: 1;">✉</td>
+                              <td><a href="mailto:info@eximgurumantra.com" style="color: #1b365d; text-decoration: none;">info@eximgurumantra.com</a></td>
+                            </tr>
+                            <tr>
+                              <td style="color: #1b365d; font-size: 13px; line-height: 1;">🌐</td>
+                              <td><a href="https://www.eximgurumantra.com" target="_blank" style="color: #1b365d; text-decoration: none;">www.eximgurumantra.com</a></td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td width="50%" align="right" style="padding: 6px 0; vertical-align: middle;">
+                          <table cellpadding="3" cellspacing="0" align="right" style="font-size: 11px;">
+                            <tr>
+                              <td style="color: #1b365d; font-size: 13px; line-height: 1;">📞</td>
+                              <td><a href="tel:+918810400251" style="color: #1b365d; text-decoration: none;">+91 8810400251</a></td>
+                            </tr>
+                            <tr>
+                              <td style="color: #25d366; font-size: 13px; line-height: 1; font-weight: bold;">💬</td>
+                              <td><a href="https://wa.me/918368231132" target="_blank" style="color: #1b365d; text-decoration: none; font-weight: bold;">+91 8368231132</a></td>
+                            </tr>
+                            <tr>
+                              <td style="color: #c21d2e; font-size: 13px; line-height: 1;">▶</td>
+                              <td><a href="https://www.youtube.com/channel/UCKRUu69BuybTj4C-w-PHCLg" target="_blank" style="color: #c21d2e; text-decoration: none; font-weight: bold;">YouTube Channel</a></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <!-- Green border box with query inside empty space -->
+                  <div style="border: 2px solid #5e8d3b; padding: 22px; border-radius: 4px; min-height: 280px; background-color: #ffffff;">
+                    <h3 style="margin-top: 0; color: #1b365d; border-bottom: 1px solid #eaeaea; padding-bottom: 8px; font-size: 15px; font-weight: bold; text-transform: uppercase;">
+                      New Consultation Ticket #${id}
+                    </h3>
+                    <table cellpadding="5" cellspacing="0" width="100%" style="font-size: 13px; color: #333; margin-bottom: 18px; border-collapse: collapse;">
+                      <tr style="background-color: #f7f5f0;">
+                        <td width="30%" style="font-weight: bold; border: 1px solid #e2ded5;">Client Name:</td>
+                        <td style="border: 1px solid #e2ded5;">${name}</td>
+                      </tr>
+                      <tr>
+                        <td style="font-weight: bold; border: 1px solid #e2ded5;">Email Address:</td>
+                        <td style="border: 1px solid #e2ded5;"><a href="mailto:${email}" style="color: #1b365d; text-decoration: none;">${email}</a></td>
+                      </tr>
+                      <tr style="background-color: #f7f5f0;">
+                        <td style="font-weight: bold; border: 1px solid #e2ded5;">Phone Number:</td>
+                        <td style="border: 1px solid #e2ded5;">${phone ? `<a href="tel:${phone}" style="color: #1b365d; text-decoration: none;">${phone}</a>` : 'Not provided'}</td>
+                      </tr>
+                      <tr>
+                        <td style="font-weight: bold; border: 1px solid #e2ded5;">Company:</td>
+                        <td style="border: 1px solid #e2ded5;">${company || 'Not provided'}</td>
+                      </tr>
+                      <tr style="background-color: #f7f5f0;">
+                        <td style="font-weight: bold; border: 1px solid #e2ded5;">Service Category:</td>
+                        <td style="border: 1px solid #e2ded5;"><strong>${serviceType}</strong></td>
+                      </tr>
+                    </table>
+                    
+                    <div style="border-top: 1px solid #eaeaea; padding-top: 15px;">
+                      <h4 style="margin: 0 0 8px 0; color: #1b365d; font-size: 13px;">Detailed Client Query:</h4>
+                      <div style="white-space: pre-wrap; font-size: 13px; line-height: 1.5; color: #1e1b18; padding: 12px; background-color: #faf9f6; border-radius: 4px; border: 1px solid #efece6;">${message}</div>
+                    </div>
+                  </div>
+
+                  <!-- Footer -->
+                  <div style="text-align: center; font-size: 10px; color: #8c8278; margin-top: 20px; border-top: 1px dashed #e2ded5; padding-top: 12px;">
+                    EXIM GURU MANTRA ASSOCIATES &bull; Corporate Legal, CHA & DGFT Advisory
+                  </div>
+                </td>
+              </tr>
+            </table>
           </div>
-          
-          <p style="font-size: 0.8rem; color: #8c8278; margin-top: 25px; text-align: center; border-top: 1px solid #eae3d2; padding-top: 15px;">
-            This is an automated system dispatch. Please reply directly to the client's email above.
-          </p>
-        </div>
+        </body>
+        </html>
       `
     };
 
@@ -919,40 +1006,115 @@ const sendConsultationEmails = async (queryData) => {
       to: email,
       subject: `We've Received Your Inquiry - Exim Guru Mantra Associates`,
       html: `
-        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; border: 1px solid #eae3d2; border-radius: 8px; padding: 20px; background-color: #fbf9f4;">
-          <div style="text-align: center; border-bottom: 2px solid #c21d2e; padding-bottom: 15px; margin-bottom: 20px;">
-            <h1 style="color: #c21d2e; margin: 0; font-size: 1.6rem; letter-spacing: 0.05em;">EXIM GURU MANTRA</h1>
-            <span style="font-size: 0.75rem; color: #5c554e; text-transform: uppercase; letter-spacing: 0.1em;">Corporate Legal & Trade Advisory Desk</span>
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+        </head>
+        <body style="margin: 0; padding: 20px; background-color: #faf9f6; font-family: Arial, sans-serif;">
+          <div style="max-width: 680px; margin: 0 auto; border: 1px solid #d5d0c5; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);">
+            <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; border: 0;">
+              <tr>
+                <!-- Left Margin vertical stacked text -->
+                <td width="72" valign="top" style="background-color: #ffffff; text-align: center; border-right: 1.5px dashed #ccc; padding: 25px 0 25px 8px; vertical-align: top;">
+                  <table cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="50%" valign="top" style="text-align: center; font-size: 17px; font-weight: bold; font-family: 'Times New Roman', Times, Georgia, serif; color: #1b365d; line-height: 1.1; letter-spacing: 2px; text-transform: uppercase;">
+                        ${logoStack}
+                      </td>
+                      <td width="50%" valign="top" style="text-align: center; font-size: 8px; font-weight: bold; font-family: Arial, sans-serif; color: #5c554e; line-height: 1.3; text-transform: uppercase; letter-spacing: 1px; border-left: 0.5px solid #eaeaea; padding-left: 4px;">
+                        ${subStack}
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <!-- Right Main Area -->
+                <td valign="top" style="background-color: #ffffff; padding: 20px 22px 25px 22px; vertical-align: top;">
+                  <!-- Header -->
+                  <div style="text-align: center; margin-bottom: 20px;">
+                    <h1 style="margin: 0; font-size: 26px; font-weight: bold; font-family: 'Times New Roman', Times, Georgia, serif; color: #1b365d; letter-spacing: 1.5px; text-transform: uppercase;">
+                      EXIM GURU MANTRA
+                    </h1>
+                    <div style="font-size: 11px; font-weight: bold; color: #5c554e; letter-spacing: 1.2px; text-transform: uppercase; margin-top: 4px; margin-bottom: 12px;">
+                      Import &bull; Export &bull; Freight Forwarding &bull; Consultancy
+                    </div>
+                    
+                    <!-- Contacts table -->
+                    <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse; border-top: 1px solid #e8e3d5; border-bottom: 1px solid #e8e3d5; padding: 8px 0; font-size: 11px; font-family: Arial, sans-serif; color: #333; margin-top: 8px;">
+                      <tr>
+                        <td width="50%" align="left" style="padding: 6px 0; vertical-align: middle;">
+                          <table cellpadding="3" cellspacing="0" style="font-size: 11px;">
+                            <tr>
+                              <td style="color: #1b365d; font-size: 13px; line-height: 1;">✉</td>
+                              <td><a href="mailto:eximgurumantra@gmail.com" style="color: #1b365d; text-decoration: none;">eximgurumantra@gmail.com</a></td>
+                            </tr>
+                            <tr>
+                              <td style="color: #1b365d; font-size: 13px; line-height: 1;">✉</td>
+                              <td><a href="mailto:info@eximgurumantra.com" style="color: #1b365d; text-decoration: none;">info@eximgurumantra.com</a></td>
+                            </tr>
+                            <tr>
+                              <td style="color: #1b365d; font-size: 13px; line-height: 1;">🌐</td>
+                              <td><a href="https://www.eximgurumantra.com" target="_blank" style="color: #1b365d; text-decoration: none;">www.eximgurumantra.com</a></td>
+                            </tr>
+                          </table>
+                        </td>
+                        <td width="50%" align="right" style="padding: 6px 0; vertical-align: middle;">
+                          <table cellpadding="3" cellspacing="0" align="right" style="font-size: 11px;">
+                            <tr>
+                              <td style="color: #1b365d; font-size: 13px; line-height: 1;">📞</td>
+                              <td><a href="tel:+918810400251" style="color: #1b365d; text-decoration: none;">+91 8810400251</a></td>
+                            </tr>
+                            <tr>
+                              <td style="color: #25d366; font-size: 13px; line-height: 1; font-weight: bold;">💬</td>
+                              <td><a href="https://wa.me/918368231132" target="_blank" style="color: #1b365d; text-decoration: none; font-weight: bold;">+91 8368231132</a></td>
+                            </tr>
+                            <tr>
+                              <td style="color: #c21d2e; font-size: 13px; line-height: 1;">▶</td>
+                              <td><a href="https://www.youtube.com/channel/UCKRUu69BuybTj4C-w-PHCLg" target="_blank" style="color: #c21d2e; text-decoration: none; font-weight: bold;">YouTube Channel</a></td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <!-- Green border box with query inside empty space -->
+                  <div style="border: 2px solid #5e8d3b; padding: 22px; border-radius: 4px; min-height: 280px; background-color: #ffffff;">
+                    <h3 style="margin-top: 0; color: #1b365d; font-size: 15px;">Dear ${name},</h3>
+                    <p style="font-size: 13.5px; line-height: 1.6; color: #444; margin-bottom: 15px;">
+                      Thank you for contacting <strong>Exim Guru Mantra Associates</strong>. Your inquiry regarding <strong>${serviceType}</strong> has been successfully registered and is under review.
+                    </p>
+
+                    <div style="background-color: #faf9f6; border: 1px solid #e2ded5; border-radius: 4px; padding: 15px; margin: 15px 0;">
+                      <h4 style="margin: 0 0 8px 0; color: #5e8d3b; font-size: 14px;">Next Action Steps:</h4>
+                      <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #5c554e; line-height: 1.5;">
+                        <li style="margin-bottom: 6px;">Our principal consultant, <strong>Varun Gupta</strong>, is reviewing your business details and requirements.</li>
+                        <li style="margin-bottom: 6px;">A dedicated trade compliance specialist will get back to you within <strong>24 to 48 hours</strong> with actionable advice.</li>
+                        <li>We may request additional papers (such as your PAN details or current account checklist) for draft filing.</li>
+                      </ul>
+                    </div>
+
+                    <div style="border-top: 1px solid #eaeaea; padding-top: 15px; margin-top: 15px;">
+                      <h4 style="margin: 0 0 8px 0; color: #666; font-size: 12px; text-transform: uppercase;">Copy of your submitted query:</h4>
+                      <div style="white-space: pre-wrap; font-size: 12.5px; line-height: 1.4; color: #666; padding: 12px; background-color: #faf9f6; border-radius: 4px; border: 1px solid #efece6;">${message}</div>
+                    </div>
+
+                    <p style="font-size: 13.5px; line-height: 1.6; color: #444; margin-top: 15px; margin-bottom: 0;">
+                      If you need urgent assistance, please do not hesitate to contact us at <a href="tel:+918810400251" style="color: #1b365d; text-decoration: none; font-weight: bold;">+91 8810400251</a> or reply directly to this email receipt.
+                    </p>
+                  </div>
+
+                  <!-- Footer -->
+                  <div style="text-align: center; font-size: 10px; color: #8c8278; margin-top: 20px; border-top: 1px dashed #e2ded5; padding-top: 12px;">
+                    EXIM GURU MANTRA ASSOCIATES &bull; Corporate Legal, CHA & DGFT Advisory
+                  </div>
+                </td>
+              </tr>
+            </table>
           </div>
-
-          <h3 style="color: #1e1b18; margin-top: 0;">Dear ${name},</h3>
-          <p style="font-size: 0.95rem; color: #5c554e; line-height: 1.6;">
-            Thank you for reaching out to Exim Guru Mantra Associates. Your inquiry regarding <strong>${serviceType}</strong> has been successfully registered and is **officially in process**.
-          </p>
-          
-          <div style="background-color: #f4eee1; padding: 15px; border-radius: 6px; margin: 20px 0; border: 1px solid #eae3d2;">
-            <h4 style="margin-top: 0; color: #c21d2e; margin-bottom: 5px;">What happens next?</h4>
-            <p style="margin: 0; font-size: 0.88rem; color: #5c554e; line-height: 1.5;">
-              - A ticket (<strong>#${id}</strong>) has been generated for your query.<br>
-              - Our team led by principal advisor <strong>Varun Gupta</strong> is reviewing your submission details.<br>
-              - A trade compliance specialist will get back to you within **24 to 48 hours** with diagnostic insights.
-            </p>
-          </div>
-
-          <p style="font-size: 0.95rem; color: #5c554e; line-height: 1.6;">
-            If you need urgent assistance or want to expedite your IEC Code / GST audit briefing, you can also reach us directly at <a href="tel:+918810400251" style="color: #c21d2e; text-decoration: none; font-weight: bold;">+91 88104 00251</a> or reply directly to this email.
-          </p>
-
-          <p style="font-size: 0.95rem; color: #5c554e; margin-top: 25px;">
-            Best Regards,<br>
-            <strong>Exim Guru Mantra Associates</strong><br>
-            <span style="font-size: 0.8rem; color: #8c8278;">Delhi - 110018, India</span>
-          </p>
-
-          <p style="font-size: 0.72rem; color: #8c8278; margin-top: 30px; text-align: center; border-top: 1px solid #eae3d2; padding-top: 15px;">
-            This is an automated system response confirming receipt of your submission.
-          </p>
-        </div>
+        </body>
+        </html>
       `
     };
 
