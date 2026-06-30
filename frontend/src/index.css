@@ -684,7 +684,7 @@ a {
   transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
   z-index: 1000;
   text-align: left;
-  max-height: 480px;
+  max-height: 380px;
   overflow-y: auto;
 }
 
