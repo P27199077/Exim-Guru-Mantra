@@ -4,24 +4,24 @@
   --font-heading: 'Outfit', sans-serif;
   --font-body: 'Plus Jakarta Sans', sans-serif;
 
-  /* Color Palette - Premium Minimal Red and Beige Vibe */
-  --bg-primary: #fbf9f4; /* Warm crisp beige background */
-  --bg-secondary: #f4eee1; /* Rich beige card/accent background */
-  --bg-tertiary: #eae3d2; /* Divider and border warm beige */
-  --card-bg: #ffffff; /* Clean white cards for modern layout */
-  --card-border: #eae3d2;
+  /* Color Palette - Premium Blue, White, and Orange */
+  --bg-primary: #ffffff; /* Clean white background */
+  --bg-secondary: #f4f7fa; /* Very soft light blue-gray card/section background */
+  --bg-tertiary: #e2e8f0; /* Divider and border light gray */
+  --card-bg: #ffffff; /* Clean white cards */
+  --card-border: #e2e8f0;
   
-  --primary: #c21d2e; /* Deep crimson corporate red */
-  --primary-hover: #9c1524;
-  --primary-glow: rgba(194, 29, 46, 0.08);
+  --primary: #1b365d; /* Royal dark blue */
+  --primary-hover: #0f2540;
+  --primary-glow: rgba(27, 54, 93, 0.08);
   
-  --accent: #e40001; /* Vibrant accent red (from Lex N Tax) */
-  --accent-hover: #b80001;
-  --accent-glow: rgba(228, 0, 1, 0.08);
+  --accent: #ff7236; /* Vibrant orange */
+  --accent-hover: #e65c20;
+  --accent-glow: rgba(255, 114, 54, 0.08);
   
-  --text-primary: #1e1b18; /* Near-black dark charcoal with warm undertones */
-  --text-secondary: #5c554e; /* Soft dark grey for readable paragraphs */
-  --text-muted: #8c8278;
+  --text-primary: #0f172a; /* Slate dark charcoal */
+  --text-secondary: #475569; /* Slate secondary gray */
+  --text-muted: #64748b;
   
   --success: #166534; /* Rich forest green */
   --error: #991b1b;
@@ -29,6 +29,26 @@
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark Theme Variables Override - Black, Blue, and Orange */
+body.dark-theme {
+  --bg-primary: #09090b; /* Pitch black */
+  --bg-secondary: #18181b; /* Dark gray */
+  --bg-tertiary: #27272a; /* Slate boundary */
+  --card-bg: #111115; /* Clean black card */
+  --card-border: #27272a;
+  
+  --primary: #3b82f6; /* Electric blue */
+  --primary-hover: #60a5fa;
+  --primary-glow: rgba(59, 130, 246, 0.08);
+  
+  --accent: #ff7236; /* Vibrant orange */
+  --accent-hover: #ff8c5a;
+  
+  --text-primary: #f3f4f6; /* White text */
+  --text-secondary: #9ca3af; /* Gray text */
+  --text-muted: #6b7280;
 }
 
 /* Reset */

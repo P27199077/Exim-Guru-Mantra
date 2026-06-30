@@ -284,7 +284,7 @@ export default function Home() {
       </div>
 
       {/* Video Callout Section (Dynamic YouTube Pop-Up) */}
-      <section style={{ background: '#003d4c', padding: '3.5rem 0', color: '#ffffff' }}>
+      <section style={{ background: 'var(--primary)', padding: '3.5rem 0', color: '#ffffff' }}>
         <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '3rem', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
             <button 

@@ -1,11 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Globe, Menu, X, PhoneCall, ChevronDown } from 'lucide-react';
+import { Globe, Menu, X, PhoneCall, ChevronDown, Sun, Moon } from 'lucide-react';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false); // Mobile drawer open state
   const [dropdownOpen, setDropdownOpen] = useState(false); // Desktop services mega-dropdown state
   const [categories, setCategories] = useState([]);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'light';
+  });
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.body.classList.add('dark-theme');
+    } else {
+      document.body.classList.remove('dark-theme');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -168,7 +184,48 @@ export default function Navbar() {
           </li>
         </ul>
 
-        <div className="pc-only">
+        <div className="pc-only" style={{ display: 'flex', alignItems: 'center' }}>
+          <button 
+            onClick={toggleTheme}
+            style={{
+              background: '#0f0f10',
+              border: '1px solid var(--bg-tertiary)',
+              borderRadius: '50px',
+              padding: '4px',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              width: '64px',
+              height: '32px',
+              position: 'relative',
+              marginRight: '1.25rem',
+              outline: 'none',
+              transition: 'all 0.3s ease',
+              verticalAlign: 'middle'
+            }}
+            title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+          >
+            <div style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              background: theme === 'light' ? '#ff7236' : '#3b82f6',
+              position: 'absolute',
+              top: '3px',
+              left: theme === 'light' ? '3px' : '35px',
+              transition: 'all 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+            }}>
+              {theme === 'light' ? <Sun size={12} color="#ffffff" /> : <Moon size={12} color="#ffffff" />}
+            </div>
+            <Sun size={12} color="#ff7236" style={{ marginLeft: '6px', opacity: theme === 'light' ? 0.3 : 1 }} />
+            <Moon size={12} color="#3b82f6" style={{ marginRight: '6px', opacity: theme === 'dark' ? 0.3 : 1 }} />
+          </button>
+
           <NavLink to="/contact" className="btn btn-primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.88rem' }} onClick={handleLinkClick}>
             <PhoneCall size={14} />
             <span>Book Consultation</span>
@@ -205,6 +262,48 @@ export default function Navbar() {
             <PhoneCall size={16} />
             <span>Book Consultation</span>
           </NavLink>
+          
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.5rem', borderTop: '1px solid var(--bg-tertiary)', paddingTop: '1rem' }}>
+            <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Dark Theme</span>
+            <button 
+              onClick={toggleTheme}
+              style={{
+                background: '#0f0f10',
+                border: '1px solid var(--bg-tertiary)',
+                borderRadius: '50px',
+                padding: '4px',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '64px',
+                height: '32px',
+                position: 'relative',
+                outline: 'none',
+                transition: 'all 0.3s ease'
+              }}
+              aria-label="Toggle Theme"
+            >
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: theme === 'light' ? '#ff7236' : '#3b82f6',
+                position: 'absolute',
+                top: '3px',
+                left: theme === 'light' ? '3px' : '35px',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+              }}>
+                {theme === 'light' ? <Sun size={12} color="#ffffff" /> : <Moon size={12} color="#ffffff" />}
+              </div>
+              <Sun size={12} color="#ff7236" style={{ marginLeft: '6px', opacity: theme === 'light' ? 0.3 : 1 }} />
+              <Moon size={12} color="#3b82f6" style={{ marginRight: '6px', opacity: theme === 'dark' ? 0.3 : 1 }} />
+            </button>
+          </div>
         </div>
       )}
     </nav>
