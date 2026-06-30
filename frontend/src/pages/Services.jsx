@@ -73,7 +73,7 @@ export default function Services() {
                       return (
                         <div 
                           key={service.key} 
-                          className={`timeline-node-wrapper ${service.position}`}
+                          className={`timeline-node-wrapper ${index % 2 === 0 ? 'top' : 'bottom'}`}
                           onMouseEnter={() => setHoveredKey(service.key)}
                           onMouseLeave={() => setHoveredKey(null)}
                         >
