@@ -2,71 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { ArrowRight, Eye, ShieldCheck } from 'lucide-react';
 
-const timelineServices = [
-  {
-    key: 'taxation-and-compliances',
-    title: 'Taxation And Compliances',
-    position: 'top',
-    img: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=600&auto=format&fit=crop&q=80',
-    desc: 'Managing corporate and individual direct taxation is critical for regulatory standing and cash flow optimization. Our team of expert CAs handles end-to-end filing, planning, and dispute representation.'
-  },
-  {
-    key: 'audit-and-assurance',
-    title: 'Audit And Assurance',
-    position: 'bottom',
-    img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&auto=format&fit=crop&q=80',
-    desc: 'Providing transparency, accountability, and reliability to investors and regulatory boards. We carry out audits in accordance with standard auditing standards (SA) issued by ICAI.'
-  },
-  {
-    key: 'goods-and-service-tax',
-    title: 'Goods And Service Tax (GST)',
-    position: 'top',
-    img: 'https://images.unsplash.com/photo-1586486855514-8c633cc6fa39?w=600&auto=format&fit=crop&q=80',
-    desc: 'GST compliance is transaction-heavy and requires strict data reconciliation (GSTR-2B vs GSTR-3B). Our automated indirect tax desk helps manage monthly returns, audits, and litigation.'
-  },
-  {
-    key: 'company-and-llp-compliances',
-    title: 'Company And LLP Compliances',
-    position: 'bottom',
-    img: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=600&auto=format&fit=crop&q=80',
-    desc: 'Ongoing compliance under MCA rules is essential to keep your business active and avoid heavy daily late fees (₹100/day for default filings). We help keep your ROC status Active.'
-  },
-  {
-    key: 'international-taxation',
-    title: 'International Taxation',
-    position: 'top',
-    img: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600&auto=format&fit=crop&q=80',
-    desc: 'Managing cross-border tax liabilities requires deep understanding of Double Taxation Avoidance Agreements (DTAA) and Transfer Pricing guidelines under Chapter X of the Income Tax Act.'
-  },
-  {
-    key: 'registration',
-    title: 'Business Registrations',
-    position: 'bottom',
-    img: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80',
-    desc: 'Kickstart your business setup with essential licensing. We cover MSME registrations, food licenses, export registration codes, and labor department registrations.'
-  },
-  {
-    key: 'account-outsourcing-and-bookkeeping',
-    title: 'Account Outsourcing & Bookkeeping',
-    position: 'top',
-    img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80',
-    desc: 'Focus on scaling your business while we handle day-to-day books. We deploy modern accounting tools (Tally, QuickBooks) to ensure audit-ready ledger structures.'
-  },
-  {
-    key: 'intellectual-property',
-    title: 'Intellectual Property (IPR)',
-    position: 'bottom',
-    img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=600&auto=format&fit=crop&q=80',
-    desc: 'Protect your unique brand identity, logo, or proprietary software. We handle trademark searches, assignments, renewals, and legal responses to trademark objections.'
-  }
-];
-
 export default function Services() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  const [timelineServices, setTimelineServices] = useState([]);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
     document.title = "Our Services | EXIM Guru Mantra";
+    const fetchServices = async () => {
+      try {
+        const res = await fetch('/api/services');
+        if (res.ok) {
+          const data = await res.json();
+          setTimelineServices(data);
+        }
+      } catch (err) {
+        console.error('Failed to load services:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
   }, []);
 
   return (
@@ -87,8 +44,17 @@ export default function Services() {
 
           {/* Timeline Nodes Grid */}
           <div className="timeline-nodes-grid">
-            {timelineServices.map((service, index) => {
-              const isHovered = hoveredIndex === index;
+            {loading ? (
+              <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '3rem 0', color: 'var(--text-secondary)' }}>
+                Loading Trade Timeline...
+              </div>
+            ) : timelineServices.length === 0 ? (
+              <div style={{ textAlign: 'center', gridColumn: '1 / -1', padding: '3rem 0', color: 'var(--text-secondary)' }}>
+                No compliance timeline services found.
+              </div>
+            ) : (
+              timelineServices.map((service, index) => {
+                const isHovered = hoveredIndex === index;
               return (
                 <div 
                   key={service.key} 
@@ -131,7 +97,7 @@ export default function Services() {
                   </div>
                 </div>
               );
-            })}
+            }))}
           </div>
         </div>
 
@@ -143,7 +109,7 @@ export default function Services() {
           </div>
 
           <div className="cards-grid">
-            {timelineServices.map((service) => (
+            {!loading && timelineServices.map((service) => (
               <div 
                 key={service.key} 
                 className="card advisory-card" 

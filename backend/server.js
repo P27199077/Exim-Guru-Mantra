@@ -23,6 +23,238 @@ const client = new MongoClient(MONGODB_URI);
 let db;
 let queriesCollection;
 let settingsCollection;
+let servicesCollection;
+
+const seedDefaultServices = async () => {
+  try {
+    if (!servicesCollection) return;
+    const count = await servicesCollection.countDocuments();
+    if (count > 0) {
+      console.log('[MongoDB] Services collection already pre-populated.');
+      return;
+    }
+
+    console.log('[MongoDB] Seeding initial service categories...');
+    const defaultServices = [
+      {
+        key: 'taxation-and-compliances',
+        title: 'Taxation And Compliances',
+        subtitle: 'Direct and Indirect Tax Advisory & Filing Services',
+        img: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80',
+        desc: 'Managing corporate and individual direct taxation is critical for regulatory standing and cash flow optimization. Our team of expert CAs handles end-to-end filing, planning, and dispute representation.',
+        details: [
+          { heading: 'Corporate Income Tax (CIT)', body: 'Compliance services for domestic and foreign entities. Advisory on minimum alternate tax (MAT), dividend distribution, and tax-efficient corporate structures.' },
+          { heading: 'ITR Return Filings', body: 'Preparation and filing of ITR-1 to ITR-7 for individuals, HUFs, firms, LLPs, and companies under standard guidelines.' },
+          { heading: 'TDS & TCS Returns', body: 'Quarterly filing of TDS (Tax Deducted at Source) certificates, Form 24Q, 26Q, and correction statements to ensure no penal interest under Section 234E.' },
+          { heading: 'Assessment & Litigation Support', body: 'Drafting structured replies to notices under Section 143(2), 148, or income tax searches. Representation before CIT (Appeals) and ITAT.' }
+        ],
+        tips: [
+          'ITR filing due date for corporate audits is usually October 31st.',
+          'TDS quarterly filings are due on the 31st of the month following the quarter end.',
+          'Ensure link between PAN and Aadhaar card is completed to avoid high rate TDS deductors.'
+        ],
+        services: [
+          'Overview - Direct And Indirect Tax',
+          'Corporate Tax',
+          'Income Tax Return Filing Services',
+          'Income Tax Litigation Services',
+          'Certification And Attestation Services',
+          'TDS Return Filing'
+        ],
+        position: 'top'
+      },
+      {
+        key: 'audit-and-assurance',
+        title: 'Audit And Assurance',
+        subtitle: 'Independent Financial Audits & Attestation Services',
+        img: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop&q=80',
+        desc: 'Providing transparency, accountability, and reliability to investors and regulatory boards. We carry out audits in accordance with standard auditing standards (SA) issued by ICAI.',
+        details: [
+          { heading: 'Statutory Audits', body: 'Evaluating whether corporate accounts show a true and fair view in accordance with Company Law and Accounting Standards.' },
+          { heading: 'Tax Audits (Form 3CD)', body: 'Mandatory verification of business accounts for taxpayers crossing turnover thresholds under Section 44AB of the Income Tax Act.' },
+          { heading: 'Internal & Operational Audits', body: 'Risk assessment, evaluating corporate governance processes, and internal financial control (IFC) reviews.' },
+          { heading: 'Stock & Asset Verification', body: 'Physical inventory verification, fixed asset ledger reconciliations, and reporting on obsolete stock values.' }
+        ],
+        tips: [
+          'Maintain clean voucher logs and cross-linked digital bank statements for audit readiness.',
+          'Form 3CD filings must be completed online by CA before September 30th.',
+          'Stock audits should be done periodically to prevent warehouse leaks.'
+        ],
+        services: [
+          'Overview - Audit And Assurance',
+          'Statutory Audit',
+          'Tax Audit',
+          'Internal Audit',
+          'Stock Audit',
+          'Fixed Assets Audit'
+        ],
+        position: 'bottom'
+      },
+      {
+        key: 'goods-and-service-tax',
+        title: 'Goods And Service Tax (GST)',
+        subtitle: 'Indirect Taxation, Filing & Audit Support',
+        img: 'https://images.unsplash.com/photo-1586486855514-8c633cc6fa39?w=800&auto=format&fit=crop&q=80',
+        desc: 'GST compliance is transaction-heavy and requires strict data reconciliation (GSTR-2B vs GSTR-3B). Our automated indirect tax desk helps manage monthly returns, audits, and litigation.',
+        details: [
+          { heading: 'GST Registration', body: 'New registrations, amendments, and cancellation of GSTIN for local or composite firms.' },
+          { heading: 'Monthly GSTR Return Filings', body: 'Filing GSTR-1 (Outward Supplies), GSTR-3B (Summary Return), and annual reconciliation GSTR-9/9C.' },
+          { heading: 'Input Tax Credit (ITC) Audits', body: 'Systematic matching of GSTR-2B purchase logs to prevent blocked credits and avoid GST ITC reclaim penalties.' },
+          { heading: 'GST Refund Claims', body: 'Filing zero-rated export refund applications (LUT or IGST route) and inverted duty structure refunds.' }
+        ],
+        tips: [
+          'GSTR-1 is due on the 11th of every month, while GSTR-3B is due on the 20th.',
+          'Always reconcile GSTR-2B purchase data with purchase registers before locking GSTR-3B ITC claims.',
+          'Exporters should file Form RFD-01 promptly to unlock stuck capital.'
+        ],
+        services: [
+          'Overview - Goods And Services Tax',
+          'GST Compliance Services',
+          'GST Audit',
+          'GST Litigation Services',
+          'GST Refund'
+        ],
+        position: 'top'
+      },
+      {
+        key: 'company-and-llp-compliances',
+        title: 'Company And LLP Compliances',
+        subtitle: 'Corporate Registrations & MCA Filings',
+        img: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=600&auto=format&fit=crop&q=80',
+        desc: 'Ongoing compliance under MCA rules is essential to keep your business active and avoid heavy daily late fees (₹100/day for default filings). We help keep your ROC status Active.',
+        details: [
+          { heading: 'Company Incorporation', body: 'Registration of Private Limited, One Person Company (OPC), Section 8 Companies, or Limited Liability Partnerships (LLP).' },
+          { heading: 'Director KYC & DIN', body: 'Obtaining Director Identification Numbers, Digital Signature Certificates (DSC), and annual DIR-3 KYC filings.' },
+          { heading: 'Annual ROC Filings', body: 'Filing Form AOC-4 (Financial Statements) and Form MGT-7 (Annual Return) with the Registrar of Companies.' },
+          { heading: 'Strike Off & Wind Up', body: 'Assisting in voluntary closing of dormant companies under Fast Track Exit (FTE) rules.' }
+        ],
+        tips: [
+          'DIR-3 KYC filings are due by September 30th annually.',
+          'Annual general meeting (AGM) must be held within 6 months of financial year close.',
+          'Defaulting on ROC filings attracts ₹100/day penalty per form without upper limit.'
+        ],
+        services: [
+          'Company Registration',
+          'LLP Formation',
+          'Company Annual Compliances',
+          'Company Strike Off',
+          'Company Annual Return Filing',
+          'LLP Annual Return Filing',
+          'One Person Company Registration'
+        ],
+        position: 'bottom'
+      },
+      {
+        key: 'international-taxation',
+        title: 'International Taxation',
+        subtitle: 'Cross-Border Tax Planning & Transfer Pricing',
+        img: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=600&auto=format&fit=crop&q=80',
+        desc: 'Managing cross-border tax liabilities requires deep understanding of Double Taxation Avoidance Agreements (DTAA) and Transfer Pricing guidelines under Chapter X of the Income Tax Act.',
+        details: [
+          { heading: 'NRI Taxation Advisory', body: 'Consultation on tax residency, managing NRE/NRO accounts, and obtaining lower tax withholding certificates (Form 13).' },
+          { heading: 'Transfer Pricing (TP)', body: 'Filing Form 3CEB, drafting transfer pricing study reports, and benchmarking arm\'s length prices for international transactions.' },
+          { heading: 'DTAA Relief Benefits', body: 'Helping expats and firms claim relief under Section 90/91 utilizing tax residency certificates (TRC).' },
+          { heading: 'FEMA & Outward Remittance', body: 'Assisting in Form 15CA/15CB documentation required for international currency remittals.' }
+        ],
+        tips: [
+          'Obtain a Tax Residency Certificate (TRC) to claim DTAA tax rate benefits.',
+          'Remitting funds abroad requires a CA signed Form 15CB.',
+          'Transfer pricing documentation is mandatory if international transaction exceeds ₹20 Crores.'
+        ],
+        services: [
+          'Overview - International Taxation',
+          'NRI Taxation',
+          'Transfer Pricing',
+          'Double Taxation Avoidance Agreement',
+          'Taxation Of Expats'
+        ],
+        position: 'top'
+      },
+      {
+        key: 'registration',
+        title: 'Business Registrations',
+        subtitle: 'Government Licenses & MSME Setup',
+        img: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?w=600&auto=format&fit=crop&q=80',
+        desc: 'Kickstart your business setup with essential licensing. We cover MSME registrations, food licenses, export registration codes, and labor department registrations.',
+        details: [
+          { heading: 'IEC (Import Export Code)', body: 'Secure DGFT registration certificate required to clear international cargo through customs.' },
+          { heading: 'MSME (Udyam Registration)', body: 'Gain government credit schemes, subsidy benefits, and protection against delayed buyer payments.' },
+          { heading: 'FSSAI (Food License)', body: 'Mandatory license for manufacturing, packaging, or distributing food items in India.' },
+          { heading: 'ESI & EPF Registration', body: 'Registration under employee security schemes when headcount exceeds statutory thresholds.' }
+        ],
+        tips: [
+          'Udyam registration is free and requires only Aadhaar and PAN linkage.',
+          'IEC must be updated on the DGFT portal once a year between April and June.',
+          'MSMEs enjoy 45-day payment security under Section 43B(h) of the Income Tax Act.'
+        ],
+        services: [
+          'Trust Registration',
+          'Society Registration',
+          'IEC Registration',
+          'MSME Registration',
+          'FSSAI Registration',
+          'ESI Registration'
+        ],
+        position: 'bottom'
+      },
+      {
+        key: 'account-outsourcing-and-bookkeeping',
+        title: 'Account Outsourcing & Bookkeeping',
+        subtitle: 'Ledger Maintenance & Payroll Outsourcing',
+        img: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80',
+        desc: 'Focus on scaling your business while we handle day-to-day books. We deploy modern accounting tools (Tally, QuickBooks) to ensure audit-ready ledger structures.',
+        details: [
+          { heading: 'Bookkeeping Ledger Maintenance', body: 'Daily cash/bank statement postings, sales/purchase ledger entry, and periodic bank reconciliations.' },
+          { heading: 'Payroll Processing Desk', body: 'Calculating salary slips, processing professional tax deductions, and handling monthly PF/ESI challenges.' },
+          { heading: 'MIS Management Reports', body: 'Supplying corporate directors with key balance sheet snapshots, cash flow charts, and debtors ageing lists.' },
+          { heading: 'Year-End Ledger Closings', body: 'Drafting final financial statements, depreciation tables, and trial balances for CA audit teams.' }
+        ],
+        tips: [
+          'Monthly bookkeeping helps in prompt GST filing reconciliation.',
+          'Ensure standard payroll processes account for professional tax regulations.',
+          'Audit readiness is maintained through systematic voucher tagging.'
+        ],
+        services: [
+          'Overview - Accounts Outsourcing And Bookkeeping',
+          'Accounting And Book Keeping',
+          'Payroll Management'
+        ],
+        position: 'top'
+      },
+      {
+        key: 'intellectual-property',
+        title: 'Intellectual Property (IPR)',
+        subtitle: 'Brand Protection & Trademark Registrations',
+        img: 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&auto=format&fit=crop&q=80',
+        desc: 'Protect your unique brand identity, logo, or proprietary software. We handle trademark searches, assignments, renewals, and legal responses to trademark objections.',
+        details: [
+          { heading: 'Trademark Registration', body: 'Filing trademark application under the Trademarks Act, 1999 across appropriate classes to secure the exclusive ® symbol.' },
+          { heading: 'Trademark Search & Clearance', body: 'Conducting comprehensive searches in the public registry database to check for matching or deceptively similar marks.' },
+          { heading: 'Trademark Objection Replies', body: 'Drafting legal replies for objections raised under Section 9 (absolute grounds) or Section 11 (relative grounds) of the Act.' },
+          { heading: 'Trademark Renewal', body: 'Maintaining trademark validity by filing renewal applications every 10 years.' }
+        ],
+        tips: [
+          'A trademark application can be filed under the "Proposed to be used" status or showing current usage.',
+          'Trademark examinations are usually issued within 1 to 3 months of filing.',
+          'Using TM is permitted once the application is filed, while ® is only for registered marks.'
+        ],
+        services: [
+          'Trademark Registration',
+          'Trademark Assignment',
+          'Trademark Renewal',
+          'Trademark Search',
+          'Trademark Objection'
+        ],
+        position: 'bottom'
+      }
+    ];
+
+    await servicesCollection.insertMany(defaultServices);
+    console.log('[MongoDB] Successfully seeded default service categories!');
+  } catch (err) {
+    console.error('Error seeding default services in MongoDB:', err);
+  }
+};
 
 async function connectDB() {
   try {
@@ -31,6 +263,8 @@ async function connectDB() {
     db = client.db();
     queriesCollection = db.collection('queries');
     settingsCollection = db.collection('settings');
+    servicesCollection = db.collection('services');
+    await seedDefaultServices();
   } catch (err) {
     console.error('[MongoDB] Connection failed:', err);
   }
@@ -73,6 +307,169 @@ app.post('/api/admin/verify', async (req, res) => {
     res.json({ success: true });
   } else {
     res.status(401).json({ error: 'Invalid admin username or password' });
+  }
+});
+
+// Heuristic Unsplash image matching for AI categories
+const getUnsplashImage = (title) => {
+  const t = title.toLowerCase();
+  if (t.includes('customs') || t.includes('export') || t.includes('import') || t.includes('trade') || t.includes('shipping')) {
+    return 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=800&auto=format&fit=crop&q=80'; // Shipping cargo containers
+  }
+  if (t.includes('tax') || t.includes('gst') || t.includes('finance') || t.includes('accounting') || t.includes('bookkeeping')) {
+    return 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&auto=format&fit=crop&q=80'; // Financial charts/accounting
+  }
+  if (t.includes('audit') || t.includes('verify') || t.includes('assurance')) {
+    return 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&auto=format&fit=crop&q=80'; // Analytics/consulting desk
+  }
+  if (t.includes('legal') || t.includes('law') || t.includes('court') || t.includes('trademark') || t.includes('patent') || t.includes('intellectual')) {
+    return 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&auto=format&fit=crop&q=80'; // Gavel / law book
+  }
+  if (t.includes('startup') || t.includes('company') || t.includes('registration') || t.includes('incorporation')) {
+    return 'https://images.unsplash.com/photo-1450133064473-71024230f91b?w=600&auto=format&fit=crop&q=80'; // Business registration sign contract
+  }
+  return 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&auto=format&fit=crop&q=80'; // Modern office workspace
+};
+
+// Route: Get all service categories
+app.get('/api/services', async (req, res) => {
+  try {
+    if (!servicesCollection) {
+      return res.status(500).json({ error: 'Database not initialized' });
+    }
+    const list = await servicesCollection.find({}).toArray();
+    res.json(list);
+  } catch (err) {
+    console.error('[API] Error fetching services list:', err);
+    res.status(500).json({ error: 'Failed to retrieve services list' });
+  }
+});
+
+// Route: Get single service category details
+app.get('/api/services/category/:key', async (req, res) => {
+  try {
+    if (!servicesCollection) {
+      return res.status(500).json({ error: 'Database not initialized' });
+    }
+    const category = await servicesCollection.findOne({ key: req.params.key });
+    if (category) {
+      res.json(category);
+    } else {
+      res.status(404).json({ error: 'Service category not found' });
+    }
+  } catch (err) {
+    console.error('[API] Error fetching service category:', err);
+    res.status(500).json({ error: 'Failed to retrieve service category details' });
+  }
+});
+
+// Route: Dynamic Category Creation (Heuristics-based "AI Content Generator")
+app.post('/api/admin/services/category', async (req, res) => {
+  const { username, password, title } = req.body;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
+  }
+
+  if (!title || typeof title !== 'string') {
+    return res.status(400).json({ error: 'Category title is required.' });
+  }
+
+  try {
+    if (!servicesCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    const key = title.toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // remove special chars
+      .trim()
+      .replace(/\s+/g, '-'); // replace spaces with hyphens
+
+    // Check if key already exists
+    const exists = await servicesCollection.findOne({ key });
+    if (exists) {
+      return res.status(400).json({ error: `Service Category with title "${title}" already exists.` });
+    }
+
+    const subtitle = `${title} & Strategic Advisory`;
+    const desc = `Ensure complete compliance and strategic regulatory alignment for your business with our dedicated ${title} desk, managed by senior corporate professionals.`;
+    const img = getUnsplashImage(title);
+
+    const details = [
+      { heading: `${title} Documentation`, body: `End-to-end filing guidance and documentation templates for all mandatory licensing, compliance, and regulatory reports under government guidelines.` },
+      { heading: `${title} Audit Representation`, body: `Assistance in preparing transaction ledgers, audit records, and professional representation before regulatory assessment officers.` },
+      { heading: `Advisory & Structural Optimization`, body: `Advising on optimal structures, credit reclaims, tax benefits, and compliance relief policies to minimize enterprise risk.` },
+      { heading: `Objections & Dispute Responders`, body: `Drafting robust legal examinations, object replies, and representation for corporate notices, clarifications, or assessments.` }
+    ];
+
+    const tips = [
+      `Keep digital records and transaction details ready to ensure smooth file validation.`,
+      `Verify applicable thresholds and regulatory dates before submitting final reports.`,
+      `Seek early advisor representation to tackle dispute examinations and objections effectively.`
+    ];
+
+    // Alternate timeline positions based on count
+    const count = await servicesCollection.countDocuments();
+    const position = count % 2 === 0 ? 'top' : 'bottom';
+
+    const newCategory = {
+      key,
+      title,
+      subtitle,
+      desc,
+      img,
+      details,
+      tips,
+      services: [`Overview - ${title}`],
+      position
+    };
+
+    await servicesCollection.insertOne(newCategory);
+    res.json({ success: true, message: `Category "${title}" created dynamically with generated content!`, category: newCategory });
+  } catch (err) {
+    console.error('[API] Error creating service category:', err);
+    res.status(500).json({ error: 'Failed to generate and create service category.' });
+  }
+});
+
+// Route: Add service item under category
+app.post('/api/admin/services/item', async (req, res) => {
+  const { username, password, categoryKey, serviceName } = req.body;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
+  }
+
+  if (!categoryKey || !serviceName) {
+    return res.status(400).json({ error: 'Category key and service name are required.' });
+  }
+
+  try {
+    if (!servicesCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    const category = await servicesCollection.findOne({ key: categoryKey });
+    if (!category) {
+      return res.status(404).json({ error: 'Service category not found.' });
+    }
+
+    // Check if service already exists in list
+    if (category.services.includes(serviceName)) {
+      return res.status(400).json({ error: `Service item "${serviceName}" already exists in this category.` });
+    }
+
+    await servicesCollection.updateOne(
+      { key: categoryKey },
+      { $push: { services: serviceName } }
+    );
+
+    res.json({ success: true, message: `Service "${serviceName}" added successfully to category "${category.title}".` });
+  } catch (err) {
+    console.error('[API] Error adding service item:', err);
+    res.status(500).json({ error: 'Failed to add service item.' });
   }
 });
 

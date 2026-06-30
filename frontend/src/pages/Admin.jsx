@@ -79,6 +79,15 @@ export default function Admin() {
   const [status, setStatus] = useState({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
 
+  // Tab management
+  const [activeTab, setActiveTab] = useState('socials'); // 'socials' | 'services'
+
+  // Service management states
+  const [categories, setCategories] = useState([]);
+  const [newCategoryTitle, setNewCategoryTitle] = useState('');
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState('');
+  const [newServiceName, setNewServiceName] = useState('');
+
   // Password reset states
   const [mode, setMode] = useState('login'); // 'login' | 'forgot' | 'reset'
   const [resetToken, setResetToken] = useState('');
@@ -122,6 +131,7 @@ export default function Admin() {
         setUsername(userToVerify);
         setPassword(passToVerify);
         fetchSocialLinks();
+        fetchAdminServices(userToVerify, passToVerify);
       } else {
         if (!isAutoLogin) {
           setStatus({ type: 'error', message: 'Invalid admin username or password.' });
@@ -145,6 +155,92 @@ export default function Admin() {
       }
     } catch (err) {
       console.error('Failed to load social links:', err);
+    }
+  };
+
+  const fetchAdminServices = async (user = username, pass = password) => {
+    try {
+      const res = await fetch('/api/services');
+      if (res.ok) {
+        const data = await res.json();
+        setCategories(data);
+        if (data.length > 0) {
+          setSelectedCategoryKey(prev => prev || data[0].key);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load services in admin:', err);
+    }
+  };
+
+  const handleCreateCategory = async (e) => {
+    e.preventDefault();
+    if (!newCategoryTitle.trim()) {
+      setStatus({ type: 'error', message: 'Category title cannot be empty.' });
+      return;
+    }
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+
+    try {
+      const res = await fetch('/api/admin/services/category', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          password,
+          title: newCategoryTitle.trim()
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus({ type: 'success', message: data.message });
+        setNewCategoryTitle('');
+        await fetchAdminServices();
+      } else {
+        setStatus({ type: 'error', message: data.error || 'Failed to create category.' });
+      }
+    } catch (err) {
+      console.error('Error creating category:', err);
+      setStatus({ type: 'error', message: 'Network error. Failed to connect.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateServiceItem = async (e) => {
+    e.preventDefault();
+    if (!selectedCategoryKey || !newServiceName.trim()) {
+      setStatus({ type: 'error', message: 'Please select a category and enter a service name.' });
+      return;
+    }
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+
+    try {
+      const res = await fetch('/api/admin/services/item', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          password,
+          categoryKey: selectedCategoryKey,
+          serviceName: newServiceName.trim()
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus({ type: 'success', message: data.message });
+        setNewServiceName('');
+        await fetchAdminServices();
+      } else {
+        setStatus({ type: 'error', message: data.error || 'Failed to add service item.' });
+      }
+    } catch (err) {
+      console.error('Error creating service item:', err);
+      setStatus({ type: 'error', message: 'Network error. Failed to connect.' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -469,16 +565,37 @@ export default function Admin() {
   return (
     <div className="section" style={{ minHeight: '80vh' }}>
       <div className="container" style={{ maxWidth: '850px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        
+        {/* Header Block */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <span className="section-subtitle">Website Settings</span>
-            <h2 className="section-title" style={{ marginBottom: 0 }}>Social Media Links</h2>
+            <h2 className="section-title" style={{ marginBottom: 0 }}>Admin Control Center</h2>
           </div>
           <button onClick={handleLogout} className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
             Logout
           </button>
         </div>
 
+        {/* Tab Selection Row */}
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '1rem' }}>
+          <button 
+            onClick={() => { setActiveTab('socials'); setStatus({ type: '', message: '' }); }}
+            className={`btn ${activeTab === 'socials' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+          >
+            Social Links
+          </button>
+          <button 
+            onClick={() => { setActiveTab('services'); setStatus({ type: '', message: '' }); }}
+            className={`btn ${activeTab === 'services' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+          >
+            Manage Services & Dropdowns
+          </button>
+        </div>
+
+        {/* Action Status Notification */}
         {status.message && (
           <div style={{
             background: status.type === 'error' ? 'rgba(239, 68, 68, 0.08)' : 'rgba(16, 185, 129, 0.08)',
@@ -497,157 +614,285 @@ export default function Admin() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '2.5rem' }} className="admin-grid-layout">
-          {/* List of existing links */}
-          <div className="card" style={{ padding: '2rem' }}>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.75rem' }}>
-              Active Social Links
-            </h3>
+        {/* TAB 1: SOCIAL LINKS MANAGEMENT */}
+        {activeTab === 'socials' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '2.5rem' }} className="admin-grid-layout">
+            {/* List of existing links */}
+            <div className="card" style={{ padding: '2rem' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.75rem' }}>
+                Active Social Links
+              </h3>
 
-            {links.length === 0 ? (
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>
-                No social links configured yet. Use the panel on the right to add some.
-              </p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                {links.map((link, idx) => {
-                  const IconComp = iconMap[link.icon] || LinkIcon;
-                  return (
-                    <div 
-                      key={idx} 
-                      style={{ 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'space-between',
-                        padding: '0.85rem 1rem', 
-                        background: 'var(--bg-primary)', 
-                        borderRadius: '6px',
-                        border: '1px solid var(--bg-tertiary)'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, minWidth: 0 }}>
-                        <div style={{ color: 'var(--primary)', flexShrink: 0 }}>
-                          <IconComp size={18} />
+              {links.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>
+                  No social links configured yet. Use the panel on the right to add some.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {links.map((link, idx) => {
+                    const IconComp = iconMap[link.icon] || LinkIcon;
+                    return (
+                      <div 
+                        key={idx} 
+                        style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'space-between',
+                          padding: '0.85rem 1rem', 
+                          background: 'var(--bg-primary)', 
+                          borderRadius: '6px',
+                          border: '1px solid var(--bg-tertiary)'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', flex: 1, minWidth: 0 }}>
+                          <div style={{ color: 'var(--primary)', flexShrink: 0 }}>
+                            <IconComp size={18} />
+                          </div>
+                          <div style={{ minWidth: 0 }}>
+                            <h4 style={{ fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.1rem' }}>{link.platform}</h4>
+                            <a 
+                              href={link.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              style={{ 
+                                fontSize: '0.8rem', 
+                                color: 'var(--text-secondary)', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '0.2rem',
+                                textOverflow: 'ellipsis',
+                                overflow: 'hidden',
+                                whiteSpace: 'nowrap'
+                              }}
+                            >
+                              <span>{link.url}</span>
+                              <ExternalLink size={10} style={{ flexShrink: 0 }} />
+                            </a>
+                          </div>
                         </div>
-                        <div style={{ minWidth: 0 }}>
-                          <h4 style={{ fontSize: '0.95rem', fontWeight: '700', marginBottom: '0.1rem' }}>{link.platform}</h4>
-                          <a 
-                            href={link.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            style={{ 
-                              fontSize: '0.8rem', 
-                              color: 'var(--text-secondary)', 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              gap: '0.2rem',
-                              textOverflow: 'ellipsis',
-                              overflow: 'hidden',
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            <span>{link.url}</span>
-                            <ExternalLink size={10} style={{ flexShrink: 0 }} />
-                          </a>
+
+                        <button 
+                          onClick={() => handleDeleteLink(idx)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--text-muted)',
+                            cursor: 'pointer',
+                            padding: '0.5rem',
+                            transition: 'var(--transition-fast)'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
+                          onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
+                          title="Delete Link"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {links.length > 0 && (
+                <button 
+                  onClick={handleSave} 
+                  className="btn btn-primary" 
+                  style={{ width: '100%', marginTop: '2rem', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}
+                  disabled={loading}
+                >
+                  <Save size={18} />
+                  <span>{loading ? 'Saving Changes...' : 'Save Configuration'}</span>
+                </button>
+              )}
+            </div>
+
+            {/* Add link panel */}
+            <div className="card" style={{ padding: '2rem', height: 'fit-content' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.75rem' }}>
+                Add New Channel
+              </h3>
+
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label className="form-label" htmlFor="platform">Platform</label>
+                <select 
+                  id="platform" 
+                  className="form-select"
+                  value={newLink.platform}
+                  onChange={handlePlatformChange}
+                >
+                  {platforms.map((p, idx) => (
+                    <option key={idx} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label className="form-label" htmlFor="url">URL / Destination</label>
+                <input 
+                  type="text" 
+                  id="url"
+                  className="form-input"
+                  placeholder={newLink.platform === 'Email' ? 'eximgurumantra@gmail.com' : 'e.g. instagram.com/eximgurumantra'}
+                  value={newLink.url}
+                  onChange={(e) => setNewLink(prev => ({ ...prev, url: e.target.value }))}
+                />
+              </div>
+
+              <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                <label className="form-label" htmlFor="icon">Display Icon</label>
+                <select 
+                  id="icon" 
+                  className="form-select"
+                  value={newLink.icon}
+                  onChange={(e) => setNewLink(prev => ({ ...prev, icon: e.target.value }))}
+                >
+                  <option value="Instagram">Instagram (Brand)</option>
+                  <option value="Twitter">Twitter/X (Brand)</option>
+                  <option value="Facebook">Facebook (Brand)</option>
+                  <option value="Linkedin">LinkedIn (Brand)</option>
+                  <option value="Youtube">YouTube (Brand)</option>
+                  <option value="Phone">Phone (Call)</option>
+                  <option value="Mail">Mail (Email)</option>
+                  <option value="Link">Generic Link</option>
+                </select>
+              </div>
+
+              <button 
+                onClick={handleAddLink} 
+                className="btn btn-secondary" 
+                style={{ width: '100%', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}
+              >
+                <Plus size={18} />
+                <span>Add to List</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 2: SERVICES & DROPDOWN MANAGEMENT */}
+        {activeTab === 'services' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '2.5rem' }} className="admin-grid-layout">
+            
+            {/* List of current service categories */}
+            <div className="card" style={{ padding: '2rem' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.75rem' }}>
+                Active Portfolios
+              </h3>
+
+              {categories.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>
+                  No services configured in database.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                  {categories.map((cat) => (
+                    <div key={cat.key} style={{ background: 'var(--bg-primary)', padding: '1.25rem', borderRadius: '8px', border: '1px solid var(--bg-tertiary)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.75rem' }}>
+                        <div>
+                          <h4 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: '700' }}>{cat.title}</h4>
+                          <span style={{ fontSize: '0.75rem', color: 'var(--primary)' }}>/services/category/{cat.key}</span>
                         </div>
                       </div>
+                      
+                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: '1.4' }}>
+                        {cat.desc}
+                      </p>
 
-                      <button 
-                        onClick={() => handleDeleteLink(idx)}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--text-muted)',
-                          cursor: 'pointer',
-                          padding: '0.5rem',
-                          transition: 'var(--transition-fast)'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--error)'}
-                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
-                        title="Delete Link"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div style={{ borderTop: '1px solid var(--bg-tertiary)', paddingTop: '0.75rem' }}>
+                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Subservices:
+                        </span>
+                        <ul style={{ paddingLeft: '1.25rem', margin: 0, fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                          {cat.services.map((svc, idx) => (
+                            <li key={idx} style={{ listStyleType: 'disc' }}>
+                              {svc}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Creation Panels (Right Column) */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              
+              {/* Card A: Create Dynamic Category */}
+              <div className="card" style={{ padding: '2rem' }}>
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.5rem' }}>
+                  AI Create Subheading
+                </h3>
+                <form onSubmit={handleCreateCategory}>
+                  <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                    <label className="form-label" htmlFor="catTitle">Subheading / Category Title</label>
+                    <input 
+                      type="text" 
+                      id="catTitle" 
+                      className="form-input" 
+                      placeholder="e.g. Customs Auditing"
+                      value={newCategoryTitle}
+                      onChange={(e) => setNewCategoryTitle(e.target.value)}
+                    />
+                  </div>
+                  <button 
+                    type="submit" 
+                    className="btn btn-secondary" 
+                    style={{ width: '100%', padding: '0.65rem' }}
+                    disabled={loading}
+                  >
+                    {loading ? 'Generating Content...' : 'AI Generate Category'}
+                  </button>
+                </form>
               </div>
-            )}
 
-            {links.length > 0 && (
-              <button 
-                onClick={handleSave} 
-                className="btn btn-primary" 
-                style={{ width: '100%', marginTop: '2rem', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}
-                disabled={loading}
-              >
-                <Save size={18} />
-                <span>{loading ? 'Saving Changes...' : 'Save Configuration'}</span>
-              </button>
-            )}
+              {/* Card B: Create Service Link */}
+              <div className="card" style={{ padding: '2rem' }}>
+                <h3 style={{ fontSize: '1.2rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.5rem' }}>
+                  Add Service Link
+                </h3>
+                <form onSubmit={handleCreateServiceItem}>
+                  <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                    <label className="form-label" htmlFor="targetCat">Target Subheading</label>
+                    <select 
+                      id="targetCat" 
+                      className="form-select"
+                      value={selectedCategoryKey}
+                      onChange={(e) => setSelectedCategoryKey(e.target.value)}
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat.key} value={cat.key}>{cat.title}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                    <label className="form-label" htmlFor="svcName">Service Name</label>
+                    <input 
+                      type="text" 
+                      id="svcName" 
+                      className="form-input" 
+                      placeholder="e.g. RoDTEP Claim Filing"
+                      value={newServiceName}
+                      onChange={(e) => setNewServiceName(e.target.value)}
+                    />
+                  </div>
+                  <button 
+                    type="submit" 
+                    className="btn btn-secondary" 
+                    style={{ width: '100%', padding: '0.65rem' }}
+                    disabled={loading}
+                  >
+                    Add Service Item
+                  </button>
+                </form>
+              </div>
+
+            </div>
+
           </div>
+        )}
 
-          {/* Add link panel */}
-          <div className="card" style={{ padding: '2rem', height: 'fit-content' }}>
-            <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.75rem' }}>
-              Add New Channel
-            </h3>
-
-            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-              <label className="form-label" htmlFor="platform">Platform</label>
-              <select 
-                id="platform" 
-                className="form-select"
-                value={newLink.platform}
-                onChange={handlePlatformChange}
-              >
-                {platforms.map((p, idx) => (
-                  <option key={idx} value={p.name}>{p.name}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-              <label className="form-label" htmlFor="url">URL / Destination</label>
-              <input 
-                type="text" 
-                id="url"
-                className="form-input"
-                placeholder={newLink.platform === 'Email' ? 'eximgurumantra@gmail.com' : 'e.g. instagram.com/eximgurumantra'}
-                value={newLink.url}
-                onChange={(e) => setNewLink(prev => ({ ...prev, url: e.target.value }))}
-              />
-            </div>
-
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="form-label" htmlFor="icon">Display Icon</label>
-              <select 
-                id="icon" 
-                className="form-select"
-                value={newLink.icon}
-                onChange={(e) => setNewLink(prev => ({ ...prev, icon: e.target.value }))}
-              >
-                <option value="Instagram">Instagram (Brand)</option>
-                <option value="Twitter">Twitter/X (Brand)</option>
-                <option value="Facebook">Facebook (Brand)</option>
-                <option value="Linkedin">LinkedIn (Brand)</option>
-                <option value="Youtube">YouTube (Brand)</option>
-                <option value="Phone">Phone (Call)</option>
-                <option value="Mail">Mail (Email)</option>
-                <option value="Link">Generic Link</option>
-              </select>
-            </div>
-
-            <button 
-              onClick={handleAddLink} 
-              className="btn btn-secondary" 
-              style={{ width: '100%', display: 'flex', gap: '0.5rem', justifyContent: 'center' }}
-            >
-              <Plus size={18} />
-              <span>Add to List</span>
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
