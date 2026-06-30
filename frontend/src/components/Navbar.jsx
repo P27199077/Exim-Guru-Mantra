@@ -210,7 +210,7 @@ export default function Navbar() {
               width: '24px',
               height: '24px',
               borderRadius: '50%',
-              background: theme === 'light' ? '#ff7236' : '#3b82f6',
+              background: theme === 'light' ? '#ff7236' : '#1b365d',
               position: 'absolute',
               top: '3px',
               left: theme === 'light' ? '3px' : '35px',
@@ -223,7 +223,7 @@ export default function Navbar() {
               {theme === 'light' ? <Sun size={12} color="#ffffff" /> : <Moon size={12} color="#ffffff" />}
             </div>
             <Sun size={12} color="#ff7236" style={{ marginLeft: '6px', opacity: theme === 'light' ? 0.3 : 1 }} />
-            <Moon size={12} color="#3b82f6" style={{ marginRight: '6px', opacity: theme === 'dark' ? 0.3 : 1 }} />
+            <Moon size={12} color="#1b365d" style={{ marginRight: '6px', opacity: theme === 'dark' ? 0.3 : 1 }} />
           </button>
 
           <NavLink to="/contact" className="btn btn-primary" style={{ padding: '0.55rem 1.1rem', fontSize: '0.88rem' }} onClick={handleLinkClick}>
@@ -288,7 +288,7 @@ export default function Navbar() {
                 width: '24px',
                 height: '24px',
                 borderRadius: '50%',
-                background: theme === 'light' ? '#ff7236' : '#3b82f6',
+                background: theme === 'light' ? '#ff7236' : '#1b365d',
                 position: 'absolute',
                 top: '3px',
                 left: theme === 'light' ? '3px' : '35px',
@@ -301,7 +301,7 @@ export default function Navbar() {
                 {theme === 'light' ? <Sun size={12} color="#ffffff" /> : <Moon size={12} color="#ffffff" />}
               </div>
               <Sun size={12} color="#ff7236" style={{ marginLeft: '6px', opacity: theme === 'light' ? 0.3 : 1 }} />
-              <Moon size={12} color="#3b82f6" style={{ marginRight: '6px', opacity: theme === 'dark' ? 0.3 : 1 }} />
+              <Moon size={12} color="#1b365d" style={{ marginRight: '6px', opacity: theme === 'dark' ? 0.3 : 1 }} />
             </button>
           </div>
         </div>

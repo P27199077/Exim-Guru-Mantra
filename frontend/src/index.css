@@ -39,9 +39,9 @@ body.dark-theme {
   --card-bg: #111115; /* Clean black card */
   --card-border: #27272a;
   
-  --primary: #3b82f6; /* Electric blue */
-  --primary-hover: #60a5fa;
-  --primary-glow: rgba(59, 130, 246, 0.08);
+  --primary: #1b365d; /* Royal dark blue (consistent across themes) */
+  --primary-hover: #0f2540;
+  --primary-glow: rgba(27, 54, 93, 0.08);
   
   --accent: #ff7236; /* Vibrant orange */
   --accent-hover: #ff8c5a;
@@ -1108,7 +1108,7 @@ a {
 
 /* How It Works Section */
 .process-section {
-  background: linear-gradient(135deg, #4c070d, #8a131e);
+  background: linear-gradient(135deg, #0f2540, #1b365d);
   color: #ffffff;
   padding: 3.5rem 0;
   position: relative;
