@@ -170,6 +170,7 @@ export default function Footer() {
             <Link to="/about" className="footer-link">About Us</Link>
             <a href="#privacy" className="footer-link">Privacy Policy</a>
             <a href="#terms" className="footer-link">Terms of Service</a>
+            <Link to="/admin" className="footer-link" style={{ opacity: 0.4 }}>Admin Access</Link>
           </div>
         </div>
       </div>
