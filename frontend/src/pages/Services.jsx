@@ -65,6 +65,10 @@ export default function Services() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const location = useLocation();
 
+  useEffect(() => {
+    document.title = "Our Services | EXIM Guru Mantra";
+  }, []);
+
   return (
     <div className="section" style={{ minHeight: '80vh', overflow: 'visible' }}>
       <div className="container">

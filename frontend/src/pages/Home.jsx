@@ -123,6 +123,7 @@ export default function Home() {
 
   // Fetch dynamically synced banner images
   useEffect(() => {
+    document.title = "EXIM Guru Mantra | Leading DGFT & Customs Consultancy";
     const fetchBanners = async () => {
       try {
         const res = await fetch('/api/banner-images');

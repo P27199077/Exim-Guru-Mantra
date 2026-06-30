@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, CheckCircle, AlertCircle } from 'lucide-react';
 
 export default function Contact() {
+  useEffect(() => {
+    document.title = "Contact Us | EXIM Guru Mantra";
+  }, []);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',

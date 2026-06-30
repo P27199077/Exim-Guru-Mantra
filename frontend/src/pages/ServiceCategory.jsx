@@ -237,6 +237,14 @@ export default function ServiceCategory() {
   const { categoryKey } = useParams();
   const category = categoryData[categoryKey];
 
+  React.useEffect(() => {
+    if (category) {
+      document.title = `${category.title} | EXIM Guru Mantra`;
+    } else {
+      document.title = "Service Details | EXIM Guru Mantra";
+    }
+  }, [categoryKey, category]);
+
   if (!category) {
     return (
       <div className="section" style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

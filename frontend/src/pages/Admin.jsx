@@ -87,6 +87,7 @@ export default function Admin() {
 
   // Check URL query parameters for reset token
   useEffect(() => {
+    document.title = "Admin Dashboard | EXIM Guru Mantra";
     const params = new URLSearchParams(window.location.search);
     const token = params.get('token');
     if (token) {

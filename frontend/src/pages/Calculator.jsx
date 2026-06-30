@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calculator, ArrowDownCircle, ArrowUpCircle, RefreshCw, Info, AlertTriangle } from 'lucide-react';
 
 export default function DutyCalculator() {
+  useEffect(() => {
+    document.title = "Duty & Drawback Calculator | EXIM Guru Mantra";
+  }, []);
+
   const [formData, setFormData] = useState({
     hsCode: '',
     flowType: 'import',

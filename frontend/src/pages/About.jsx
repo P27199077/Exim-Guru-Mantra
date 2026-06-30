@@ -36,6 +36,7 @@ export default function About() {
   const [isYtHovered, setIsYtHovered] = useState(false);
 
   useEffect(() => {
+    document.title = "About Us | EXIM Guru Mantra";
     // Fetch dynamic latest videos from local API (which scrapes channel RSS feed)
     fetch('/api/youtube-videos')
       .then((res) => res.json())

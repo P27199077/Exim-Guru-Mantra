@@ -5,6 +5,10 @@ import { CheckCircle, AlertCircle, ArrowLeft, Send } from 'lucide-react';
 export default function Inquiry() {
   const { serviceName } = useParams();
 
+  React.useEffect(() => {
+    document.title = `Inquire about ${serviceName || 'Services'} | EXIM Guru Mantra`;
+  }, [serviceName]);
+
   const [formFields, setFormFields] = useState({
     name: '',
     phone: '',
