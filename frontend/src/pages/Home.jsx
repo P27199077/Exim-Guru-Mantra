@@ -25,86 +25,125 @@ import {
   Coins,
   TrendingUp,
   HelpCircle,
-  X
+  X,
+  Truck,
+  Warehouse,
+  Shield,
+  Signature
 } from 'lucide-react';
 
 const servicesList = [
   {
-    title: 'IEC Licensing & DGFT',
-    icon: FileText,
-    desc: 'Setup and renewal of Import Export Codes, SEIS/MEIS claims, and drafting appeal petitions before DGFT.',
-    link: '/services',
-    linkText: 'Explore DGFT services'
-  },
-  {
-    title: 'Customs clearance advisory',
+    title: 'Customs Clearance Services (Air, Sea, Surface, Courier Mode)',
     icon: Anchor,
-    desc: 'Advising on classification issues, valuation disputes, provisional assessments, and representation before customs port authorities.',
-    link: '/services',
-    linkText: 'Explore Customs services'
+    desc: 'Professional clearing agent representation, HSN classification code checks, and customs port clearances at ICDs and air cargo terminals.',
+    link: '/services/category/import-export-and-customs-clearance',
+    linkText: 'View Customs Clearance'
   },
   {
-    title: 'Incentive schemes & RCMC',
-    icon: Award,
-    desc: 'Maximal recovery under Duty Drawbacks, RoDTEP, RoSCTL, Advance Authorization, and EPCG licensing frameworks.',
-    link: '/services',
-    linkText: 'Explore Incentives'
+    title: 'Freight Forwarding',
+    icon: Globe,
+    desc: 'Sea and Air logistics, transit routes optimization, and booking management for international cargo container lines.',
+    link: '/services/category/import-export-and-customs-clearance',
+    linkText: 'View Freight Forwarding'
   },
   {
-    title: 'Taxation And Compliances',
-    icon: Landmark,
-    desc: 'Managing corporate and individual direct taxation, end-to-end filing, tax planning, and dispute representation.',
-    link: '/services/category/taxation-and-compliances',
-    linkText: 'Check Taxation Guidelines'
+    title: 'Logistics / Transportation',
+    icon: Truck,
+    desc: 'Secure multi-modal transportation coordination for domestic port transfers and surface cargo transits.',
+    link: '/services/category/import-export-and-customs-clearance',
+    linkText: 'View Logistics Info'
   },
   {
-    title: 'Audit And Assurance',
-    icon: ClipboardCheck,
-    desc: 'Providing transparency, accountability, and reliability to investors and regulatory boards under standard auditing guidelines.',
-    link: '/services/category/audit-and-assurance',
-    linkText: 'Check Audit Guidelines'
+    title: 'Warehousing',
+    icon: Warehouse,
+    desc: 'Dedicated and shared cold-chain, bonded, or standard warehousing options with full safety controls.',
+    link: '/services/category/import-export-and-customs-clearance',
+    linkText: 'View Warehousing'
   },
   {
-    title: 'Goods And Service Tax (GST)',
+    title: 'Insurance',
+    icon: Shield,
+    desc: 'Transit risk insurance advisory for secure international shipping cargo and liability protection.',
+    link: '/services/category/import-export-and-customs-clearance',
+    linkText: 'View Insurance Info'
+  },
+  {
+    title: 'DGFT Services',
+    icon: FileText,
+    desc: 'Star Export House applications, IEC issuance, EPCG licenses, and Advance Authorization compliance filings.',
+    link: '/services/category/import-export-and-customs-clearance',
+    linkText: 'View DGFT Services'
+  },
+  {
+    title: 'GST Services',
     icon: Percent,
-    desc: 'Automated indirect tax desk to manage monthly GSTR returns, reconciliation, GSTR audits, and litigation.',
+    desc: 'Input tax credit reconciliations, monthly filings, refund applications (LUT/IGST route), and litigation representation.',
     link: '/services/category/goods-and-service-tax',
-    linkText: 'Check GST Guidelines'
+    linkText: 'View GST Services'
   },
   {
-    title: 'Company & LLP Compliances',
+    title: 'Company Registration',
     icon: Building2,
-    desc: 'Ongoing compliance under MCA rules, ROC filings, company registration, and LLP annual compliance services.',
+    desc: 'Register a Private Limited, LLP, One Person Company, Partnership, or HUF setup with MCA and ROC compliance.',
     link: '/services/category/company-and-llp-compliances',
-    linkText: 'Check Company Setup'
+    linkText: 'View Registrations'
+  },
+  {
+    title: 'Taxation and Compliances',
+    icon: Landmark,
+    desc: 'Corporate Income Tax returns filing, TDS returns preparation, CA certifications, and litigation representation.',
+    link: '/services/category/taxation-and-compliances',
+    linkText: 'View Taxation Services'
+  },
+  {
+    title: 'Audit and Assurance',
+    icon: ClipboardCheck,
+    desc: 'Statutory audits, tax audits (Form 3CD), stock audits, and internal financial controls (IFC) verification.',
+    link: '/services/category/audit-and-assurance',
+    linkText: 'View Audit Services'
   },
   {
     title: 'International Taxation',
     icon: Globe,
-    desc: 'Managing cross-border tax liabilities, DTAA planning, NRI taxation, and Transfer Pricing compliance.',
-    link: '/services/category/international-taxation',
-    linkText: 'Check Global Tax Info'
-  },
-  {
-    title: 'Business Registrations',
-    icon: PenTool,
-    desc: 'Kickstart your business setup with MSME, food licensing, labor, export promotion profiles, and council registrations.',
-    link: '/services/category/registration',
-    linkText: 'Check Registrations'
+    desc: 'Double Tax Avoidance Agreement (DTAA) planning, transfer pricing compliance, and NRI tax advisory.',
+    link: '/services/category/taxation-and-compliances',
+    linkText: 'View International Tax'
   },
   {
     title: 'Account Outsourcing & Bookkeeping',
     icon: Calculator,
-    desc: 'Audit-ready ledger preparation, day-to-day books, and modern payroll management using Tally and QuickBooks.',
-    link: '/services/category/account-outsourcing-and-bookkeeping',
-    linkText: 'Check Accounting Info'
+    desc: 'Standard ledgers setup, day-to-day accounts bookkeeping, payroll setup, and billing audits.',
+    link: '/services/category/taxation-and-compliances',
+    linkText: 'View Accounting Services'
   },
   {
     title: 'Intellectual Property (IPR)',
     icon: Scale,
-    desc: 'Protect brand assets through trademark searches, filings, assignments, renewals, and legal responses to objections.',
+    desc: 'Protecting brand identity with Trademark registration, assignments, objections, and copyright search filings.',
     link: '/services/category/intellectual-property',
-    linkText: 'Check IPR Services'
+    linkText: 'View IPR Services'
+  },
+  {
+    title: 'Buying House Services',
+    icon: Award,
+    desc: 'Sourcing and procurement coordination, factory assessments, quality checks, and shipping consolidations.',
+    link: '/services/category/import-export-and-customs-clearance',
+    linkText: 'View Buying House'
+  },
+  {
+    title: 'Digital Signature',
+    icon: Signature,
+    desc: 'Issuance of Class 3 Digital Signature Certificate (DSC) for secure online filings with DGFT, MCA, and Income Tax.',
+    link: '/services/category/company-and-llp-compliances',
+    linkText: 'View DSC Options'
+  },
+  {
+    title: 'CPCB Pollution Certificate',
+    icon: BadgeAlert,
+    desc: 'Central Pollution Control Board consent management, EPR registrations, and environmental compliances advisory.',
+    link: '/services/category/business-registrations',
+    linkText: 'View CPCB Details'
   }
 ];
 
