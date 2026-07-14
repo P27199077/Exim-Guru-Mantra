@@ -12,6 +12,10 @@ import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 import Chatbot from './components/Chatbot';
 import DocCheck from './pages/DocCheck';
+import FAQ from './pages/FAQ';
+import Careers from './pages/Careers';
+import Portfolios from './pages/Portfolios';
+import Terms from './pages/Terms';
 
 function App() {
   return (
@@ -35,6 +39,10 @@ function App() {
             <Route path="/calculator" element={<Calculator />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/doc-check" element={<DocCheck />} />
+            <Route path="/faq" element={<FAQ />} />
+            <Route path="/careers" element={<Careers />} />
+            <Route path="/portfolios" element={<Portfolios />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/admin" element={<Admin />} />
           </Routes>
         </main>

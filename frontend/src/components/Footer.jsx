@@ -133,12 +133,12 @@ export default function Footer() {
           </div>
 
           <div>
-            <h4 className="footer-title">Interactive Utilities</h4>
+            <h4 className="footer-title">Company Info</h4>
             <ul className="footer-links">
+              <li><Link to="/faq" className="footer-link">FAQ & Help Center</Link></li>
+              <li><Link to="/careers" className="footer-link">Careers & Hiring</Link></li>
+              <li><Link to="/portfolios" className="footer-link">Success Portfolios</Link></li>
               <li><Link to="/calculator" className="footer-link">Duty Estimator</Link></li>
-              <li><Link to="/calculator" className="footer-link">Drawback Calculator</Link></li>
-              <li><Link to="/services" className="footer-link">HS Code Reference</Link></li>
-              <li><Link to="/contact" className="footer-link">DGFT Helpdesk</Link></li>
             </ul>
           </div>
 
@@ -167,8 +167,7 @@ export default function Footer() {
           <p>&copy; {new Date().getFullYear()} Exim Guru Mantra Associates. All rights reserved.</p>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <Link to="/about" className="footer-link">About Us</Link>
-            <a href="#privacy" className="footer-link">Privacy Policy</a>
-            <a href="#terms" className="footer-link">Terms of Service</a>
+            <Link to="/terms" className="footer-link">Terms & Privacy Policy</Link>
             <Link to="/admin" className="footer-link" style={{ opacity: 0.4 }}>Admin Access</Link>
           </div>
         </div>

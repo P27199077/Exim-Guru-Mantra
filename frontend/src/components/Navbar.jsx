@@ -1,11 +1,104 @@
 import React, { useState, useEffect } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useLocation } from 'react-router-dom';
 import { Globe, Menu, X, PhoneCall, ChevronDown, Sun, Moon } from 'lucide-react';
 
+const fallbackNavbarCategories = [
+  {
+    key: 'import-export-and-customs-clearance',
+    title: 'Import-Export & Customs',
+    division: 'import-export',
+    services: [
+      'Customs Broking & Clearance',
+      'Sea & Air Freight Forwarding',
+      'DGFT Liaisoning & Licensing',
+      'Incentive & Duty Drawbacks Claims',
+      'FEMA & Trade Compliance Advisory',
+      'IEC Update & Maintenance'
+    ]
+  },
+  {
+    key: 'taxation-and-compliances',
+    title: 'Taxation And Compliances',
+    division: 'taxation',
+    services: [
+      'Overview - Direct And Indirect Tax',
+      'Corporate Tax',
+      'Income Tax Return Filing Services',
+      'Income Tax Litigation Services',
+      'Certification And Attestation Services',
+      'TDS Return Filing'
+    ]
+  },
+  {
+    key: 'audit-and-assurance',
+    title: 'Audit And Assurance',
+    division: 'taxation',
+    services: [
+      'Overview - Audit And Assurance',
+      'Statutory Audit',
+      'Tax Audit',
+      'Internal Audit',
+      'Stock Audit',
+      'Fixed Assets Audit'
+    ]
+  },
+  {
+    key: 'goods-and-service-tax',
+    title: 'Goods And Service Tax (GST)',
+    division: 'taxation',
+    services: [
+      'Overview - Goods And Services Tax',
+      'GST Compliance Services',
+      'GST Audit',
+      'GST Litigation Services',
+      'GST Refund'
+    ]
+  },
+  {
+    key: 'company-and-llp-compliances',
+    title: 'Company & LLP Compliances',
+    division: 'certification',
+    services: [
+      'Company Registration',
+      'LLP Formation',
+      'Company Annual Compliances',
+      'Company Strike Off',
+      'Company Annual Return Filing',
+      'LLP Annual Return Filing',
+      'One Person Company Registration'
+    ]
+  },
+  {
+    key: 'business-registrations',
+    title: 'Business Registrations',
+    division: 'certification',
+    services: [
+      'Trust Registration',
+      'Society Registration',
+      'IEC Registration',
+      'MSME Registration',
+      'FSSAI Registration',
+      'ESI Registration'
+    ]
+  },
+  {
+    key: 'intellectual-property',
+    title: 'Intellectual Property (IPR)',
+    division: 'certification',
+    services: [
+      'Trademark Registration',
+      'Trademark Assignment',
+      'Trademark Renewal',
+      'Trademark Objection Reply'
+    ]
+  }
+];
+
 export default function Navbar() {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false); // Mobile drawer open state
   const [dropdownOpen, setDropdownOpen] = useState(false); // Desktop services mega-dropdown state
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState(fallbackNavbarCategories);
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'light';
   });
@@ -29,7 +122,9 @@ export default function Navbar() {
         const res = await fetch('/api/services');
         if (res.ok) {
           const data = await res.json();
-          setCategories(data);
+          if (Array.isArray(data) && data.length > 0) {
+            setCategories(data);
+          }
         }
       } catch (err) {
         console.error('Failed to fetch services in navbar:', err);
@@ -84,24 +179,39 @@ export default function Navbar() {
                 {categories.filter(c => c.division === 'import-export').length === 0 ? (
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
                 ) : (
-                  categories.filter(c => c.division === 'import-export').map((cat) => (
-                    <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
-                      <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
-                        <h4 className="mega-title" style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)', textTransform: 'uppercase' }}>{cat.title}</h4>
-                      </Link>
-                      {cat.services.map((svc, sIdx) => (
-                        <Link 
-                          key={sIdx} 
-                          to={`/inquire/${encodeURIComponent(svc)}`} 
-                          className="mega-link" 
-                          onClick={handleLinkClick}
-                          style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
-                        >
-                          {svc}
+                  categories.filter(c => c.division === 'import-export').map((cat) => {
+                    const isActive = location.pathname === `/services/category/${cat.key}`;
+                    return (
+                      <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
+                        <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
+                          <h4 
+                            className="mega-title" 
+                            style={{ 
+                              fontSize: '0.88rem', 
+                              fontWeight: '800', 
+                              color: 'var(--primary)', 
+                              textTransform: 'uppercase',
+                              opacity: isActive ? 0.45 : 1,
+                              transition: 'opacity 0.25s ease'
+                            }}
+                          >
+                            {cat.title}
+                          </h4>
                         </Link>
-                      ))}
-                    </div>
-                  ))
+                        {cat.services.map((svc, sIdx) => (
+                          <Link 
+                            key={sIdx} 
+                            to={`/inquire/${encodeURIComponent(svc)}`} 
+                            className="mega-link" 
+                            onClick={handleLinkClick}
+                            style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
+                          >
+                            {svc}
+                          </Link>
+                        ))}
+                      </div>
+                    );
+                  })
                 )}
               </div>
 
@@ -113,24 +223,39 @@ export default function Navbar() {
                 {categories.filter(c => c.division === 'taxation').length === 0 ? (
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
                 ) : (
-                  categories.filter(c => c.division === 'taxation').map((cat) => (
-                    <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
-                      <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
-                        <h4 className="mega-title" style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)', textTransform: 'uppercase' }}>{cat.title}</h4>
-                      </Link>
-                      {cat.services.map((svc, sIdx) => (
-                        <Link 
-                          key={sIdx} 
-                          to={`/inquire/${encodeURIComponent(svc)}`} 
-                          className="mega-link" 
-                          onClick={handleLinkClick}
-                          style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
-                        >
-                          {svc}
+                  categories.filter(c => c.division === 'taxation').map((cat) => {
+                    const isActive = location.pathname === `/services/category/${cat.key}`;
+                    return (
+                      <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
+                        <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
+                          <h4 
+                            className="mega-title" 
+                            style={{ 
+                              fontSize: '0.88rem', 
+                              fontWeight: '800', 
+                              color: 'var(--primary)', 
+                              textTransform: 'uppercase',
+                              opacity: isActive ? 0.45 : 1,
+                              transition: 'opacity 0.25s ease'
+                            }}
+                          >
+                            {cat.title}
+                          </h4>
                         </Link>
-                      ))}
-                    </div>
-                  ))
+                        {cat.services.map((svc, sIdx) => (
+                          <Link 
+                            key={sIdx} 
+                            to={`/inquire/${encodeURIComponent(svc)}`} 
+                            className="mega-link" 
+                            onClick={handleLinkClick}
+                            style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
+                          >
+                            {svc}
+                          </Link>
+                        ))}
+                      </div>
+                    );
+                  })
                 )}
               </div>
 
@@ -142,24 +267,39 @@ export default function Navbar() {
                 {categories.filter(c => c.division === 'certification').length === 0 ? (
                   <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
                 ) : (
-                  categories.filter(c => c.division === 'certification').map((cat) => (
-                    <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
-                      <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
-                        <h4 className="mega-title" style={{ fontSize: '0.88rem', fontWeight: '700', color: 'var(--text-primary)', textTransform: 'uppercase' }}>{cat.title}</h4>
-                      </Link>
-                      {cat.services.map((svc, sIdx) => (
-                        <Link 
-                          key={sIdx} 
-                          to={`/inquire/${encodeURIComponent(svc)}`} 
-                          className="mega-link" 
-                          onClick={handleLinkClick}
-                          style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
-                        >
-                          {svc}
+                  categories.filter(c => c.division === 'certification').map((cat) => {
+                    const isActive = location.pathname === `/services/category/${cat.key}`;
+                    return (
+                      <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
+                        <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
+                          <h4 
+                            className="mega-title" 
+                            style={{ 
+                              fontSize: '0.88rem', 
+                              fontWeight: '800', 
+                              color: 'var(--primary)', 
+                              textTransform: 'uppercase',
+                              opacity: isActive ? 0.45 : 1,
+                              transition: 'opacity 0.25s ease'
+                            }}
+                          >
+                            {cat.title}
+                          </h4>
                         </Link>
-                      ))}
-                    </div>
-                  ))
+                        {cat.services.map((svc, sIdx) => (
+                          <Link 
+                            key={sIdx} 
+                            to={`/inquire/${encodeURIComponent(svc)}`} 
+                            className="mega-link" 
+                            onClick={handleLinkClick}
+                            style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
+                          >
+                            {svc}
+                          </Link>
+                        ))}
+                      </div>
+                    );
+                  })
                 )}
               </div>
 
@@ -263,6 +403,9 @@ export default function Navbar() {
           <NavLink to="/about" className="nav-link" onClick={handleLinkClick}>About Us</NavLink>
           <NavLink to="/calculator" className="nav-link" onClick={handleLinkClick}>Duty Estimator</NavLink>
           <NavLink to="/doc-check" className="nav-link" onClick={handleLinkClick}>Doc Check</NavLink>
+          <NavLink to="/faq" className="nav-link" onClick={handleLinkClick}>FAQ</NavLink>
+          <NavLink to="/careers" className="nav-link" onClick={handleLinkClick}>Careers</NavLink>
+          <NavLink to="/portfolios" className="nav-link" onClick={handleLinkClick}>Portfolios</NavLink>
           <NavLink to="/contact" className="nav-link" onClick={handleLinkClick}>Contact & Support</NavLink>
           <NavLink to="/contact" className="btn btn-primary" style={{ marginTop: '0.5rem' }} onClick={handleLinkClick}>
             <PhoneCall size={16} />

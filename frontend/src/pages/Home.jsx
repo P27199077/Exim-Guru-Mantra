@@ -117,21 +117,45 @@ export default function Home() {
 
   const bannerImages = [
     {
-      img: 'https://eximplanner.com/assets/img/banner/1.jpg',
-      subtitle: 'ANYWHERE ANYTIME',
+      img: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?w=1600&auto=format&fit=crop&q=80',
+      subtitle: 'GLOBAL AIR FREIGHT',
       title: 'SWIFT, SECURE GLOBALLY CONNECT',
       btnText: 'Read More'
     },
     {
-      img: 'https://eximplanner.com/assets/img/banner/2.jpg',
-      subtitle: 'YOUR DEDICATED',
-      title: 'PARTNER IN LOGISTICS',
+      img: 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1600&auto=format&fit=crop&q=80',
+      subtitle: 'OCEAN CARGO SYSTEMS',
+      title: 'RELIABLE OCEAN FREIGHT FORWARDING',
       btnText: 'Read More'
     },
     {
-      img: 'https://eximplanner.com/assets/img/banner/3.jpg',
-      subtitle: 'TRANSPORT. TRUST. TERRITORY.',
-      title: 'RELIABLE. EFFICIENT. GROUNDED.',
+      img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=1600&auto=format&fit=crop&q=80',
+      subtitle: 'ROAD TRANSPORT LOGISTICS',
+      title: 'DEPENDABLE GROUND TRANSPORTATION',
+      btnText: 'Read More'
+    },
+    {
+      img: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1600&auto=format&fit=crop&q=80',
+      subtitle: 'INTERMODAL RAIL FREIGHT',
+      title: 'ECONOMIC & SECURED RAIL SYSTEMS',
+      btnText: 'Read More'
+    },
+    {
+      img: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=1600&auto=format&fit=crop&q=80',
+      subtitle: 'SECURED STORAGE SOLUTIONS',
+      title: 'MODERN DEDICATED WAREHOUSING',
+      btnText: 'Read More'
+    },
+    {
+      img: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=1600&auto=format&fit=crop&q=80',
+      subtitle: 'SMART LOGISTICS SYSTEMS',
+      title: 'INTEGRATED LOGISTICS AUTOMATION',
+      btnText: 'Read More'
+    },
+    {
+      img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&auto=format&fit=crop&q=80',
+      subtitle: 'EXPERT TRADE ADVISORY',
+      title: 'PROFESSIONAL COMPLIANCE SERVICES',
       btnText: 'Read More'
     }
   ];
@@ -615,20 +639,24 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Trust Call to Action */}
-      <section className="section" style={{ background: 'rgba(255, 255, 255, 0.02)', borderTop: '1px solid var(--card-border)' }}>
-        <div className="container" style={{ textAlign: 'center', maxWidth: '800px' }}>
-          <h2 style={{ fontSize: '2.25rem', marginBottom: '1rem' }}>Ready to Scale Your Import-Export Operations?</h2>
-          <p style={{ color: 'var(--text-secondary)', marginBottom: '2.5rem', fontSize: '1.1rem' }}>
-            Book a complimentary 15-minute diagnostic session with our principal consultant to identify duty savings and risk bottlenecks.
-          </p>
-          <div style={{ display: 'flex', gap: '1.25rem', justifyContent: 'center' }}>
-            <Link to="/contact" className="btn btn-primary" style={{ padding: '0.8rem 2rem' }}>
-              Book Diagnostic Session
-            </Link>
-            <Link to="/services" className="btn btn-secondary" style={{ padding: '0.8rem 2rem' }}>
-              Browse Detailed Services
-            </Link>
+      {/* Infinite Scrolling Partner Marquee Banner */}
+      <section style={{ background: 'var(--bg-secondary)', padding: '2rem 0', borderTop: '1px solid var(--card-border)' }}>
+        <div className="container" style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+          <span className="section-subtitle" style={{ fontSize: '0.8rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Associated Trade Partners & Certifications</span>
+        </div>
+        <div className="marquee-container">
+          <div className="marquee-content">
+            <img src="https://images.unsplash.com/photo-1595246140625-573b715d11dc?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
+            <img src="https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
+            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
+            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
+            <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
+            {/* Duplicate for infinite loop */}
+            <img src="https://images.unsplash.com/photo-1595246140625-573b715d11dc?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
+            <img src="https://images.unsplash.com/photo-1518156677180-95a2893f3e9f?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
+            <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
+            <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
+            <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=200&auto=format&fit=crop&q=80" alt="Trade Partner" />
           </div>
         </div>
       </section>

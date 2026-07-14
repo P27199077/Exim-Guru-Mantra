@@ -2236,3 +2236,55 @@ a {
   }
 }
 
+/* Premium Logo Hover & Shimmer Animation */
+.logo img {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.logo:hover img {
+  transform: scale(1.04) translateY(-1px);
+  filter: drop-shadow(0 4px 12px rgba(27, 54, 93, 0.15));
+}
+
+/* Infinite Scrolling Marquee */
+.marquee-container {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  background: var(--bg-secondary);
+  padding: 3rem 0;
+  border-top: 1px solid var(--bg-tertiary);
+  border-bottom: 1px solid var(--bg-tertiary);
+  width: 100%;
+}
+
+.marquee-content {
+  display: inline-block;
+  animation: marquee-scroll 30s linear infinite;
+}
+
+.marquee-content img {
+  height: 55px;
+  width: auto;
+  margin: 0 4rem;
+  filter: grayscale(100%);
+  opacity: 0.55;
+  transition: all 0.3s ease;
+  vertical-align: middle;
+}
+
+.marquee-content img:hover {
+  filter: grayscale(0%);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
