@@ -58,17 +58,25 @@ export default function Chatbot() {
 
       if (lowerText.includes('iec') || lowerText.includes('import export code') || lowerText.includes('apply')) {
         replyText = 'To apply for an Import Export Code (IEC), you will need: \n1. PAN Card (Individual/Company)\n2. Active Current Account (Cancelled Cheque)\n3. Digital Signature (DSC)\n4. Business Address Proof.\n\nWe can get your IEC issued within 24 hours!';
-      } else if (lowerText.includes('duty') || lowerText.includes('calculate') || lowerText.includes('calculator') || lowerText.includes('tariff')) {
-        replyText = 'You can calculate customs duties, BCD, and IGST instantly using our Duty Estimator tool. Click the link below to visit the calculator page!';
+      } else if (lowerText.includes('duty') || lowerText.includes('calculate') || lowerText.includes('calculator') || lowerText.includes('tariff') || lowerText.includes('insurance') || lowerText.includes('insur')) {
+        replyText = 'For global procurement sourcing, supply chain audits, or cargo transit insurance (Air, Marine, Surface covers), check our dedicated buying house or cargo insurance service desks below!';
         replyElement = (
-          <div style={{ marginTop: '0.5rem' }}>
+          <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
             <Link 
-              to="/calculator" 
+              to="/buying-house" 
               onClick={() => setIsOpen(false)}
               className="btn btn-primary" 
-              style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', borderRadius: '4px', display: 'inline-block' }}
+              style={{ padding: '0.4rem 0.8rem', fontSize: '0.78rem', borderRadius: '4px', display: 'inline-block' }}
             >
-              Go to Duty Estimator
+              Buying House Desk
+            </Link>
+            <Link 
+              to="/insurance" 
+              onClick={() => setIsOpen(false)}
+              className="btn btn-secondary" 
+              style={{ padding: '0.4rem 0.8rem', fontSize: '0.78rem', borderRadius: '4px', display: 'inline-block' }}
+            >
+              Transit Insurance Cover
             </Link>
           </div>
         );

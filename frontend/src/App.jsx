@@ -7,7 +7,8 @@ import Services from './pages/Services';
 import ServiceCategory from './pages/ServiceCategory';
 import Inquiry from './pages/Inquiry';
 import About from './pages/About';
-import Calculator from './pages/Calculator';
+import BuyingHouse from './pages/BuyingHouse';
+import Insurance from './pages/Insurance';
 import Contact from './pages/Contact';
 import Admin from './pages/Admin';
 import Chatbot from './components/Chatbot';
@@ -36,7 +37,8 @@ function App() {
             <Route path="/services/category/:categoryKey" element={<ServiceCategory />} />
             <Route path="/inquire/:serviceName" element={<Inquiry />} />
             <Route path="/about" element={<About />} />
-            <Route path="/calculator" element={<Calculator />} />
+            <Route path="/buying-house" element={<BuyingHouse />} />
+            <Route path="/insurance" element={<Insurance />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/doc-check" element={<DocCheck />} />
             <Route path="/faq" element={<FAQ />} />

@@ -313,8 +313,8 @@ export default function Navbar() {
           </li>
           
           <li>
-            <NavLink to="/calculator" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleLinkClick}>
-              Duty Estimator
+            <NavLink to="/buying-house" className={({ isActive }) => isActive ? "nav-link active" : "nav-link"} onClick={handleLinkClick}>
+              Buying House
             </NavLink>
           </li>
           <li>
@@ -401,7 +401,8 @@ export default function Navbar() {
           <NavLink to="/" className="nav-link" onClick={handleLinkClick}>Home</NavLink>
           <NavLink to="/services" className="nav-link" onClick={handleLinkClick}>Services</NavLink>
           <NavLink to="/about" className="nav-link" onClick={handleLinkClick}>About Us</NavLink>
-          <NavLink to="/calculator" className="nav-link" onClick={handleLinkClick}>Duty Estimator</NavLink>
+          <NavLink to="/buying-house" className="nav-link" onClick={handleLinkClick}>Buying House</NavLink>
+          <NavLink to="/insurance" className="nav-link" onClick={handleLinkClick}>Insurance Services</NavLink>
           <NavLink to="/doc-check" className="nav-link" onClick={handleLinkClick}>Doc Check</NavLink>
           <NavLink to="/faq" className="nav-link" onClick={handleLinkClick}>FAQ</NavLink>
           <NavLink to="/careers" className="nav-link" onClick={handleLinkClick}>Careers</NavLink>
