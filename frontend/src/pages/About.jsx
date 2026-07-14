@@ -215,7 +215,7 @@ export default function About() {
         </div>
 
         {/* Brand Showcase Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', marginBottom: '5rem' }}>
+        <div className="responsive-grid-about-2">
           <div>
             <h2 style={{ fontSize: '1.75rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
               Empowering Cross-Border Commerce & Compliance
@@ -252,7 +252,7 @@ export default function About() {
         <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--bg-tertiary)', borderRadius: '8px', padding: '3.5rem 3rem', marginBottom: '5rem' }}>
           <h3 style={{ fontSize: '1.5rem', textAlign: 'center', marginBottom: '2.5rem' }}>Our Core Pillars</h3>
           
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2.5rem' }}>
+          <div className="responsive-grid-about-3">
             <div style={{ textAlign: 'center' }}>
               <div style={{
                 width: '48px', height: '48px', background: 'rgba(194, 29, 46, 0.05)', borderRadius: '50%',

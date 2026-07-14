@@ -59,7 +59,7 @@ export default function ServiceCategory() {
           <span>All Services</span>
         </Link>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '3.5rem', alignItems: 'start' }}>
+        <div className="responsive-grid-service-category">
           <div>
             <span className="section-subtitle" style={{ textTransform: 'uppercase' }}>{category.subtitle}</span>
             <h1 style={{ fontSize: '2.75rem', marginBottom: '1.5rem', color: 'var(--text-primary)' }}>{category.title}</h1>

@@ -58,7 +58,7 @@ export default function Portfolios() {
         </div>
 
         {/* Case Studies Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: '3rem' }}>
+        <div className="responsive-grid-portfolio">
           {portfoliosData.map((item, idx) => (
             <div 
               key={idx} 

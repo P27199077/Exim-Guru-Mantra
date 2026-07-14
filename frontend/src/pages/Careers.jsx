@@ -67,7 +67,7 @@ export default function Careers() {
         </div>
 
         {/* Content Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: '4.5rem', alignItems: 'start' }}>
+        <div className="responsive-grid-2">
           
           {/* Job Listings Column */}
           <div>

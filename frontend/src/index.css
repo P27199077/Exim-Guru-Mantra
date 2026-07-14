@@ -2288,3 +2288,96 @@ a {
     transform: translateX(-50%);
   }
 }
+
+
+/* Responsive CSS Grid Utilities */
+.responsive-grid-2 {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 4.5rem;
+  align-items: start;
+}
+
+.responsive-grid-about-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-bottom: 5rem;
+}
+
+.responsive-grid-about-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+}
+
+.responsive-grid-portfolio {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 3rem;
+}
+
+.responsive-grid-service-category {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 3.5rem;
+  align-items: start;
+}
+
+.responsive-grid-doccheck {
+  display: grid;
+  grid-template-columns: 1.12fr 0.88fr;
+  gap: 4rem;
+  align-items: start;
+  margin-top: 2rem;
+}
+
+.responsive-grid-calculator {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Breakpoint for Tablets & Small Screen Laptops */
+@media (max-width: 1200px) {
+  .mega-dropdown {
+    width: 95vw !important;
+    left: 50% !important;
+    transform: translateX(-50%) translateY(0) !important;
+  }
+}
+
+@media (max-width: 991px) {
+  .responsive-grid-2,
+  .responsive-grid-about-2,
+  .responsive-grid-service-category,
+  .responsive-grid-doccheck {
+    grid-template-columns: 1fr !important;
+    gap: 2.5rem !important;
+  }
+  
+  .responsive-grid-about-3 {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+  }
+  
+  /* Additional Page adjustments */
+  .why-splash {
+    display: none !important;
+  }
+}
+
+/* Breakpoint for Mobile Screens */
+@media (max-width: 576px) {
+  .responsive-grid-calculator,
+  .responsive-grid-portfolio {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+  
+  /* Mobile padding tweaks */
+  .doccheck-grid {
+    margin-top: 1rem !important;
+  }
+}

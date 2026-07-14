@@ -66,7 +66,7 @@ export default function DocCheck() {
         </div>
 
         {/* Content Grid */}
-        <div className="doccheck-grid" style={{ display: 'grid', gridTemplateColumns: '1.12fr 0.88fr', gap: '4rem', alignItems: 'start', marginTop: '2rem' }}>
+        <div className="doccheck-grid responsive-grid-doccheck">
           
           {/* Left Column: Information Card */}
           <div style={{ background: 'var(--bg-secondary)', borderRadius: '12px', padding: '3rem', border: '1px solid var(--bg-tertiary)' }}>
