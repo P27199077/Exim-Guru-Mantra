@@ -163,6 +163,7 @@ a {
   justify-content: space-between;
   align-items: center;
   height: 76px;
+  position: relative;
 }
 
 .logo {
@@ -677,7 +678,7 @@ a {
 }
 
 .nav-item-dropdown {
-  position: relative;
+  position: static;
 }
 
 .nav-item-dropdown:hover .dropdown-arrow {
