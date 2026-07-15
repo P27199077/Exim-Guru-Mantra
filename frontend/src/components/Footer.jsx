@@ -140,6 +140,7 @@ export default function Footer() {
               <li><Link to="/portfolios" className="footer-link">Success Portfolios</Link></li>
               <li><Link to="/buying-house" className="footer-link">Buying House</Link></li>
               <li><Link to="/insurance" className="footer-link">Insurance Services</Link></li>
+              <li><Link to="/certificates" className="footer-link">Licensing & Certificates</Link></li>
             </ul>
           </div>
 

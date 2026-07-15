@@ -2382,3 +2382,23 @@ a {
     margin-top: 1rem !important;
   }
 }
+
+/* Navbar Desktop menu resizing and mobile toggle breakpoints */
+@media (min-width: 1025px) and (max-width: 1300px) {
+  .nav-menu {
+    gap: 0.85rem !important;
+  }
+  .nav-link {
+    font-size: 0.82rem !important;
+  }
+}
+
+@media (max-width: 1024px) {
+  .nav-menu,
+  .pc-only {
+    display: none !important;
+  }
+  .nav-toggle {
+    display: block !important;
+  }
+}

@@ -17,6 +17,7 @@ import FAQ from './pages/FAQ';
 import Careers from './pages/Careers';
 import Portfolios from './pages/Portfolios';
 import Terms from './pages/Terms';
+import Certificates from './pages/Certificates';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/buying-house" element={<BuyingHouse />} />
             <Route path="/insurance" element={<Insurance />} />
+            <Route path="/certificates" element={<Certificates />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/doc-check" element={<DocCheck />} />
             <Route path="/faq" element={<FAQ />} />
