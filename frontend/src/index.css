@@ -182,17 +182,23 @@ a {
 
 .nav-menu {
   display: flex;
-  gap: 2rem;
+  gap: 1.2rem;
   list-style: none;
+  align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-link {
   font-family: var(--font-heading);
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   color: var(--text-secondary);
   position: relative;
   padding: 0.4rem 0;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
 }
 
 .nav-link:hover, .nav-link.active {
