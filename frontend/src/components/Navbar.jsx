@@ -162,10 +162,26 @@ export default function Navbar() {
             <NavLink 
               to="/services" 
               className={({ isActive }) => isActive ? "nav-link active nav-link-flex" : "nav-link nav-link-flex"}
-              onClick={handleLinkClick}
+              onClick={(e) => {
+                // Toggle dropdown instead of navigation on screens under 1200px
+                if (window.innerWidth < 1200) {
+                  e.preventDefault();
+                  setDropdownOpen(!dropdownOpen);
+                } else {
+                  handleLinkClick();
+                }
+              }}
             >
               <span>Services</span>
-              <ChevronDown size={14} className="dropdown-arrow" />
+              <ChevronDown 
+                size={14} 
+                className="dropdown-arrow" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setDropdownOpen(!dropdownOpen);
+                }}
+              />
             </NavLink>
             
             {/* Mega Dropdown Panel */}

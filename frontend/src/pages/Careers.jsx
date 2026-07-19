@@ -3,10 +3,11 @@ import { Briefcase, Send, CheckCircle2 } from 'lucide-react';
 
 export default function Careers() {
   const [submitted, setSubmitted] = useState(false);
+  const [openRoles, setOpenRoles] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    role: 'Customs Clearance Executive',
+    role: '',
     experience: '1-3 Years',
     coverLetter: ''
   });
@@ -14,31 +15,23 @@ export default function Careers() {
   useEffect(() => {
     document.title = "Join Our Panel | Careers | EXIM Guru Mantra";
     window.scrollTo(0, 0);
-  }, []);
 
-  const openRoles = [
-    {
-      title: "Customs Clearance Executive",
-      dept: "Customs Operations",
-      location: "New Delhi Port / Remote",
-      type: "Full-Time",
-      desc: "Liaison with customs officials, handle HSN classifications, compile bill of entries, and coordinate shipping clearances."
-    },
-    {
-      title: "Direct Tax CA Assistant",
-      dept: "Taxation & Audit",
-      location: "New Delhi Office",
-      type: "Full-Time",
-      desc: "Assist in preparing corporate and individual income tax returns, TDS filings, and resolving assessment notifications."
-    },
-    {
-      title: "Logistics Coordination Associate",
-      dept: "Freight & Shipping",
-      location: "New Delhi / Hybrid",
-      type: "Full-Time",
-      desc: "Manage ocean and air cargo logs, verify carrier bookings, and update customers on transit timelines."
-    }
-  ];
+    const loadJobs = async () => {
+      try {
+        const res = await fetch('/api/careers/jobs');
+        if (res.ok) {
+          const data = await res.json();
+          setOpenRoles(data);
+          if (data.length > 0) {
+            setFormData(prev => ({ ...prev, role: data[0].title }));
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load active jobs:', err);
+      }
+    };
+    loadJobs();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -174,9 +167,10 @@ export default function Careers() {
                     onChange={handleInputChange}
                     style={{ width: '100%', padding: '0.65rem 0.85rem', borderRadius: '6px', border: '1px solid var(--bg-tertiary)', background: '#ffffff', outline: 'none' }}
                   >
-                    <option>Customs Clearance Executive</option>
-                    <option>Direct Tax CA Assistant</option>
-                    <option>Logistics Coordination Associate</option>
+                    {openRoles.map((r, rIdx) => (
+                      <option key={rIdx} value={r.title}>{r.title}</option>
+                    ))}
+                    {openRoles.length === 0 && <option>General Sourcing Inquiry</option>}
                   </select>
                 </div>
 

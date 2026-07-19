@@ -24,6 +24,8 @@ let db;
 let queriesCollection;
 let settingsCollection;
 let servicesCollection;
+let pageContentCollection;
+let jobsCollection;
 
 const defaultServices = [
   {
@@ -301,6 +303,83 @@ const seedDefaultServices = async () => {
   }
 };
 
+const defaultPageContent = [
+  {
+    pageId: 'insurance',
+    items: [
+      { "title": "Air Cargo Insurance", "desc": "Protects high-value, time-sensitive goods in air transit against loss, damage, theft, or flight handling errors." },
+      { "title": "Marine Cargo Insurance", "desc": "Secures ocean transit shipments against perils of the sea, damage, container losses, and general average declarations." },
+      { "title": "Surface Cargo / Land Transit", "desc": "Covers local and cross-border road/rail cargo freight movements against collision, theft, or delay damages." },
+      { "title": "Warehouse Cover & Storage", "desc": "Protects goods stored in transit depots, custom-bonded areas, or third-party logistics (3PL) warehousing." },
+      { "title": "Individual Coverage", "desc": "Tailored ad-hoc insurance coverage profiles for single-shipment exports or spot LCL cargo runs." },
+      { "title": "Company Liability Insurance", "desc": "Comprehensive error-and-omission protection, commercial liabilities, and business financial risks coverage." },
+      { "title": "Personal / Person Accident Protection", "desc": "Accident liability coverage for logistics crew members, warehousing workers, and cargo loaders." },
+      { "title": "Vehicle Cargo Insurance", "desc": "Insures truck fleets, specialized cargo trailers, and transport vehicles assets against physical damages." },
+      { "title": "General Transit Liability Cover", "desc": "Standard third-party cargo claims, compliance error liability, and terminal handling security cover." }
+    ]
+  },
+  {
+    pageId: 'certificates',
+    items: [
+      { "title": "Import Export Code (IEC)", "authority": "DGFT (Director General of Foreign Trade)", "desc": "The primary 10-digit registration license required for any business to clear customs shipments and handle foreign trade receipts." },
+      { "title": "RCMC Membership", "authority": "Export Promotion Councils (FIEO, APEDA, etc.)", "desc": "Registration-cum-Membership Certificate. Mandatory for claiming duty drawbacks, export incentives, and tax concessions." },
+      { "title": "CPCB Pollution Consent", "authority": "Central & State Pollution Control Boards", "desc": "CPCB Consent to Establish/Operate, Extended Producer Responsibility (EPR) registration, and environmental regulatory clearance." },
+      { "title": "FSSAI Food Safety License", "authority": "Food Safety and Standards Authority of India", "desc": "Mandatory licensing for importing, exporting, manufacturing, or distributing food items and edible products." },
+      { "title": "MSME / Udyam Registration", "authority": "Ministry of Micro, Small & Medium Enterprises", "desc": "Official business registration that opens access to government subsidy schemes, priority lending, and collateral-free bank loans." },
+      { "title": "Trademark & IPR filings", "authority": "Intellectual Property Office, India", "desc": "Trademark registration to protect corporate brands, logos, and trade names against unauthorized duplication." },
+      { "title": "Digital Signature (DSC)", "authority": "Licensed Certifying Authorities (Class 3)", "desc": "Cryptographic keys required by directors and proprietors to sign e-filings securely on DGFT, MCA, and Income Tax portals." },
+      { "title": "ISO Certification Audits", "authority": "International Quality Standards Bodies", "desc": "Acquiring ISO 9001, ISO 14001, or ISO 22000 certifications to establish brand credibility for global export bidding." }
+    ]
+  },
+  {
+    pageId: 'buying-house',
+    items: [
+      { "title": "Global Sourcing & Supplier Audits", "desc": "We verify and audit manufacturing plants across India. Our team conducts physical site checks, reviews registration papers, and validates capabilities to select reliable suppliers." },
+      { "title": "Quality Control & Inspections", "desc": "Our quality assurance panel executes pre-shipment inspections following standard Acceptable Quality Limits (AQL). We inspect packaging, labelling, and material quality before ports clearance." },
+      { "title": "Negotiation & Cost Optimization", "desc": "Leveraging our bulk volume network, we negotiate directly with factories to secure optimal commercial pricing, avoiding broker markups and ensuring transparent billing terms." },
+      { "title": "Consolidation & Cargo Shipping", "desc": "We consolidate Less-than-Container Load (LCL) shipments from multiple Indian suppliers into single Full-Container Loads (FCL) at major ICD terminals to minimize logistics freight bills." }
+    ]
+  }
+];
+
+const defaultJobs = [
+  { "title": "Customs Clearance Executive", "dept": "Customs Operations", "location": "New Delhi Port / Remote", "type": "Full-Time", "desc": "Liaison with customs officials, handle HSN classifications, compile bill of entries, and coordinate shipping clearances." },
+  { "title": "Direct Tax CA Assistant", "dept": "Taxation & Audit", "location": "New Delhi Office", "type": "Full-Time", "desc": "Assist in preparing corporate and individual income tax returns, TDS filings, and resolving assessment notifications." },
+  { "title": "Logistics Coordination Associate", "dept": "Freight & Shipping", "location": "New Delhi / Hybrid", "type": "Full-Time", "desc": "Manage ocean and air cargo logs, verify carrier bookings, and update customers on transit timelines." }
+];
+
+const seedDefaultPageContent = async () => {
+  try {
+    if (!pageContentCollection) return;
+    const count = await pageContentCollection.countDocuments();
+    if (count > 0) {
+      console.log('[MongoDB] Page content collection already pre-populated.');
+      return;
+    }
+    console.log('[MongoDB] Seeding initial page content bulletins...');
+    await pageContentCollection.insertMany(defaultPageContent);
+    console.log('[MongoDB] Successfully seeded default page content!');
+  } catch (err) {
+    console.error('Error seeding default page content in MongoDB:', err);
+  }
+};
+
+const seedDefaultJobs = async () => {
+  try {
+    if (!jobsCollection) return;
+    const count = await jobsCollection.countDocuments();
+    if (count > 0) {
+      console.log('[MongoDB] Jobs collection already pre-populated.');
+      return;
+    }
+    console.log('[MongoDB] Seeding initial careers roles...');
+    await jobsCollection.insertMany(defaultJobs);
+    console.log('[MongoDB] Successfully seeded default jobs list!');
+  } catch (err) {
+    console.error('Error seeding default jobs in MongoDB:', err);
+  }
+};
+
 async function connectDB() {
   try {
     await client.connect();
@@ -309,7 +388,11 @@ async function connectDB() {
     queriesCollection = db.collection('queries');
     settingsCollection = db.collection('settings');
     servicesCollection = db.collection('services');
+    pageContentCollection = db.collection('page_content');
+    jobsCollection = db.collection('jobs');
     await seedDefaultServices();
+    await seedDefaultPageContent();
+    await seedDefaultJobs();
   } catch (err) {
     console.error('[MongoDB] Connection failed:', err);
   }
@@ -687,6 +770,132 @@ app.post('/api/settings/socials', async (req, res) => {
   }
 });
 
+// Route: Get info page content bulletins
+app.get('/api/page-content/:pageId', async (req, res) => {
+  const { pageId } = req.params;
+  try {
+    if (!pageContentCollection) {
+      const fallback = defaultPageContent.find(p => p.pageId === pageId);
+      return res.json(fallback ? fallback.items : []);
+    }
+    const doc = await pageContentCollection.findOne({ pageId });
+    if (doc) {
+      res.json(doc.items || []);
+    } else {
+      const fallback = defaultPageContent.find(p => p.pageId === pageId);
+      res.json(fallback ? fallback.items : []);
+    }
+  } catch (err) {
+    console.error(`[API] Error loading page content for ${pageId}:`, err);
+    res.status(500).json({ error: 'Failed to retrieve page content' });
+  }
+});
+
+// Route: Update info page content bulletins
+app.post('/api/admin/page-content/:pageId', async (req, res) => {
+  const { pageId } = req.params;
+  const { username, password, items } = req.body;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid admin credentials' });
+  }
+
+  if (!Array.isArray(items)) {
+    return res.status(400).json({ error: 'Items must be an array' });
+  }
+
+  try {
+    if (!pageContentCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    await pageContentCollection.updateOne(
+      { pageId },
+      { $set: { items, updatedAt: new Date().toISOString() } },
+      { upsert: true }
+    );
+
+    res.json({ success: true, message: 'Page content updated successfully' });
+  } catch (err) {
+    console.error(`[API] Error saving page content for ${pageId}:`, err);
+    res.status(500).json({ error: 'Failed to update page content' });
+  }
+});
+
+// Route: Get active job listings
+app.get('/api/careers/jobs', async (req, res) => {
+  try {
+    if (!jobsCollection) {
+      return res.json(defaultJobs);
+    }
+    const list = await jobsCollection.find({}).toArray();
+    res.json(list.length > 0 ? list : defaultJobs);
+  } catch (err) {
+    console.error('[API] Error loading active job roles:', err);
+    res.status(500).json({ error: 'Failed to retrieve active job openings' });
+  }
+});
+
+// Route: Add or update job listing
+app.post('/api/admin/careers/jobs', async (req, res) => {
+  const { username, password, job } = req.body;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid admin credentials' });
+  }
+
+  if (!job || !job.title || !job.dept || !job.location || !job.type || !job.desc) {
+    return res.status(400).json({ error: 'Incomplete job role fields' });
+  }
+
+  try {
+    if (!jobsCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    // Upsert by title
+    await jobsCollection.updateOne(
+      { title: job.title },
+      { $set: { ...job, updatedAt: new Date().toISOString() } },
+      { upsert: true }
+    );
+
+    res.json({ success: true, message: 'Job posting added/updated successfully' });
+  } catch (err) {
+    console.error('[API] Error saving career job role:', err);
+    res.status(500).json({ error: 'Failed to save job posting' });
+  }
+});
+
+// Route: Delete a job listing
+app.delete('/api/admin/careers/jobs/:title', async (req, res) => {
+  const { title } = req.params;
+  const { username, password } = req.query;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid admin credentials' });
+  }
+
+  try {
+    if (!jobsCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    const result = await jobsCollection.deleteOne({ title });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Job opening not found' });
+    }
+
+    res.json({ success: true, message: 'Job posting removed successfully' });
+  } catch (err) {
+    console.error('[API] Error deleting career job role:', err);
+    res.status(500).json({ error: 'Failed to delete job posting' });
+  }
+});
+
 // Route: Forgot Password (triggers email link to eximgurumantra@gmail.com)
 app.post('/api/admin/forgot-password', async (req, res) => {
   try {
@@ -989,7 +1198,7 @@ const sendConsultationEmails = async (queryData) => {
 
                   <!-- Footer -->
                   <div style="text-align: center; font-size: 10px; color: #8c8278; margin-top: 20px; border-top: 1px dashed #e2ded5; padding-top: 12px;">
-                    EXIM GURU MANTRA ASSOCIATES &bull; Corporate Legal, CHA & DGFT Advisory
+                    EXIM GURU MANTRA CONSULTANCY &bull; Corporate Legal, CHA & DGFT Advisory
                   </div>
                 </td>
               </tr>
@@ -1004,7 +1213,7 @@ const sendConsultationEmails = async (queryData) => {
     const clientMailOptions = {
       from: `Exim Guru Mantra Support <${fromEmail}>`,
       to: email,
-      subject: `We've Received Your Inquiry - Exim Guru Mantra Associates`,
+      subject: `We've Received Your Inquiry - Exim Guru Mantra Consultancy`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -1083,7 +1292,7 @@ const sendConsultationEmails = async (queryData) => {
                   <div style="border: 2px solid #5e8d3b; padding: 22px; border-radius: 4px; min-height: 280px; background-color: #ffffff;">
                     <h3 style="margin-top: 0; color: #1b365d; font-size: 15px;">Dear ${name},</h3>
                     <p style="font-size: 13.5px; line-height: 1.6; color: #444; margin-bottom: 15px;">
-                      Thank you for contacting <strong>Exim Guru Mantra Associates</strong>. Your inquiry regarding <strong>${serviceType}</strong> has been successfully registered and is under review.
+                      Thank you for contacting <strong>Exim Guru Mantra Consultancy</strong>. Your inquiry regarding <strong>${serviceType}</strong> has been successfully registered and is under review.
                     </p>
 
                     <div style="background-color: #faf9f6; border: 1px solid #e2ded5; border-radius: 4px; padding: 15px; margin: 15px 0;">
@@ -1107,7 +1316,7 @@ const sendConsultationEmails = async (queryData) => {
 
                   <!-- Footer -->
                   <div style="text-align: center; font-size: 10px; color: #8c8278; margin-top: 20px; border-top: 1px dashed #e2ded5; padding-top: 12px;">
-                    EXIM GURU MANTRA ASSOCIATES &bull; Corporate Legal, CHA & DGFT Advisory
+                    EXIM GURU MANTRA CONSULTANCY &bull; Corporate Legal, CHA & DGFT Advisory
                   </div>
                 </td>
               </tr>

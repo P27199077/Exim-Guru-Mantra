@@ -3,6 +3,7 @@ import { Shield, Plane, Anchor, Truck, Warehouse, User, Building, Heart, Car, He
 
 export default function Insurance() {
   const [submitted, setSubmitted] = useState(false);
+  const [insuranceCategories, setInsuranceCategories] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,6 +15,19 @@ export default function Insurance() {
   useEffect(() => {
     document.title = "Global Cargo & Transit Insurance | EXIM Guru Mantra";
     window.scrollTo(0, 0);
+
+    const loadContent = async () => {
+      try {
+        const res = await fetch('/api/page-content/insurance');
+        if (res.ok) {
+          const data = await res.json();
+          setInsuranceCategories(data);
+        }
+      } catch (err) {
+        console.error('Failed to load insurance content:', err);
+      }
+    };
+    loadContent();
   }, []);
 
   const handleInputChange = (e) => {
@@ -26,53 +40,18 @@ export default function Insurance() {
     setSubmitted(true);
   };
 
-  const insuranceCategories = [
-    {
-      title: "Air Cargo Insurance",
-      icon: Plane,
-      desc: "Protects high-value, time-sensitive goods in air transit against loss, damage, theft, or flight handling errors."
-    },
-    {
-      title: "Marine Cargo Insurance",
-      icon: Anchor,
-      desc: "Secures ocean transit shipments against perils of the sea, damage, container losses, and general average declarations."
-    },
-    {
-      title: "Surface Cargo / Land Transit",
-      icon: Truck,
-      desc: "Covers local and cross-border road/rail cargo freight movements against collision, theft, or delay damages."
-    },
-    {
-      title: "Warehouse Cover & Storage",
-      icon: Warehouse,
-      desc: "Protects goods stored in transit depots, custom-bonded areas, or third-party logistics (3PL) warehousing."
-    },
-    {
-      title: "Individual Coverage",
-      icon: User,
-      desc: "Tailored ad-hoc insurance coverage profiles for single-shipment exports or spot LCL cargo runs."
-    },
-    {
-      title: "Company Liability Insurance",
-      icon: Building,
-      desc: "Comprehensive error-and-omission protection, commercial liabilities, and business financial risks coverage."
-    },
-    {
-      title: "Personal / Person Accident Protection",
-      icon: Heart,
-      desc: "Accident liability coverage for logistics crew members, warehousing workers, and cargo loaders."
-    },
-    {
-      title: "Vehicle Cargo Insurance",
-      icon: Car,
-      desc: "Insures truck fleets, specialized cargo trailers, and transport vehicles assets against physical damages."
-    },
-    {
-      title: "General Transit Liability Cover",
-      icon: Shield,
-      desc: "Standard third-party cargo claims, compliance error liability, and terminal handling security cover."
-    }
-  ];
+  const getIcon = (title) => {
+    const key = title ? title.toLowerCase() : '';
+    if (key.includes('air')) return Plane;
+    if (key.includes('marine') || key.includes('marien')) return Anchor;
+    if (key.includes('surface') || key.includes('land') || key.includes('road') || key.includes('surfance') || key.includes('transit')) return Truck;
+    if (key.includes('warehouse') || key.includes('storage')) return Warehouse;
+    if (key.includes('individual') || key.includes('indevidual')) return User;
+    if (key.includes('company') || key.includes('compnay')) return Building;
+    if (key.includes('personal') || key.includes('accident') || key.includes('person')) return Heart;
+    if (key.includes('vehicle') || key.includes('vechile')) return Car;
+    return Shield;
+  };
 
   return (
     <div className="section" style={{ minHeight: '80vh', padding: '5rem 0' }}>
@@ -92,7 +71,7 @@ export default function Insurance() {
         {/* Insurance Grid */}
         <div className="responsive-grid-about-3" style={{ marginBottom: '5rem' }}>
           {insuranceCategories.map((cat, idx) => {
-            const IconComp = cat.icon;
+            const IconComp = getIcon(cat.title);
             return (
               <div 
                 key={idx}

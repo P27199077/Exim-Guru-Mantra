@@ -80,7 +80,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(false);
 
   // Tab management
-  const [activeTab, setActiveTab] = useState('socials'); // 'socials' | 'services'
+  const [activeTab, setActiveTab] = useState('socials'); // 'socials' | 'services' | 'content' | 'careers'
 
   // Service management states
   const [categories, setCategories] = useState([]);
@@ -88,6 +88,15 @@ export default function Admin() {
   const [newCategoryDivision, setNewCategoryDivision] = useState('taxation');
   const [selectedCategoryKey, setSelectedCategoryKey] = useState('');
   const [newServiceName, setNewServiceName] = useState('');
+
+  // Info Pages content states
+  const [selectedPageId, setSelectedPageId] = useState('insurance');
+  const [pageBulletins, setPageBulletins] = useState([]);
+  const [newBulletin, setNewBulletin] = useState({ title: '', desc: '', authority: '' });
+
+  // Career Jobs states
+  const [jobsList, setJobsList] = useState([]);
+  const [newJob, setNewJob] = useState({ title: '', dept: '', location: '', type: 'Full-Time', desc: '' });
 
   // Password reset states
   const [mode, setMode] = useState('login'); // 'login' | 'forgot' | 'reset'
@@ -133,6 +142,8 @@ export default function Admin() {
         setPassword(passToVerify);
         fetchSocialLinks();
         fetchAdminServices(userToVerify, passToVerify);
+        loadPageContent('insurance');
+        loadJobsList();
       } else {
         if (!isAutoLogin) {
           setStatus({ type: 'error', message: 'Invalid admin username or password.' });
@@ -171,6 +182,123 @@ export default function Admin() {
       }
     } catch (err) {
       console.error('Failed to load services in admin:', err);
+    }
+  };
+
+  const loadPageContent = async (pageId = selectedPageId) => {
+    try {
+      const res = await fetch(`/api/page-content/${pageId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setPageBulletins(data);
+      }
+    } catch (err) {
+      console.error('Failed to load page content in admin:', err);
+    }
+  };
+
+  const loadJobsList = async () => {
+    try {
+      const res = await fetch('/api/careers/jobs');
+      if (res.ok) {
+        const data = await res.json();
+        setJobsList(data);
+      }
+    } catch (err) {
+      console.error('Failed to load jobs list in admin:', err);
+    }
+  };
+
+  const handleSavePageContent = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+
+    try {
+      const res = await fetch(`/api/admin/page-content/${selectedPageId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          password,
+          items: pageBulletins
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus({ type: 'success', message: 'Page content bulletins saved successfully!' });
+      } else {
+        setStatus({ type: 'error', message: data.error || 'Failed to save page content.' });
+      }
+    } catch (err) {
+      setStatus({ type: 'error', message: 'Connection to server failed.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveJob = async (e) => {
+    e.preventDefault();
+    if (!newJob.title.trim() || !newJob.dept.trim() || !newJob.location.trim() || !newJob.desc.trim()) {
+      setStatus({ type: 'error', message: 'Please fill in all job role fields.' });
+      return;
+    }
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+
+    try {
+      const res = await fetch('/api/admin/careers/jobs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username,
+          password,
+          job: {
+            title: newJob.title.trim(),
+            dept: newJob.dept.trim(),
+            location: newJob.location.trim(),
+            type: newJob.type,
+            desc: newJob.desc.trim()
+          }
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus({ type: 'success', message: 'Job posting added/updated successfully!' });
+        setNewJob({ title: '', dept: '', location: '', type: 'Full-Time', desc: '' });
+        loadJobsList();
+      } else {
+        setStatus({ type: 'error', message: data.error || 'Failed to save job posting.' });
+      }
+    } catch (err) {
+      setStatus({ type: 'error', message: 'Connection to server failed.' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteJob = async (jobTitle) => {
+    if (!window.confirm(`Are you sure you want to delete the job posting for: "${jobTitle}"?`)) {
+      return;
+    }
+    setLoading(true);
+    setStatus({ type: '', message: '' });
+
+    try {
+      const res = await fetch(`/api/admin/careers/jobs/${encodeURIComponent(jobTitle)}?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatus({ type: 'success', message: 'Job posting removed successfully!' });
+        loadJobsList();
+      } else {
+        setStatus({ type: 'error', message: data.error || 'Failed to remove job posting.' });
+      }
+    } catch (err) {
+      setStatus({ type: 'error', message: 'Connection to server failed.' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -675,20 +803,34 @@ export default function Admin() {
         </div>
 
         {/* Tab Selection Row */}
-        <div style={{ display: 'flex', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '2rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '1rem', flexWrap: 'wrap' }}>
           <button 
             onClick={() => { setActiveTab('socials'); setStatus({ type: '', message: '' }); }}
             className={`btn ${activeTab === 'socials' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+            style={{ padding: '0.5rem 1.1rem', fontSize: '0.82rem' }}
           >
             Social Links
           </button>
           <button 
             onClick={() => { setActiveTab('services'); setStatus({ type: '', message: '' }); }}
             className={`btn ${activeTab === 'services' ? 'btn-primary' : 'btn-secondary'}`}
-            style={{ padding: '0.5rem 1.25rem', fontSize: '0.85rem' }}
+            style={{ padding: '0.5rem 1.1rem', fontSize: '0.82rem' }}
           >
-            Manage Services & Dropdowns
+            Services & Dropdowns
+          </button>
+          <button 
+            onClick={() => { setActiveTab('content'); setStatus({ type: '', message: '' }); }}
+            className={`btn ${activeTab === 'content' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.5rem 1.1rem', fontSize: '0.82rem' }}
+          >
+            Manage Content
+          </button>
+          <button 
+            onClick={() => { setActiveTab('careers'); setStatus({ type: '', message: '' }); }}
+            className={`btn ${activeTab === 'careers' ? 'btn-primary' : 'btn-secondary'}`}
+            style={{ padding: '0.5rem 1.1rem', fontSize: '0.82rem' }}
+          >
+            Manage Careers
           </button>
         </div>
 
@@ -1081,6 +1223,310 @@ export default function Admin() {
                 </form>
               </div>
 
+            </div>
+
+          </div>
+        )}
+
+        {/* TAB 3: MANAGE DYNAMIC CONTENT (INFO PAGES) */}
+        {activeTab === 'content' && (
+          <div className="card" style={{ padding: '2rem' }}>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.75rem' }}>
+              Edit Informational Page Bulletins
+            </h3>
+
+            <div className="form-group" style={{ marginBottom: '1.5rem', maxWidth: '300px' }}>
+              <label className="form-label" htmlFor="pageSelect">Select Page to Edit</label>
+              <select 
+                id="pageSelect" 
+                className="form-select"
+                value={selectedPageId}
+                onChange={(e) => setSelectedPageId(e.target.value)}
+              >
+                <option value="insurance">Insurance Services Page</option>
+                <option value="certificates">Certificates & Registrations Page</option>
+                <option value="buying-house">Buying House (Procurement) Page</option>
+              </select>
+            </div>
+
+            {/* Bulletins List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
+              {pageBulletins.map((item, idx) => (
+                <div 
+                  key={idx} 
+                  style={{
+                    border: '1px solid var(--bg-tertiary)',
+                    borderRadius: '8px',
+                    padding: '1.5rem',
+                    background: '#ffffff',
+                    position: 'relative'
+                  }}
+                >
+                  <button 
+                    onClick={() => {
+                      const updated = pageBulletins.filter((_, i) => i !== idx);
+                      setPageBulletins(updated);
+                    }}
+                    className="btn btn-secondary"
+                    style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.25rem 0.5rem', fontSize: '0.75rem', color: 'var(--error)', border: '1px solid rgba(239, 68, 68, 0.2)' }}
+                  >
+                    Delete Bullet
+                  </button>
+
+                  <div className="form-group" style={{ marginBottom: '0.75rem', width: '80%' }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Title</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      value={item.title || ''}
+                      onChange={(e) => {
+                        const updated = [...pageBulletins];
+                        updated[idx].title = e.target.value;
+                        setPageBulletins(updated);
+                      }}
+                    />
+                  </div>
+
+                  {selectedPageId === 'certificates' && (
+                    <div className="form-group" style={{ marginBottom: '0.75rem', width: '80%' }}>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>Governing Authority</label>
+                      <input 
+                        type="text" 
+                        className="form-input" 
+                        value={item.authority || ''}
+                        onChange={(e) => {
+                          const updated = [...pageBulletins];
+                          updated[idx].authority = e.target.value;
+                          setPageBulletins(updated);
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <div className="form-group" style={{ marginBottom: 0 }}>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Description Paragraph</label>
+                    <textarea 
+                      rows="2"
+                      className="form-input" 
+                      style={{ resize: 'none', fontFamily: 'inherit', fontSize: '0.88rem' }}
+                      value={item.desc || ''}
+                      onChange={(e) => {
+                        const updated = [...pageBulletins];
+                        updated[idx].desc = e.target.value;
+                        setPageBulletins(updated);
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
+
+              {pageBulletins.length === 0 && (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textAlign: 'center', padding: '1rem' }}>
+                  No bulletins configured for this page. Add some below.
+                </p>
+              )}
+            </div>
+
+            {/* Add New Bulletin Form */}
+            <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--bg-tertiary)', borderRadius: '8px', padding: '1.5rem', marginBottom: '2rem' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>Add New Bulletin / Section</h4>
+              <div style={{ display: 'grid', gridTemplateColumns: selectedPageId === 'certificates' ? '1fr 1fr' : '1fr', gap: '1rem', marginBottom: '1rem' }} className="responsive-grid-calculator">
+                <div>
+                  <label className="form-label" style={{ fontSize: '0.78rem' }}>Title</label>
+                  <input 
+                    type="text" 
+                    className="form-input" 
+                    placeholder="e.g. Air Cargo Cover / MSME Register"
+                    value={newBulletin.title}
+                    onChange={(e) => setNewBulletin(prev => ({ ...prev, title: e.target.value }))}
+                  />
+                </div>
+                {selectedPageId === 'certificates' && (
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.78rem' }}>Governing Authority</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="e.g. DGFT / FSSAI / Ministry"
+                      value={newBulletin.authority}
+                      onChange={(e) => setNewBulletin(prev => ({ ...prev, authority: e.target.value }))}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label className="form-label" style={{ fontSize: '0.78rem' }}>Description Paragraph</label>
+                <textarea 
+                  rows="2"
+                  className="form-input" 
+                  style={{ resize: 'none', fontFamily: 'inherit', fontSize: '0.88rem' }}
+                  placeholder="Explain coverages, licensing requirements, or services audits..."
+                  value={newBulletin.desc}
+                  onChange={(e) => setNewBulletin(prev => ({ ...prev, desc: e.target.value }))}
+                />
+              </div>
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                style={{ padding: '0.5rem 1rem', fontSize: '0.82rem' }}
+                onClick={() => {
+                  if (!newBulletin.title.trim() || !newBulletin.desc.trim()) {
+                    alert('Title and description cannot be empty!');
+                    return;
+                  }
+                  setPageBulletins(prev => [...prev, { ...newBulletin }]);
+                  setNewBulletin({ title: '', desc: '', authority: '' });
+                }}
+              >
+                Add Bulletin to Page List
+              </button>
+            </div>
+
+            {/* Save Buttons */}
+            <form onSubmit={handleSavePageContent}>
+              <button 
+                type="submit" 
+                className="btn btn-primary" 
+                style={{ width: '100%', padding: '0.8rem', fontWeight: 700 }}
+                disabled={loading}
+              >
+                Save Page Bulletins to Server
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* TAB 4: MANAGE CAREERS (JOBS POSTING) */}
+        {activeTab === 'careers' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '2.5rem' }} className="admin-grid-layout">
+            
+            {/* Active Jobs List */}
+            <div className="card" style={{ padding: '2rem' }}>
+              <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.75rem' }}>
+                Active Job Openings
+              </h3>
+
+              {jobsList.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', textAlign: 'center', padding: '2rem 0' }}>
+                  No open career roles configured yet. Add some using the panel on the right.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  {jobsList.map((job, idx) => (
+                    <div 
+                      key={idx}
+                      style={{
+                        border: '1px solid var(--bg-tertiary)',
+                        borderRadius: '8px',
+                        padding: '1.25rem',
+                        background: '#ffffff',
+                        position: 'relative'
+                      }}
+                    >
+                      <button 
+                        onClick={() => handleDeleteJob(job.title)}
+                        className="btn btn-secondary"
+                        style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.25rem 0.5rem', fontSize: '0.75rem', color: 'var(--error)' }}
+                      >
+                        Delete Job
+                      </button>
+
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--text-primary)', width: '80%' }}>
+                        {job.title}
+                      </h4>
+                      <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.75rem' }}>
+                        <span>{job.dept}</span>
+                        <span>•</span>
+                        <span>{job.location}</span>
+                        <span>•</span>
+                        <span>{job.type}</span>
+                      </div>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.5', margin: 0 }}>
+                        {job.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Add New Job Posting form */}
+            <div>
+              <div className="card" style={{ padding: '2rem', position: 'sticky', top: '100px' }}>
+                <h3 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.75rem' }}>
+                  Post New Job Opening
+                </h3>
+
+                <form onSubmit={handleSaveJob}>
+                  <div className="form-group" style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Job Title</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="e.g. Customs Broker Exec"
+                      value={newJob.title}
+                      onChange={(e) => setNewJob(prev => ({ ...prev, title: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Department</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="e.g. Customs Clearance"
+                      value={newJob.dept}
+                      onChange={(e) => setNewJob(prev => ({ ...prev, dept: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Location</label>
+                    <input 
+                      type="text" 
+                      className="form-input" 
+                      placeholder="e.g. New Delhi Office"
+                      value={newJob.location}
+                      onChange={(e) => setNewJob(prev => ({ ...prev, location: e.target.value }))}
+                    />
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '1rem' }}>
+                    <label className="form-label">Job Type</label>
+                    <select 
+                      className="form-select"
+                      value={newJob.type}
+                      onChange={(e) => setNewJob(prev => ({ ...prev, type: e.target.value }))}
+                    >
+                      <option>Full-Time</option>
+                      <option>Part-Time</option>
+                      <option>Contract</option>
+                      <option>Internship</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+                    <label className="form-label">Description / Qualifications</label>
+                    <textarea 
+                      rows="4"
+                      className="form-input" 
+                      style={{ resize: 'none', fontFamily: 'inherit', fontSize: '0.88rem' }}
+                      placeholder="List core job tasks, HSN clearing operations, work schedules..."
+                      value={newJob.desc}
+                      onChange={(e) => setNewJob(prev => ({ ...prev, desc: e.target.value }))}
+                    />
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="btn btn-primary" 
+                    style={{ width: '100%', padding: '0.75rem', fontWeight: 700 }}
+                    disabled={loading}
+                  >
+                    Post Career Role
+                  </button>
+                </form>
+              </div>
             </div>
 
           </div>

@@ -3,6 +3,7 @@ import { Award, CheckCircle, FileText, Send, CheckCircle2, Shield, UserCheck, St
 
 export default function Certificates() {
   const [submitted, setSubmitted] = useState(false);
+  const [certificateList, setCertificateList] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -14,6 +15,19 @@ export default function Certificates() {
   useEffect(() => {
     document.title = "Trade Certificates & Licensing | EXIM Guru Mantra";
     window.scrollTo(0, 0);
+
+    const loadContent = async () => {
+      try {
+        const res = await fetch('/api/page-content/certificates');
+        if (res.ok) {
+          const data = await res.json();
+          setCertificateList(data);
+        }
+      } catch (err) {
+        console.error('Failed to load certificates content:', err);
+      }
+    };
+    loadContent();
   }, []);
 
   const handleInputChange = (e) => {
@@ -25,49 +39,6 @@ export default function Certificates() {
     e.preventDefault();
     setSubmitted(true);
   };
-
-  const certificateList = [
-    {
-      title: "Import Export Code (IEC)",
-      authority: "DGFT (Director General of Foreign Trade)",
-      desc: "The primary 10-digit registration license required for any business to clear customs shipments and handle foreign trade receipts."
-    },
-    {
-      title: "RCMC Membership",
-      authority: "Export Promotion Councils (FIEO, APEDA, etc.)",
-      desc: "Registration-cum-Membership Certificate. Mandatory for claiming duty drawbacks, export incentives, and tax concessions."
-    },
-    {
-      title: "CPCB Pollution Consent",
-      authority: "Central & State Pollution Control Boards",
-      desc: "CPCB Consent to Establish/Operate, Extended Producer Responsibility (EPR) registration, and environmental regulatory clearance."
-    },
-    {
-      title: "FSSAI Food Safety License",
-      authority: "Food Safety and Standards Authority of India",
-      desc: "Mandatory licensing for importing, exporting, manufacturing, or distributing food items and edible products."
-    },
-    {
-      title: "MSME / Udyam Registration",
-      authority: "Ministry of Micro, Small & Medium Enterprises",
-      desc: "Official business registration that opens access to government subsidy schemes, priority lending, and collateral-free bank loans."
-    },
-    {
-      title: "Trademark & IPR filings",
-      authority: "Intellectual Property Office, India",
-      desc: "Trademark registration to protect corporate brands, logos, and trade names against unauthorized duplication."
-    },
-    {
-      title: "Digital Signature (DSC)",
-      authority: "Licensed Certifying Authorities (Class 3)",
-      desc: "Cryptographic keys required by directors and proprietors to sign e-filings securely on DGFT, MCA, and Income Tax portals."
-    },
-    {
-      title: "ISO Certification Audits",
-      authority: "International Quality Standards Bodies",
-      desc: "Acquiring ISO 9001, ISO 14001, or ISO 22000 certifications to establish brand credibility for global export bidding."
-    }
-  ];
 
   return (
     <div className="section" style={{ minHeight: '80vh', padding: '5rem 0' }}>

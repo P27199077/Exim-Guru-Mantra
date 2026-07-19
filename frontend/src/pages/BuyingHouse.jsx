@@ -3,6 +3,7 @@ import { Search, CheckSquare, Coins, Box, Send, CheckCircle2 } from 'lucide-reac
 
 export default function BuyingHouse() {
   const [submitted, setSubmitted] = useState(false);
+  const [buyingHouseServices, setBuyingHouseServices] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -15,6 +16,19 @@ export default function BuyingHouse() {
   useEffect(() => {
     document.title = "Buying House & Procurement Services | EXIM Guru Mantra";
     window.scrollTo(0, 0);
+
+    const loadContent = async () => {
+      try {
+        const res = await fetch('/api/page-content/buying-house');
+        if (res.ok) {
+          const data = await res.json();
+          setBuyingHouseServices(data);
+        }
+      } catch (err) {
+        console.error('Failed to load buying house content:', err);
+      }
+    };
+    loadContent();
   }, []);
 
   const handleInputChange = (e) => {
@@ -27,28 +41,13 @@ export default function BuyingHouse() {
     setSubmitted(true);
   };
 
-  const buyingHouseServices = [
-    {
-      title: "Global Sourcing & Supplier Audits",
-      icon: Search,
-      desc: "We verify and audit manufacturing plants across India. Our team conducts physical site checks, reviews registration papers, and validates capabilities to select reliable suppliers."
-    },
-    {
-      title: "Quality Control & Inspections",
-      icon: CheckSquare,
-      desc: "Our quality assurance panel executes pre-shipment inspections following standard Acceptable Quality Limits (AQL). We inspect packaging, labelling, and material quality before ports clearance."
-    },
-    {
-      title: "Negotiation & Cost Optimization",
-      icon: Coins,
-      desc: "Leveraging our bulk volume network, we negotiate directly with factories to secure optimal commercial pricing, avoiding broker markups and ensuring transparent billing terms."
-    },
-    {
-      title: "Consolidation & Cargo Shipping",
-      icon: Box,
-      desc: "We consolidate Less-than-Container Load (LCL) shipments from multiple Indian suppliers into single Full-Container Loads (FCL) at major ICD terminals to minimize logistics freight bills."
-    }
-  ];
+  const getIcon = (title) => {
+    const key = title ? title.toLowerCase() : '';
+    if (key.includes('source') || key.includes('audit') || key.includes('supplier')) return Search;
+    if (key.includes('quality') || key.includes('inspect') || key.includes('control') || key.includes('check')) return CheckSquare;
+    if (key.includes('negotiate') || key.includes('cost') || key.includes('price') || key.includes('opti')) return Coins;
+    return Box;
+  };
 
   return (
     <div className="section" style={{ minHeight: '80vh', padding: '5rem 0' }}>
@@ -69,7 +68,7 @@ export default function BuyingHouse() {
         <div className="responsive-grid-about-2" style={{ marginBottom: '5rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
             {buyingHouseServices.map((svc, idx) => {
-              const IconComp = svc.icon;
+              const IconComp = getIcon(svc.title);
               return (
                 <div 
                   key={idx}
