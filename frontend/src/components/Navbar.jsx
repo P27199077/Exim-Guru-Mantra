@@ -98,11 +98,24 @@ export default function Navbar() {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false); // Mobile drawer open state
   const [dropdownOpen, setDropdownOpen] = useState(false); // Desktop services mega-dropdown state
+  const [isClickedOpen, setIsClickedOpen] = useState(false); // Dropdown lock state
   const [categories, setCategories] = useState(fallbackNavbarCategories);
   const [jobs, setJobs] = useState([]);
+
   useEffect(() => {
     document.body.classList.remove('dark-theme');
     localStorage.removeItem('theme');
+  }, []);
+
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest('.nav-item-dropdown')) {
+        setDropdownOpen(false);
+        setIsClickedOpen(false);
+      }
+    };
+    document.addEventListener('click', handleOutsideClick);
+    return () => document.removeEventListener('click', handleOutsideClick);
   }, []);
 
   useEffect(() => {
@@ -136,8 +149,31 @@ export default function Navbar() {
     fetchJobs();
   }, []);
 
+  const handleMouseEnter = () => {
+    setDropdownOpen(true);
+  };
+
+  const handleMouseLeave = () => {
+    if (!isClickedOpen) {
+      setDropdownOpen(false);
+    }
+  };
+
+  const handleToggleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isClickedOpen) {
+      setIsClickedOpen(false);
+      setDropdownOpen(false);
+    } else {
+      setIsClickedOpen(true);
+      setDropdownOpen(true);
+    }
+  };
+
   const handleLinkClick = () => {
     setDropdownOpen(false);
+    setIsClickedOpen(false);
     setIsOpen(false);
   };
 
@@ -157,29 +193,21 @@ export default function Navbar() {
           </li>
           
           {/* Services Link with Mega Dropdown */}
-          <li className="nav-item-dropdown">
+          <li 
+            className="nav-item-dropdown"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             <NavLink 
               to="/services" 
               className={({ isActive }) => isActive ? "nav-link active nav-link-flex" : "nav-link nav-link-flex"}
-              onClick={(e) => {
-                // Toggle dropdown instead of navigation on screens under 1200px
-                if (window.innerWidth < 1200) {
-                  e.preventDefault();
-                  setDropdownOpen(!dropdownOpen);
-                } else {
-                  handleLinkClick();
-                }
-              }}
+              onClick={handleToggleClick}
             >
               <span>Services</span>
               <ChevronDown 
                 size={14} 
                 className="dropdown-arrow" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setDropdownOpen(!dropdownOpen);
-                }}
+                onClick={handleToggleClick}
               />
             </NavLink>
             
