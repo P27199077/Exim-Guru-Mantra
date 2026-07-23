@@ -678,14 +678,14 @@ a {
   top: 100%;
   left: 50%;
   transform: translateX(-50%) translateY(10px);
-  width: 1040px;
+  width: 1140px;
   background: #ffffff;
   border: 1px solid var(--bg-tertiary);
   box-shadow: 0 10px 30px rgba(30, 27, 24, 0.05);
   border-radius: 8px;
   padding: 2.25rem 2rem;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 2.2fr 0.8fr;
   gap: 2rem;
   visibility: hidden;
   opacity: 0;
@@ -695,6 +695,22 @@ a {
   text-align: left;
   max-height: calc(100vh - 120px);
   overflow-y: auto;
+}
+
+.mega-services-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.mega-ad-column {
+  border-left: 1px solid var(--bg-tertiary);
+  padding-left: 2rem;
+}
+
+.mega-ad-job-link:hover span {
+  color: var(--accent) !important;
+  text-shadow: 0 0 8px rgba(255, 114, 54, 0.2);
 }
 
 /* Transparent hover bridge to keep dropdown open when crossing vertical gap */
@@ -2365,6 +2381,10 @@ a {
     width: 95vw !important;
     left: 50% !important;
     transform: translateX(-50%) translateY(0) !important;
+    grid-template-columns: 1fr !important;
+  }
+  .mega-ad-column {
+    display: none !important;
   }
 }
 

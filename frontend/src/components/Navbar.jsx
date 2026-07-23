@@ -99,6 +99,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false); // Mobile drawer open state
   const [dropdownOpen, setDropdownOpen] = useState(false); // Desktop services mega-dropdown state
   const [categories, setCategories] = useState(fallbackNavbarCategories);
+  const [jobs, setJobs] = useState([]);
   useEffect(() => {
     document.body.classList.remove('dark-theme');
     localStorage.removeItem('theme');
@@ -118,7 +119,21 @@ export default function Navbar() {
         console.error('Failed to fetch services in navbar:', err);
       }
     };
+    const fetchJobs = async () => {
+      try {
+        const res = await fetch('/api/careers/jobs');
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            setJobs(data.slice(0, 3)); // Store top 3 open roles
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch jobs in navbar:', err);
+      }
+    };
     fetchServices();
+    fetchJobs();
   }, []);
 
   const handleLinkClick = () => {
@@ -170,146 +185,211 @@ export default function Navbar() {
             
             {/* Mega Dropdown Panel */}
             <div className={`mega-dropdown ${dropdownOpen ? 'open' : ''}`}>
-              
-              {/* Column 1: Import-Export Services */}
-              <div className="mega-column">
-                <div style={{ marginBottom: '1.25rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.4rem' }}>
-                  <h3 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '800', letterSpacing: '0.5px' }}>IMPORT & EXPORT</h3>
-                </div>
-                {categories.filter(c => c.division === 'import-export').length === 0 ? (
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
-                ) : (
-                  categories.filter(c => c.division === 'import-export').map((cat) => {
-                    const isActive = location.pathname === `/services/category/${cat.key}`;
-                    return (
-                      <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
-                        <Link to={`/services/category/${cat.key}`} className={isActive ? "mega-title-link active" : "mega-title-link"} onClick={handleLinkClick}>
-                          <h4 
-                            className="mega-title" 
-                            style={{ 
-                              fontSize: '0.88rem', 
-                              fontWeight: '800', 
-                              color: 'var(--primary)', 
-                              textTransform: 'uppercase',
-                              opacity: isActive ? 0.45 : 1,
-                              transition: 'opacity 0.25s ease'
-                            }}
-                          >
-                            {cat.title}
-                          </h4>
-                        </Link>
-                        {cat.services.map((svc, sIdx) => {
-                          const isSvcActive = location.pathname === `/inquire/${encodeURIComponent(svc)}`;
-                          return (
-                            <Link 
-                              key={sIdx} 
-                              to={`/inquire/${encodeURIComponent(svc)}`} 
-                              className={isSvcActive ? "mega-link active" : "mega-link"} 
-                              onClick={handleLinkClick}
-                              style={{ fontSize: '0.82rem', padding: '0.15rem 0' }}
+              <div className="mega-services-grid">
+                {/* Column 1: Import-Export Services */}
+                <div className="mega-column">
+                  <div style={{ marginBottom: '1.25rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.4rem' }}>
+                    <h3 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '800', letterSpacing: '0.5px' }}>IMPORT & EXPORT</h3>
+                  </div>
+                  {categories.filter(c => c.division === 'import-export').length === 0 ? (
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
+                  ) : (
+                    categories.filter(c => c.division === 'import-export').map((cat) => {
+                      const isActive = location.pathname === `/services/category/${cat.key}`;
+                      return (
+                        <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
+                          <Link to={`/services/category/${cat.key}`} className={isActive ? "mega-title-link active" : "mega-title-link"} onClick={handleLinkClick}>
+                            <h4 
+                              className="mega-title" 
+                              style={{ 
+                                fontSize: '0.88rem', 
+                                fontWeight: '800', 
+                                color: 'var(--primary)', 
+                                textTransform: 'uppercase',
+                                opacity: isActive ? 0.45 : 1,
+                                transition: 'opacity 0.25s ease'
+                              }}
                             >
-                              {svc}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    );
-                  })
-                )}
+                              {cat.title}
+                            </h4>
+                          </Link>
+                          {cat.services.map((svc, sIdx) => {
+                            const isSvcActive = location.pathname === `/inquire/${encodeURIComponent(svc)}`;
+                            return (
+                              <Link 
+                                key={sIdx} 
+                                to={`/inquire/${encodeURIComponent(svc)}`} 
+                                className={isSvcActive ? "mega-link active" : "mega-link"} 
+                                onClick={handleLinkClick}
+                                style={{ fontSize: '0.82rem', padding: '0.15rem 0' }}
+                              >
+                                {svc}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Column 2: Taxation & Compliances */}
+                <div className="mega-column">
+                  <div style={{ marginBottom: '1.25rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.4rem' }}>
+                    <h3 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '800', letterSpacing: '0.5px' }}>TAXATION & COMPLIANCE</h3>
+                  </div>
+                  {categories.filter(c => c.division === 'taxation').length === 0 ? (
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
+                  ) : (
+                    categories.filter(c => c.division === 'taxation').map((cat) => {
+                      const isActive = location.pathname === `/services/category/${cat.key}`;
+                      return (
+                        <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
+                          <Link to={`/services/category/${cat.key}`} className={isActive ? "mega-title-link active" : "mega-title-link"} onClick={handleLinkClick}>
+                            <h4 
+                              className="mega-title" 
+                              style={{ 
+                                fontSize: '0.88rem', 
+                                fontWeight: '800', 
+                                color: 'var(--primary)', 
+                                textTransform: 'uppercase',
+                                opacity: isActive ? 0.45 : 1,
+                                transition: 'opacity 0.25s ease'
+                              }}
+                            >
+                              {cat.title}
+                            </h4>
+                          </Link>
+                          {cat.services.map((svc, sIdx) => {
+                            const isSvcActive = location.pathname === `/inquire/${encodeURIComponent(svc)}`;
+                            return (
+                              <Link 
+                                key={sIdx} 
+                                to={`/inquire/${encodeURIComponent(svc)}`} 
+                                className={isSvcActive ? "mega-link active" : "mega-link"} 
+                                onClick={handleLinkClick}
+                                style={{ fontSize: '0.82rem', padding: '0.15rem 0' }}
+                              >
+                                {svc}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Column 3: Certification & Licensing */}
+                <div className="mega-column">
+                  <div style={{ marginBottom: '1.25rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.4rem' }}>
+                    <h3 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '800', letterSpacing: '0.5px' }}>CERTIFICATION & LICENSING</h3>
+                  </div>
+                  {categories.filter(c => c.division === 'certification').length === 0 ? (
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
+                  ) : (
+                    categories.filter(c => c.division === 'certification').map((cat) => {
+                      const isActive = location.pathname === `/services/category/${cat.key}`;
+                      return (
+                        <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
+                          <Link to={`/services/category/${cat.key}`} className={isActive ? "mega-title-link active" : "mega-title-link"} onClick={handleLinkClick}>
+                            <h4 
+                              className="mega-title" 
+                              style={{ 
+                                fontSize: '0.88rem', 
+                                fontWeight: '800', 
+                                color: 'var(--primary)', 
+                                textTransform: 'uppercase',
+                                opacity: isActive ? 0.45 : 1,
+                                transition: 'opacity 0.25s ease'
+                              }}
+                            >
+                              {cat.title}
+                            </h4>
+                          </Link>
+                          {cat.services.map((svc, sIdx) => {
+                            const isSvcActive = location.pathname === `/inquire/${encodeURIComponent(svc)}`;
+                            return (
+                              <Link 
+                                key={sIdx} 
+                                to={`/inquire/${encodeURIComponent(svc)}`} 
+                                className={isSvcActive ? "mega-link active" : "mega-link"} 
+                                onClick={handleLinkClick}
+                                style={{ fontSize: '0.82rem', padding: '0.15rem 0' }}
+                              >
+                                {svc}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
               </div>
 
-              {/* Column 2: Taxation & Compliances */}
-              <div className="mega-column">
-                <div style={{ marginBottom: '1.25rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.4rem' }}>
-                  <h3 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '800', letterSpacing: '0.5px' }}>TAXATION & COMPLIANCE</h3>
-                </div>
-                {categories.filter(c => c.division === 'taxation').length === 0 ? (
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
-                ) : (
-                  categories.filter(c => c.division === 'taxation').map((cat) => {
-                    const isActive = location.pathname === `/services/category/${cat.key}`;
-                    return (
-                      <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
-                        <Link to={`/services/category/${cat.key}`} className={isActive ? "mega-title-link active" : "mega-title-link"} onClick={handleLinkClick}>
-                          <h4 
-                            className="mega-title" 
-                            style={{ 
-                              fontSize: '0.88rem', 
-                              fontWeight: '800', 
-                              color: 'var(--primary)', 
-                              textTransform: 'uppercase',
-                              opacity: isActive ? 0.45 : 1,
-                              transition: 'opacity 0.25s ease'
-                            }}
-                          >
-                            {cat.title}
-                          </h4>
+              {/* Column 4: Premium Careers Ad Column */}
+              <div className="mega-ad-column">
+                <div style={{ 
+                  background: 'rgba(255, 114, 54, 0.04)', 
+                  border: '1px dashed rgba(255, 114, 54, 0.25)', 
+                  borderRadius: '8px', 
+                  padding: '1.25rem', 
+                  height: '100%', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  justifyContent: 'space-between' 
+                }}>
+                  <div>
+                    <div style={{ 
+                      display: 'inline-flex', 
+                      padding: '0.35rem 0.6rem', 
+                      background: 'var(--accent)', 
+                      color: '#ffffff', 
+                      borderRadius: '4px', 
+                      fontSize: '0.68rem', 
+                      fontWeight: 800, 
+                      letterSpacing: '1px', 
+                      textTransform: 'uppercase', 
+                      marginBottom: '1rem' 
+                    }}>
+                      We Are Hiring
+                    </div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem', lineHeight: '1.3' }}>Join Our Team</h3>
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '1.25rem' }}>
+                      Collaborate with top trade advisors, legal experts, CAs, and logistics consultants.
+                    </p>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.25rem' }}>
+                      {jobs.map((job) => (
+                        <Link 
+                          key={job._id} 
+                          to="/careers" 
+                          onClick={handleLinkClick}
+                          style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', textDecoration: 'none' }}
+                          className="mega-ad-job-link"
+                        >
+                          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--primary)', transition: 'color 0.2s' }}>{job.title}</span>
+                          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{job.dept} • {job.location}</span>
                         </Link>
-                        {cat.services.map((svc, sIdx) => {
-                          const isSvcActive = location.pathname === `/inquire/${encodeURIComponent(svc)}`;
-                          return (
-                            <Link 
-                              key={sIdx} 
-                              to={`/inquire/${encodeURIComponent(svc)}`} 
-                              className={isSvcActive ? "mega-link active" : "mega-link"} 
-                              onClick={handleLinkClick}
-                              style={{ fontSize: '0.82rem', padding: '0.15rem 0' }}
-                            >
-                              {svc}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
-              {/* Column 3: Certification & Licensing */}
-              <div className="mega-column">
-                <div style={{ marginBottom: '1.25rem', borderBottom: '2px solid var(--primary)', paddingBottom: '0.4rem' }}>
-                  <h3 style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: '800', letterSpacing: '0.5px' }}>CERTIFICATION & LICENSING</h3>
+                      ))}
+                      {jobs.length === 0 && (
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                          General panel applications welcome.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <Link 
+                    to="/careers" 
+                    className="btn btn-primary" 
+                    style={{ width: '100%', padding: '0.5rem', fontSize: '0.78rem', textAlign: 'center', display: 'block', textDecoration: 'none' }}
+                    onClick={handleLinkClick}
+                  >
+                    Explore Careers
+                  </Link>
                 </div>
-                {categories.filter(c => c.division === 'certification').length === 0 ? (
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No services configured</p>
-                ) : (
-                  categories.filter(c => c.division === 'certification').map((cat) => {
-                    const isActive = location.pathname === `/services/category/${cat.key}`;
-                    return (
-                      <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
-                        <Link to={`/services/category/${cat.key}`} className={isActive ? "mega-title-link active" : "mega-title-link"} onClick={handleLinkClick}>
-                          <h4 
-                            className="mega-title" 
-                            style={{ 
-                              fontSize: '0.88rem', 
-                              fontWeight: '800', 
-                              color: 'var(--primary)', 
-                              textTransform: 'uppercase',
-                              opacity: isActive ? 0.45 : 1,
-                              transition: 'opacity 0.25s ease'
-                            }}
-                          >
-                            {cat.title}
-                          </h4>
-                        </Link>
-                        {cat.services.map((svc, sIdx) => {
-                          const isSvcActive = location.pathname === `/inquire/${encodeURIComponent(svc)}`;
-                          return (
-                            <Link 
-                              key={sIdx} 
-                              to={`/inquire/${encodeURIComponent(svc)}`} 
-                              className={isSvcActive ? "mega-link active" : "mega-link"} 
-                              onClick={handleLinkClick}
-                              style={{ fontSize: '0.82rem', padding: '0.15rem 0' }}
-                            >
-                              {svc}
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    );
-                  })
-                )}
               </div>
             </div>
           </li>
