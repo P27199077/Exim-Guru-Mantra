@@ -199,7 +199,7 @@ export default function Navbar() {
                     const isActive = location.pathname === `/services/category/${cat.key}`;
                     return (
                       <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
-                        <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
+                        <Link to={`/services/category/${cat.key}`} className={isActive ? "mega-title-link active" : "mega-title-link"} onClick={handleLinkClick}>
                           <h4 
                             className="mega-title" 
                             style={{ 
@@ -214,17 +214,20 @@ export default function Navbar() {
                             {cat.title}
                           </h4>
                         </Link>
-                        {cat.services.map((svc, sIdx) => (
-                          <Link 
-                            key={sIdx} 
-                            to={`/inquire/${encodeURIComponent(svc)}`} 
-                            className="mega-link" 
-                            onClick={handleLinkClick}
-                            style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
-                          >
-                            {svc}
-                          </Link>
-                        ))}
+                        {cat.services.map((svc, sIdx) => {
+                          const isSvcActive = location.pathname === `/inquire/${encodeURIComponent(svc)}`;
+                          return (
+                            <Link 
+                              key={sIdx} 
+                              to={`/inquire/${encodeURIComponent(svc)}`} 
+                              className={isSvcActive ? "mega-link active" : "mega-link"} 
+                              onClick={handleLinkClick}
+                              style={{ fontSize: '0.82rem', padding: '0.15rem 0' }}
+                            >
+                              {svc}
+                            </Link>
+                          );
+                        })}
                       </div>
                     );
                   })
@@ -243,7 +246,7 @@ export default function Navbar() {
                     const isActive = location.pathname === `/services/category/${cat.key}`;
                     return (
                       <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
-                        <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
+                        <Link to={`/services/category/${cat.key}`} className={isActive ? "mega-title-link active" : "mega-title-link"} onClick={handleLinkClick}>
                           <h4 
                             className="mega-title" 
                             style={{ 
@@ -258,17 +261,20 @@ export default function Navbar() {
                             {cat.title}
                           </h4>
                         </Link>
-                        {cat.services.map((svc, sIdx) => (
-                          <Link 
-                            key={sIdx} 
-                            to={`/inquire/${encodeURIComponent(svc)}`} 
-                            className="mega-link" 
-                            onClick={handleLinkClick}
-                            style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
-                          >
-                            {svc}
-                          </Link>
-                        ))}
+                        {cat.services.map((svc, sIdx) => {
+                          const isSvcActive = location.pathname === `/inquire/${encodeURIComponent(svc)}`;
+                          return (
+                            <Link 
+                              key={sIdx} 
+                              to={`/inquire/${encodeURIComponent(svc)}`} 
+                              className={isSvcActive ? "mega-link active" : "mega-link"} 
+                              onClick={handleLinkClick}
+                              style={{ fontSize: '0.82rem', padding: '0.15rem 0' }}
+                            >
+                              {svc}
+                            </Link>
+                          );
+                        })}
                       </div>
                     );
                   })
@@ -287,7 +293,7 @@ export default function Navbar() {
                     const isActive = location.pathname === `/services/category/${cat.key}`;
                     return (
                       <div key={cat.key} className="mega-group" style={{ marginBottom: '1.5rem' }}>
-                        <Link to={`/services/category/${cat.key}`} className="mega-title-link" onClick={handleLinkClick}>
+                        <Link to={`/services/category/${cat.key}`} className={isActive ? "mega-title-link active" : "mega-title-link"} onClick={handleLinkClick}>
                           <h4 
                             className="mega-title" 
                             style={{ 
@@ -302,23 +308,25 @@ export default function Navbar() {
                             {cat.title}
                           </h4>
                         </Link>
-                        {cat.services.map((svc, sIdx) => (
-                          <Link 
-                            key={sIdx} 
-                            to={`/inquire/${encodeURIComponent(svc)}`} 
-                            className="mega-link" 
-                            onClick={handleLinkClick}
-                            style={{ fontSize: '0.82rem', padding: '0.15rem 0', color: 'var(--text-secondary)' }}
-                          >
-                            {svc}
-                          </Link>
-                        ))}
+                        {cat.services.map((svc, sIdx) => {
+                          const isSvcActive = location.pathname === `/inquire/${encodeURIComponent(svc)}`;
+                          return (
+                            <Link 
+                              key={sIdx} 
+                              to={`/inquire/${encodeURIComponent(svc)}`} 
+                              className={isSvcActive ? "mega-link active" : "mega-link"} 
+                              onClick={handleLinkClick}
+                              style={{ fontSize: '0.82rem', padding: '0.15rem 0' }}
+                            >
+                              {svc}
+                            </Link>
+                          );
+                        })}
                       </div>
                     );
                   })
                 )}
               </div>
-
             </div>
           </li>
           
