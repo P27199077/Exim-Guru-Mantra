@@ -715,6 +715,17 @@ a {
   overflow-y: auto;
 }
 
+/* Transparent hover bridge to keep dropdown open when crossing vertical gap */
+.mega-dropdown::before {
+  content: '';
+  position: absolute;
+  top: -15px;
+  left: 0;
+  right: 0;
+  height: 15px;
+  background: transparent;
+}
+
 /* Custom sleek scrollbar for mega-dropdown */
 .mega-dropdown::-webkit-scrollbar {
   width: 6px;
