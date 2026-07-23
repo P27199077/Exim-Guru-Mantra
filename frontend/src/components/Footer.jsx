@@ -166,7 +166,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Exim Guru Mantra Consultancy. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Exim Guru Mantra. All rights reserved.</p>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <Link to="/about" className="footer-link">About Us</Link>
             <Link to="/terms" className="footer-link">Terms & Privacy Policy</Link>

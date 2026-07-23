@@ -1198,7 +1198,7 @@ const sendConsultationEmails = async (queryData) => {
 
                   <!-- Footer -->
                   <div style="text-align: center; font-size: 10px; color: #8c8278; margin-top: 20px; border-top: 1px dashed #e2ded5; padding-top: 12px;">
-                    EXIM GURU MANTRA CONSULTANCY &bull; Corporate Legal, CHA & DGFT Advisory
+                    EXIM GURU MANTRA &bull; Corporate Legal, CHA & DGFT Advisory
                   </div>
                 </td>
               </tr>
@@ -1213,7 +1213,7 @@ const sendConsultationEmails = async (queryData) => {
     const clientMailOptions = {
       from: `Exim Guru Mantra Support <${fromEmail}>`,
       to: email,
-      subject: `We've Received Your Inquiry - Exim Guru Mantra Consultancy`,
+      subject: `We've Received Your Inquiry - Exim Guru Mantra`,
       html: `
         <!DOCTYPE html>
         <html>
@@ -1292,7 +1292,7 @@ const sendConsultationEmails = async (queryData) => {
                   <div style="border: 2px solid #5e8d3b; padding: 22px; border-radius: 4px; min-height: 280px; background-color: #ffffff;">
                     <h3 style="margin-top: 0; color: #1b365d; font-size: 15px;">Dear ${name},</h3>
                     <p style="font-size: 13.5px; line-height: 1.6; color: #444; margin-bottom: 15px;">
-                      Thank you for contacting <strong>Exim Guru Mantra Consultancy</strong>. Your inquiry regarding <strong>${serviceType}</strong> has been successfully registered and is under review.
+                      Thank you for contacting <strong>Exim Guru Mantra</strong>. Your inquiry regarding <strong>${serviceType}</strong> has been successfully registered and is under review.
                     </p>
 
                     <div style="background-color: #faf9f6; border: 1px solid #e2ded5; border-radius: 4px; padding: 15px; margin: 15px 0;">
@@ -1316,7 +1316,7 @@ const sendConsultationEmails = async (queryData) => {
 
                   <!-- Footer -->
                   <div style="text-align: center; font-size: 10px; color: #8c8278; margin-top: 20px; border-top: 1px dashed #e2ded5; padding-top: 12px;">
-                    EXIM GURU MANTRA CONSULTANCY &bull; Corporate Legal, CHA & DGFT Advisory
+                    EXIM GURU MANTRA &bull; Corporate Legal, CHA & DGFT Advisory
                   </div>
                 </td>
               </tr>
