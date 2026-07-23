@@ -142,11 +142,7 @@ export default function Navbar() {
           </li>
           
           {/* Services Link with Mega Dropdown */}
-          <li 
-            className="nav-item-dropdown"
-            onMouseEnter={() => setDropdownOpen(true)}
-            onMouseLeave={() => setDropdownOpen(false)}
-          >
+          <li className="nav-item-dropdown">
             <NavLink 
               to="/services" 
               className={({ isActive }) => isActive ? "nav-link active nav-link-flex" : "nav-link nav-link-flex"}

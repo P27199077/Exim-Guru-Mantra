@@ -2349,6 +2349,16 @@ a {
   gap: 1rem;
 }
 
+/* Desktop screen hover trigger for mega dropdown */
+@media (min-width: 1201px) {
+  .nav-item-dropdown:hover .mega-dropdown {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
 /* Breakpoint for Tablets & Small Screen Laptops */
 @media (max-width: 1200px) {
   .mega-dropdown {
