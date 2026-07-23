@@ -159,7 +159,18 @@ export default function Navbar() {
     }
   };
 
-  const handleToggleClick = (e) => {
+  const handleServicesLinkClick = (e) => {
+    // Allows background navigation to /services by not calling preventDefault()!
+    if (isClickedOpen) {
+      setIsClickedOpen(false);
+      setDropdownOpen(false);
+    } else {
+      setIsClickedOpen(true);
+      setDropdownOpen(true);
+    }
+  };
+
+  const handleChevronClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
     if (isClickedOpen) {
@@ -201,13 +212,13 @@ export default function Navbar() {
             <NavLink 
               to="/services" 
               className={({ isActive }) => isActive ? "nav-link active nav-link-flex" : "nav-link nav-link-flex"}
-              onClick={handleToggleClick}
+              onClick={handleServicesLinkClick}
             >
               <span>Services</span>
               <ChevronDown 
                 size={14} 
                 className="dropdown-arrow" 
-                onClick={handleToggleClick}
+                onClick={handleChevronClick}
               />
             </NavLink>
             
