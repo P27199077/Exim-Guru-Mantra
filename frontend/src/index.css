@@ -31,25 +31,7 @@
   --transition-slow: 0.45s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Theme Variables Override - Black, Blue, and Orange */
-body.dark-theme {
-  --bg-primary: #09090b; /* Pitch black */
-  --bg-secondary: #18181b; /* Dark gray */
-  --bg-tertiary: #27272a; /* Slate boundary */
-  --card-bg: #111115; /* Clean black card */
-  --card-border: #27272a;
-  
-  --primary: #1b365d; /* Royal dark blue (consistent across themes) */
-  --primary-hover: #0f2540;
-  --primary-glow: rgba(27, 54, 93, 0.08);
-  
-  --accent: #ff7236; /* Vibrant orange */
-  --accent-hover: #ff8c5a;
-  
-  --text-primary: #f3f4f6; /* White text */
-  --text-secondary: #9ca3af; /* Gray text */
-  --text-muted: #6b7280;
-}
+
 
 /* Reset */
 * {
