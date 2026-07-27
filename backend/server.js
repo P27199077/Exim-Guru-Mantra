@@ -306,6 +306,8 @@ const seedDefaultServices = async () => {
 const defaultPageContent = [
   {
     pageId: 'insurance',
+    title: 'Global Cargo & Transit Insurance',
+    desc: 'Protect your cross-border supply chain investments. Our expert risk panel matches your logistics routes with maximum liability insurance protection plans.',
     items: [
       { "title": "Air Cargo Insurance", "desc": "Protects high-value, time-sensitive goods in air transit against loss, damage, theft, or flight handling errors." },
       { "title": "Marine Cargo Insurance", "desc": "Secures ocean transit shipments against perils of the sea, damage, container losses, and general average declarations." },
@@ -320,6 +322,8 @@ const defaultPageContent = [
   },
   {
     pageId: 'certificates',
+    title: 'Trade Registrations & Compliance Certificates',
+    desc: 'Acquire mandatory global export licensing, environmental EPR declarations, food safety approvals, and official tax registrations under our expert panel.',
     items: [
       { "title": "Import Export Code (IEC)", "authority": "DGFT (Director General of Foreign Trade)", "desc": "The primary 10-digit registration license required for any business to clear customs shipments and handle foreign trade receipts." },
       { "title": "RCMC Membership", "authority": "Export Promotion Councils (FIEO, APEDA, etc.)", "desc": "Registration-cum-Membership Certificate. Mandatory for claiming duty drawbacks, export incentives, and tax concessions." },
@@ -333,6 +337,8 @@ const defaultPageContent = [
   },
   {
     pageId: 'buying-house',
+    title: 'Buying House & Sourcing Services',
+    desc: 'Maximize supply chain efficiency. Our dedicated procurement desk acts as your boots-on-the-ground partner in India, handling sourcing, quality control, price negotiations, and cargo shipping.',
     items: [
       { "title": "Global Sourcing & Supplier Audits", "desc": "We verify and audit manufacturing plants across India. Our team conducts physical site checks, reviews registration papers, and validates capabilities to select reliable suppliers." },
       { "title": "Quality Control & Inspections", "desc": "Our quality assurance panel executes pre-shipment inspections following standard Acceptable Quality Limits (AQL). We inspect packaging, labelling, and material quality before ports clearance." },
@@ -342,11 +348,6 @@ const defaultPageContent = [
   }
 ];
 
-const defaultJobs = [
-  { "title": "Customs Clearance Executive", "dept": "Customs Operations", "location": "New Delhi Port / Remote", "type": "Full-Time", "desc": "Liaison with customs officials, handle HSN classifications, compile bill of entries, and coordinate shipping clearances." },
-  { "title": "Direct Tax CA Assistant", "dept": "Taxation & Audit", "location": "New Delhi Office", "type": "Full-Time", "desc": "Assist in preparing corporate and individual income tax returns, TDS filings, and resolving assessment notifications." },
-  { "title": "Logistics Coordination Associate", "dept": "Freight & Shipping", "location": "New Delhi / Hybrid", "type": "Full-Time", "desc": "Manage ocean and air cargo logs, verify carrier bookings, and update customers on transit timelines." }
-];
 
 const seedDefaultPageContent = async () => {
   try {
@@ -363,6 +364,12 @@ const seedDefaultPageContent = async () => {
     console.error('Error seeding default page content in MongoDB:', err);
   }
 };
+
+const defaultJobs = [
+  { "title": "Customs Clearance Executive", "dept": "Customs Operations", "location": "New Delhi Port / Remote", "type": "Full-Time", "desc": "Liaison with customs officials, handle HSN classifications, compile bill of entries, and coordinate shipping clearances." },
+  { "title": "Direct Tax CA Assistant", "dept": "Taxation & Audit", "location": "New Delhi Office", "type": "Full-Time", "desc": "Assist in preparing corporate and individual income tax returns, TDS filings, and resolving assessment notifications." },
+  { "title": "Logistics Coordination Associate", "dept": "Freight & Shipping", "location": "New Delhi / Hybrid", "type": "Full-Time", "desc": "Manage ocean and air cargo logs, verify carrier bookings, and update customers on transit timelines." }
+];
 
 const seedDefaultJobs = async () => {
   try {
@@ -624,6 +631,45 @@ app.post('/api/admin/services/item', async (req, res) => {
   }
 });
 
+// Route: Update Service Category title, subtitle, and desc
+app.post('/api/admin/services/category/update', async (req, res) => {
+  const { username, password, key, title, subtitle, desc } = req.body;
+  const creds = await getAdminCredentials();
+
+  if (username !== creds.username || password !== creds.password) {
+    return res.status(401).json({ error: 'Unauthorized: Invalid credentials' });
+  }
+
+  if (!key) {
+    return res.status(400).json({ error: 'Category key is required.' });
+  }
+
+  try {
+    if (!servicesCollection) {
+      return res.status(500).json({ error: 'Database is not ready' });
+    }
+
+    const updateFields = {};
+    if (title !== undefined) updateFields.title = title;
+    if (subtitle !== undefined) updateFields.subtitle = subtitle;
+    if (desc !== undefined) updateFields.desc = desc;
+
+    const result = await servicesCollection.updateOne(
+      { key },
+      { $set: updateFields }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'Service category not found.' });
+    }
+
+    res.json({ success: true, message: 'Service category updated successfully.' });
+  } catch (err) {
+    console.error('[API] Error updating category:', err);
+    res.status(500).json({ error: 'Failed to update service category.' });
+  }
+});
+
 // Route: Delete Service Category
 app.delete('/api/admin/services/category/:key', async (req, res) => {
   const { username, password } = req.body;
@@ -810,9 +856,14 @@ app.post('/api/admin/page-content/:pageId', async (req, res) => {
       return res.status(500).json({ error: 'Database is not ready' });
     }
 
+    const { title, desc, items } = req.body;
+    const updateObj = { items, updatedAt: new Date().toISOString() };
+    if (title !== undefined) updateObj.title = title;
+    if (desc !== undefined) updateObj.desc = desc;
+
     await pageContentCollection.updateOne(
       { pageId },
-      { $set: { items, updatedAt: new Date().toISOString() } },
+      { $set: updateObj },
       { upsert: true }
     );
 
@@ -820,6 +871,26 @@ app.post('/api/admin/page-content/:pageId', async (req, res) => {
   } catch (err) {
     console.error(`[API] Error saving page content for ${pageId}:`, err);
     res.status(500).json({ error: 'Failed to update page content' });
+  }
+});
+
+// Route: Get full dynamic page content (including title & desc)
+app.get('/api/page-content-full/:pageId', async (req, res) => {
+  const { pageId } = req.params;
+  try {
+    if (!pageContentCollection) {
+      const def = defaultPageContent.find(p => p.pageId === pageId);
+      return res.json(def || { pageId, title: '', desc: '', items: [] });
+    }
+    const data = await pageContentCollection.findOne({ pageId });
+    if (!data) {
+      const def = defaultPageContent.find(p => p.pageId === pageId);
+      return res.json(def || { pageId, title: '', desc: '', items: [] });
+    }
+    res.json(data);
+  } catch (err) {
+    const def = defaultPageContent.find(p => p.pageId === pageId);
+    res.json(def || { pageId, title: '', desc: '', items: [] });
   }
 });
 

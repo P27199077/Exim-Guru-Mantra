@@ -3,6 +3,8 @@ import { Search, CheckSquare, Coins, Box, Send, CheckCircle2 } from 'lucide-reac
 
 export default function BuyingHouse() {
   const [submitted, setSubmitted] = useState(false);
+  const [pageTitle, setPageTitle] = useState("Buying House & Sourcing Services");
+  const [pageDesc, setPageDesc] = useState("We act as your dedicated sourcing office in India, managing everything from supplier audit verifications and product inspections to price negotiations and export consolidations.");
   const [buyingHouseServices, setBuyingHouseServices] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -19,10 +21,12 @@ export default function BuyingHouse() {
 
     const loadContent = async () => {
       try {
-        const res = await fetch('/api/page-content/buying-house');
+        const res = await fetch('/api/page-content-full/buying-house');
         if (res.ok) {
           const data = await res.json();
-          setBuyingHouseServices(data);
+          if (data.title) setPageTitle(data.title);
+          if (data.desc) setPageDesc(data.desc);
+          if (data.items) setBuyingHouseServices(data.items);
         }
       } catch (err) {
         console.error('Failed to load buying house content:', err);
@@ -57,10 +61,10 @@ export default function BuyingHouse() {
         <div className="section-header" style={{ marginBottom: '4.5rem', textAlign: 'center' }}>
           <span className="section-subtitle">Procurement Desk</span>
           <h1 style={{ fontSize: '2.75rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-            Buying House & Sourcing Services
+            {pageTitle}
           </h1>
           <p className="section-desc" style={{ fontSize: '1.05rem', maxWidth: '750px', margin: '0 auto' }}>
-            We act as your dedicated sourcing office in India, managing everything from supplier audit verifications and product inspections to price negotiations and export consolidations.
+            {pageDesc}
           </p>
         </div>
 

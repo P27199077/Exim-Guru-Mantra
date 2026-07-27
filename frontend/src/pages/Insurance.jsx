@@ -3,6 +3,8 @@ import { Shield, Plane, Anchor, Truck, Warehouse, User, Building, Heart, Car, He
 
 export default function Insurance() {
   const [submitted, setSubmitted] = useState(false);
+  const [pageTitle, setPageTitle] = useState("Global Cargo & Transit Insurance");
+  const [pageDesc, setPageDesc] = useState("Protect your cross-border supply chain investments. Our expert risk panel matches your logistics routes with maximum liability insurance protection plans.");
   const [insuranceCategories, setInsuranceCategories] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -18,10 +20,12 @@ export default function Insurance() {
 
     const loadContent = async () => {
       try {
-        const res = await fetch('/api/page-content/insurance');
+        const res = await fetch('/api/page-content-full/insurance');
         if (res.ok) {
           const data = await res.json();
-          setInsuranceCategories(data);
+          if (data.title) setPageTitle(data.title);
+          if (data.desc) setPageDesc(data.desc);
+          if (data.items) setInsuranceCategories(data.items);
         }
       } catch (err) {
         console.error('Failed to load insurance content:', err);
@@ -61,10 +65,10 @@ export default function Insurance() {
         <div className="section-header" style={{ marginBottom: '4.5rem', textAlign: 'center' }}>
           <span className="section-subtitle">Risk Mitigation</span>
           <h1 style={{ fontSize: '2.75rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-            Global Cargo & Transit Insurance
+            {pageTitle}
           </h1>
           <p className="section-desc" style={{ fontSize: '1.05rem', maxWidth: '750px', margin: '0 auto' }}>
-            Protect your cross-border supply chain investments. Our expert risk panel matches your logistics routes with maximum liability insurance protection plans.
+            {pageDesc}
           </p>
         </div>
 

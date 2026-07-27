@@ -91,6 +91,8 @@ export default function Admin() {
 
   // Info Pages content states
   const [selectedPageId, setSelectedPageId] = useState('insurance');
+  const [pageTitle, setPageTitle] = useState('');
+  const [pageDesc, setPageDesc] = useState('');
   const [pageBulletins, setPageBulletins] = useState([]);
   const [newBulletin, setNewBulletin] = useState({ title: '', desc: '', authority: '' });
 
@@ -187,15 +189,23 @@ export default function Admin() {
 
   const loadPageContent = async (pageId = selectedPageId) => {
     try {
-      const res = await fetch(`/api/page-content/${pageId}`);
+      const res = await fetch(`/api/page-content-full/${pageId}`);
       if (res.ok) {
         const data = await res.json();
-        setPageBulletins(data);
+        setPageTitle(data.title || '');
+        setPageDesc(data.desc || '');
+        setPageBulletins(data.items || []);
       }
     } catch (err) {
       console.error('Failed to load page content in admin:', err);
     }
   };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadPageContent(selectedPageId);
+    }
+  }, [selectedPageId, isAuthenticated]);
 
   const loadJobsList = async () => {
     try {
@@ -221,12 +231,14 @@ export default function Admin() {
         body: JSON.stringify({
           username,
           password,
+          title: pageTitle,
+          desc: pageDesc,
           items: pageBulletins
         })
       });
       const data = await res.json();
       if (res.ok) {
-        setStatus({ type: 'success', message: 'Page content bulletins saved successfully!' });
+        setStatus({ type: 'success', message: 'Page content text and bulletins saved successfully!' });
       } else {
         setStatus({ type: 'error', message: data.error || 'Failed to save page content.' });
       }
@@ -1047,9 +1059,80 @@ export default function Admin() {
                         </button>
                       </div>
                       
-                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: '1.4' }}>
-                        {cat.desc}
-                      </p>
+                      <div style={{ marginTop: '0.5rem', marginBottom: '1.25rem', background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '6px', border: '1px solid var(--bg-tertiary)' }}>
+                        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                          <label className="form-label" style={{ fontSize: '0.72rem', fontWeight: 'bold' }}>Portfolio Title</label>
+                          <input 
+                            type="text" 
+                            className="form-input" 
+                            style={{ fontSize: '0.82rem', padding: '0.35rem 0.5rem' }}
+                            value={cat.title || ''} 
+                            onChange={(e) => {
+                              const updated = categories.map(c => c.key === cat.key ? { ...c, title: e.target.value } : c);
+                              setCategories(updated);
+                            }} 
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                          <label className="form-label" style={{ fontSize: '0.72rem', fontWeight: 'bold' }}>Portfolio Subheading (Subtitle)</label>
+                          <input 
+                            type="text" 
+                            className="form-input" 
+                            style={{ fontSize: '0.82rem', padding: '0.35rem 0.5rem' }}
+                            value={cat.subtitle || ''} 
+                            onChange={(e) => {
+                              const updated = categories.map(c => c.key === cat.key ? { ...c, subtitle: e.target.value } : c);
+                              setCategories(updated);
+                            }} 
+                          />
+                        </div>
+                        <div className="form-group" style={{ marginBottom: '0.75rem' }}>
+                          <label className="form-label" style={{ fontSize: '0.72rem', fontWeight: 'bold' }}>Portfolio Description</label>
+                          <textarea 
+                            rows="3" 
+                            className="form-input" 
+                            style={{ resize: 'none', fontFamily: 'inherit', fontSize: '0.82rem', padding: '0.35rem 0.5rem' }}
+                            value={cat.desc || ''} 
+                            onChange={(e) => {
+                              const updated = categories.map(c => c.key === cat.key ? { ...c, desc: e.target.value } : c);
+                              setCategories(updated);
+                            }} 
+                          />
+                        </div>
+                        <button 
+                          type="button" 
+                          className="btn btn-secondary" 
+                          style={{ padding: '0.35rem 0.6rem', fontSize: '0.72rem', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}
+                          onClick={async () => {
+                            try {
+                              const res = await fetch('/api/admin/services/category/update', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  username,
+                                  password,
+                                  key: cat.key,
+                                  title: cat.title,
+                                  subtitle: cat.subtitle,
+                                  desc: cat.desc
+                                })
+                              });
+                              if (res.ok) {
+                                alert('Portfolio texts updated successfully!');
+                                fetchAdminServices();
+                              } else {
+                                const err = await res.json();
+                                alert('Error: ' + err.error);
+                              }
+                            } catch (e) {
+                              alert('Connection failed.');
+                            }
+                          }}
+                        >
+                          <Save size={12} />
+                          <span>Save Portfolio Texts</span>
+                        </button>
+                      </div>
 
                       <div style={{ borderTop: '1px solid var(--bg-tertiary)', paddingTop: '0.75rem' }}>
                         <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -1248,6 +1331,36 @@ export default function Admin() {
                 <option value="buying-house">Buying House (Procurement) Page</option>
               </select>
             </div>
+
+            {/* Page Header text edits */}
+            <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--bg-tertiary)', borderRadius: '8px', padding: '1.5rem', marginBottom: '2.25rem' }}>
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>Edit Page Headers</h4>
+              <div className="form-group" style={{ marginBottom: '1rem' }}>
+                <label className="form-label" style={{ fontSize: '0.78rem' }}>Main Page Title</label>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  placeholder="e.g. Global Cargo & Transit Insurance"
+                  value={pageTitle}
+                  onChange={(e) => setPageTitle(e.target.value)}
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: 0 }}>
+                <label className="form-label" style={{ fontSize: '0.78rem' }}>Main Page Description</label>
+                <textarea 
+                  rows="3"
+                  className="form-input" 
+                  style={{ resize: 'none', fontFamily: 'inherit', fontSize: '0.88rem' }}
+                  placeholder="Explain page purpose, cargo safety tips, or services benefits..."
+                  value={pageDesc}
+                  onChange={(e) => setPageDesc(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '1.25rem', borderBottom: '1px solid var(--bg-tertiary)', paddingBottom: '0.5rem' }}>
+              Edit Bulletins / Details List
+            </h3>
 
             {/* Bulletins List */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>

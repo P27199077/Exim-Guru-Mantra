@@ -3,6 +3,8 @@ import { Award, CheckCircle, FileText, Send, CheckCircle2, Shield, UserCheck, St
 
 export default function Certificates() {
   const [submitted, setSubmitted] = useState(false);
+  const [pageTitle, setPageTitle] = useState("Trade Certificates & Registrations");
+  const [pageDesc, setPageDesc] = useState("Get certified to import and export globally. Our team of legal experts, CA/CS, and liaisons handles end-to-end filing and fast-tracks your certifications.");
   const [certificateList, setCertificateList] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
@@ -18,10 +20,12 @@ export default function Certificates() {
 
     const loadContent = async () => {
       try {
-        const res = await fetch('/api/page-content/certificates');
+        const res = await fetch('/api/page-content-full/certificates');
         if (res.ok) {
           const data = await res.json();
-          setCertificateList(data);
+          if (data.title) setPageTitle(data.title);
+          if (data.desc) setPageDesc(data.desc);
+          if (data.items) setCertificateList(data.items);
         }
       } catch (err) {
         console.error('Failed to load certificates content:', err);
@@ -48,10 +52,10 @@ export default function Certificates() {
         <div className="section-header" style={{ marginBottom: '4.5rem', textAlign: 'center' }}>
           <span className="section-subtitle">Licensing Desk</span>
           <h1 style={{ fontSize: '2.75rem', marginBottom: '1.25rem', color: 'var(--text-primary)' }}>
-            Trade Certificates & Registrations
+            {pageTitle}
           </h1>
           <p className="section-desc" style={{ fontSize: '1.05rem', maxWidth: '750px', margin: '0 auto' }}>
-            Get certified to import and export globally. Our team of legal experts, CA/CS, and liaisons handles end-to-end filing and fast-tracks your certifications.
+            {pageDesc}
           </p>
         </div>
 
