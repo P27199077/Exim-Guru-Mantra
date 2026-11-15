@@ -1,16 +1,35 @@
-# React + Vite
+# Exim Guru Mantra frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React and Vite frontend for the [Exim Guru Mantra website](https://www.eximgurumantra.com/).
 
-Currently, two official plugins are available:
+See the [main README](../README.md) for project scope, backend configuration, implementation limits, and the complete local setup.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Development
 
-## React Compiler
+Run the Express backend on port 5005, then from this directory:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```sh
+npm ci
+npm run dev
+```
 
-## Expanding the Oxlint configuration
+Open the address printed by Vite. Requests to `/api/` are proxied to `http://localhost:5005` by `vite.config.js`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## Available checks
+
+```sh
+npm run lint
+npm run build
+npm run preview
+```
+
+`preview` serves the built frontend for inspection; it is not the Express API server. For the combined application, build this frontend and start the backend as described in the main README.
+
+## Structure
+
+- `src/pages/`: routed business pages, consultation forms, document checklists, and administration.
+- `src/components/`: shared interface components.
+- `src/index.css`: global styling.
+- `src/App.jsx`: route definitions.
+
+Never put server-side email keys or database credentials in frontend code.
