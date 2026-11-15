@@ -1,61 +1,109 @@
-# Exim Guru Mantra Template
+# Exim Guru Mantra
 
-A premium, state-of-the-art web portal for **Exim Guru Mantra** (Export-Import Consulting & Compliance Services). Inspired by the professional tax/legal service layout of **Lex N Tax**, this project is built on **React** (frontend via Vite) and **Node.js** (Express API backend).
+**A full-stack website and consultation portal for an import-export consultancy.**
 
-## Design Features
-- **Visual Glow Accents**: Dynamic blue/gold radial gradients in the background to convey a high-end corporate tech environment.
-- **Glassmorphic Navbar**: Sticky navigation header with blur filters.
-- **Interactive Checklists**: Verify your firm's document eligibility for Import Export Code (IEC) application.
-- **Customs Duty & Drawback Calculator**: Calculates BCD, Social Surcharges, GST, and rebate offsets based on target HS codes.
-- **Consultation Forms**: Fully integrated client form that saves inquiry queues directly to JSON file storage.
+[Live website](https://www.eximgurumantra.com/)
 
----
+I independently built the frontend and backend for Exim Guru Mantra during my web app development internship. The application brings service information, consultation inquiries, document-readiness checklists, and administrative content management into one portal.
 
-## Directory Structure
+## Features
 
+- Service categories and detail pages for consultancy offerings.
+- Consultation forms with required-field validation and MongoDB persistence when the database is available.
+- HTML consultation emails sent through the Resend API, with a periodic retry worker for saved inquiries.
+- Interactive document-readiness checklists.
+- Administrative interfaces for services, page content, job listings, and social links.
+- Responsive navigation and supporting business pages.
+
+The backend also contains a **duty-estimate simulator** using hard-coded chapter-level rates. It is not an authoritative customs/tax calculation service.
+
+## Stack and architecture
+
+| Layer | Implementation |
+| --- | --- |
+| Frontend | React, React Router, Vite, CSS |
+| API | Node.js and Express |
+| Database | MongoDB |
+| Email | Resend HTTP API |
+| Development | Vite API proxy and Oxlint |
+
+The frontend calls relative `/api/` routes. Vite proxies these to port 5005 during development. For a combined deployment, Express serves the built frontend from `frontend/dist/`.
+
+**Documentation correction:** the current server uses MongoDB, not the JSON-file inquiry store described in the original README. Nodemailer is listed as a dependency, but the current dispatch implementation calls Resend directly.
+
+## Run locally
+
+Requires Git, Node.js 22.12 or later, npm, and a development MongoDB instance.
+
+```sh
+git clone https://github.com/P27199077/Exim-Guru-Mantra.git
+cd Exim-Guru-Mantra
 ```
-exim-gurur-mantra/
-├── backend/
-│   ├── data/
-│   │   └── queries.json          # File storage for consultation submissions
-│   ├── server.js                 # Express server code
-│   └── package.json
-└── frontend/
-    ├── src/
-    │   ├── components/           # Navbar, Footer
-    │   ├── pages/                # Home, Services, Calculator, Contact
-    │   ├── App.jsx               # Routes setup
-    │   ├── index.css             # Premium custom styling variables & layouts
-    │   └── main.jsx              # React root mount
-    └── package.json
-```
 
----
+Install and start the backend in one terminal:
 
-## Getting Started
-
-### 1. Start the Backend API Server
-Navigate to the `backend/` directory, install packages, and boot the server:
-```bash
+```sh
 cd backend
-npm install
+npm ci
 npm start
 ```
-The API server runs on **`http://localhost:5005`**.
 
-### 2. Start the React Frontend App
-Navigate to the `frontend/` directory, install packages, and boot the Vite server:
-```bash
+The default API address is **http://localhost:5005**. By default, the server attempts to connect to `mongodb://localhost:27017/exim_guru_mantra`.
+
+Start the frontend in another terminal from the repository root:
+
+```sh
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
-The React development server runs on **`http://localhost:5173`** (or next available port).
 
----
+Open the local address printed by Vite, usually **http://localhost:5173**.
 
-## Primary API Endpoints
+The server reads configuration from the process environment. It does not load a `.env` file automatically; export variables in your shell or configure them through your host.
 
-- **`POST /api/consultation`**: Receives client consultation details and writes them to the `queries.json` file.
-- **`GET /api/consultations`**: Returns a list of all submitted consultations (for reporting/dashboarding).
-- **`POST /api/duty-estimate`**: Generates BCD and drawback estimates based on HS Code digits.
+| Variable | Purpose |
+| --- | --- |
+| `PORT` | API port; defaults to 5005. Keep the Vite proxy aligned if changing it. |
+| `MONGODB_URI` | Development or hosted MongoDB connection string. |
+| `ADMIN_USER`, `ADMIN_PASSWORD` | Fallback admin credentials; configure private values rather than using source defaults. |
+| `RESEND_API_KEY` | Server-side key for email delivery. Omit for local checks that should not send mail. |
+| `EMAIL_FROM` | Sender address allowed by the configured email provider. |
+
+Use a separate development database and synthetic inquiries. Never commit database credentials, API keys, or real consultation data.
+
+## Checks and build
+
+From `frontend/`:
+
+```sh
+npm run lint
+npm run build
+```
+
+From `backend/`, the existing `npm run build` script installs frontend dependencies and builds the frontend. Once the frontend is built, `npm start` serves the API and static frontend together.
+
+A read-only API smoke check is available at **http://localhost:5005/api/status**. It reports that the API is running, not that MongoDB or email delivery is healthy.
+
+There is no automated application test suite configured in the package scripts. Linting and a successful frontend build do not establish end-to-end correctness.
+
+## Important implementation limits
+
+- Database connection failure is logged without stopping the server.
+- Consultation submission can return success even if database persistence fails; do not treat the response alone as proof an inquiry was saved.
+- The email retry worker runs inside the Node process and depends on saved MongoDB inquiries. It is not a separate durable job queue.
+- The current source does not establish complete server-side authorization for every administrative/data route. Review those controls before using this version with sensitive data or treating it as a hardened admin system.
+- Duty estimates use illustrative rates rather than a maintained official tariff dataset.
+- Source code and the public website can differ; this README describes the checked-in implementation and does not certify production configuration.
+
+## Repository map
+
+- `frontend/src/pages/`: public pages and administrative interface.
+- `frontend/src/components/`: shared navigation, footer, and support UI.
+- `frontend/vite.config.js`: React plugin and local API proxy.
+- `backend/server.js`: API routes, MongoDB access, email dispatch, and static hosting.
+- `scratch/`: email/template experiments; not an application test suite.
+
+## Project scope
+
+This repository documents my implementation work. Business statistics and marketing claims shown on the website are company content, not measurements of the application's performance or my internship impact.
